@@ -1,0 +1,4 @@
+data/.npm/*
+data/db/*
+data/node_modules/*
+data/nodes/*

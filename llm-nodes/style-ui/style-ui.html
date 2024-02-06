@@ -1,0 +1,71 @@
+<script type="text/javascript">
+    RED.nodes.registerType('style-ui',{
+        category: 'llm:ui',
+        color: '#a6bbcf',
+        defaults: {
+            name: {value:""},
+            elementId: {value:""},
+            parent: {value:"head"},
+            slotContent: {value:""},
+        },
+        inputs:1,
+        outputs:1,
+        icon: "font-awesome/fa-paint-brush",
+        label: function() {
+            return this.name||"style-ui";
+        },
+        paletteLabel: "style-ui",
+        oneditprepare: function() {
+            this.editor = RED.editor.createEditor({
+                id: 'node-input-css-source-editor',
+                mode: 'ace/mode/css',
+                value: this.slotContent ?? ''
+            });
+        },
+        oneditsave: function() {
+            this.slotContent = this.editor.getValue();
+            this.editor.destroy();
+            delete this.editor;
+        },
+        oneditcancel: function() {
+            this.editor.destroy();
+            delete this.editor;
+        },
+    });
+</script>
+
+
+<script type="text/html" data-template-name="style-ui">
+                
+    <div aria-label="If supplied, must be unique on the page & retrigger of the node will REPLACE the element.&#10;If not supplied, element will always be ADDED to page." class="form-row">
+        <label for="node-input-elementId"><i class="fa fa-file-code-o"></i> HTML ID</label>
+        <input type="text" id="node-input-elementId" placeholder="Valid unique HTML element id string">
+    </div>
+
+    <div aria-label="A CSS selector that uniquely identifies the HTML parent element to attach the new element to.&#10;Must be a non-blank string" class="form-row">
+        <label for="node-input-parent"><i class="fa fa-level-up"></i> Parent</label>
+        <input type="text" id="node-input-parent" placeholder="CSS Selector">
+    </div>
+
+
+    <div><i>Style content (CSS):</i></div>
+    <div style="height: 250px; min-height:150px;" class="node-text-editor" id="node-input-css-source-editor"></div>
+
+    <!-- <div aria-label="The source of the slot content update data" class="form-row">
+        <label for="node-input-slotSourceProp">Content Source</label>
+        <textarea id="node-input-slotSourceProp" placeholder="Source data to update elements content">
+        <input type="hidden" id="node-input-slotSourcePropType">
+    </div> -->
+
+    <hr>
+
+    <div aria-label="Default msg topic. Make unique if using uib-cache." class="form-row">
+        <label for="node-input-topic"><i class="fa fa-tasks"></i> Topic</label>
+        <input type="text" id="node-input-topic">
+    </div>
+    <div aria-label="Node name (descriptive only)" class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name">
+    </div>
+                
+</script>

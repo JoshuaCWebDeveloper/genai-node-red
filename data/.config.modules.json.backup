@@ -1,0 +1,116 @@
+{
+    "sse.js": {
+        "spec": "sse.js",
+        "module": "sse.js",
+        "subpath": "",
+        "builtin": false,
+        "known": false
+    },
+    "color-name": {
+        "spec": "color-name",
+        "module": "color-name",
+        "subpath": "",
+        "builtin": false,
+        "known": false
+    },
+    "timestore": {
+        "spec": "timestore",
+        "module": "timestore",
+        "subpath": "",
+        "builtin": false,
+        "known": false
+    },
+    "classnames": {
+        "spec": "classnames",
+        "module": "classnames",
+        "subpath": "",
+        "builtin": false,
+        "known": false
+    },
+    "date-fns": {
+        "spec": "date-fns",
+        "module": "date-fns",
+        "subpath": "",
+        "builtin": false,
+        "known": false
+    },
+    "@alwatr/fetch": {
+        "spec": "@alwatr/fetch",
+        "module": "@alwatr/fetch",
+        "subpath": "",
+        "builtin": false,
+        "known": false
+    },
+    "node-fetch": {
+        "spec": "node-fetch",
+        "module": "node-fetch",
+        "subpath": "",
+        "builtin": false,
+        "known": false
+    },
+    "acorn": {
+        "spec": "acorn",
+        "module": "acorn",
+        "subpath": "",
+        "builtin": false,
+        "known": false
+    },
+    "async": {
+        "spec": "async",
+        "module": "async",
+        "subpath": "",
+        "builtin": false,
+        "known": false
+    },
+    "dompurify": {
+        "spec": "dompurify",
+        "module": "dompurify",
+        "subpath": "",
+        "builtin": false,
+        "known": false
+    },
+    "marked": {
+        "spec": "marked@9.1.6",
+        "module": "marked",
+        "subpath": "",
+        "version": "9.1.6",
+        "builtin": false,
+        "known": false
+    },
+    "pkginfo": {
+        "spec": "pkginfo@0.3.1",
+        "module": "pkginfo",
+        "subpath": "",
+        "version": "0.3.1",
+        "builtin": false,
+        "known": false
+    },
+    "jsdom": {
+        "spec": "jsdom",
+        "module": "jsdom",
+        "subpath": "",
+        "builtin": false,
+        "known": false
+    },
+    "@langchain/community": {
+        "spec": "@langchain/community/vectorstores/hnswlib",
+        "module": "@langchain/community",
+        "subpath": "/vectorstores",
+        "builtin": false,
+        "known": false
+    },
+    "@langchain/openai": {
+        "spec": "@langchain/openai",
+        "module": "@langchain/openai",
+        "subpath": "",
+        "builtin": false,
+        "known": false
+    },
+    "langchain": {
+        "spec": "langchain/document_loaders/fs/directory",
+        "module": "langchain",
+        "subpath": "/document_loaders",
+        "builtin": false,
+        "known": false
+    }
+}

@@ -1,0 +1,28 @@
+{
+    "name": "node-red-project",
+    "description": "A Node-RED Project",
+    "version": "0.0.1",
+    "private": true,
+    "dependencies": {
+        "@alwatr/fetch": "^3.0.0",
+        "@langchain/community": "^0.0.24",
+        "@langchain/openai": "^0.0.13",
+        "acorn": "^8.11.3",
+        "async": "^3.2.5",
+        "classnames": "^2.5.1",
+        "color-name": "^2.0.0",
+        "date-fns": "^3.3.0",
+        "dompurify": "^3.0.8",
+        "jsdom": "^24.0.0",
+        "langchain": "^0.1.12",
+        "mammoth": "^1.6.0",
+        "marked": "^9.1.6",
+        "node-fetch": "^3.3.2",
+        "node-red-contrib-jsonpath": "~0.1.1",
+        "node-red-contrib-llm-nodes": "file:nodes/node-red-contrib-llm-nodes-0.2.9.tgz",
+        "node-red-contrib-uibuilder": "~6.8.2",
+        "pkginfo": "^0.3.1",
+        "sse.js": "^2.2.0",
+        "timestore": "^1.2.0"
+    }
+}

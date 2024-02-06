@@ -1,0 +1,70 @@
+<script type="text/javascript">
+    RED.nodes.registerType('chat-ui',{
+        category: 'llm:ui',
+        color: '#a6bbcf',
+        defaults: {
+            name: {value:""},
+            elementId: {value:""},
+            parent: {value:"body"},
+            heading: {value:"Chat"},
+        },
+        inputs:1,
+        outputs:1,
+        icon: "font-awesome/fa-comment",
+        label: function() {
+            return this.name||"chat-ui";
+        },
+        paletteLabel: "chat-ui",
+        oneditprepare: function() {
+            // Preparation code here
+        },
+        oneditsave: function() {
+            // Save code here
+        },
+        oneditcancel: function() {
+            // Cancel code here
+        }
+    });
+</script>
+
+
+<script type="text/html" data-template-name="chat-ui">
+   
+    <div aria-label="If supplied, must be unique on the page & retrigger of the node will REPLACE the element.&#10;If not supplied, element will always be ADDED to page." class="form-row">
+        <label for="node-input-elementId"><i class="fa fa-file-code-o"></i> HTML ID</label>
+        <input type="text" id="node-input-elementId" placeholder="Valid unique HTML element id string">
+        <input type="hidden" id="node-input-elementIdSourceType">
+    </div>
+
+    <div aria-label="A CSS selector that uniquely identifies the HTML parent element to attach the new element to.&#10;Must be a non-blank string" class="form-row">
+        <label for="node-input-parent"><i class="fa fa-level-up"></i> Parent</label>
+        <input type="text" id="node-input-parent" placeholder="CSS Selector">
+        <input type="hidden" id="node-input-parentSourceType">
+    </div>
+
+
+    <div aria-label="Optional heading. Leave blank for no heading." class="form-row">
+        <label for="node-input-heading"><i class="fa fa-header"></i> Heading</label>
+        <select id="node-input-headingLevel" style="width:3.7em;">
+            <option value="h2">H2</option>
+            <option value="h3">H3</option>
+            <option value="h4">H4</option>
+            <option value="h5">H5</option>
+            <option value="h6">H6</option>
+        </select>
+        <input type="text" id="node-input-heading" placeholder="Optional heading">
+        <input type="hidden" id="node-input-headingSourceType">
+    </div>
+
+    <hr>
+
+    <div aria-label="Default msg topic. Make unique if using uib-cache." class="form-row">
+        <label for="node-input-topic"><i class="fa fa-tasks"></i> Topic</label>
+        <input type="text" id="node-input-topic">
+    </div>
+    <div aria-label="Node name (descriptive only)" class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name">
+    </div>
+
+</script>

@@ -1,0 +1,15 @@
+<script type="text/javascript">
+    RED.nodes.registerType("provide-global", {
+        category: 'llm:util',
+        defaults: {
+            name: { value: "" }
+        },
+        color: "#a6bbcf",
+        inputs: 1,
+        outputs: 1,
+        icon: "fa-cogs",
+        label: function () {
+            return this.name || "provide global";
+        }
+    });
+</script>
