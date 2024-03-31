@@ -427,116 +427,28 @@
             }
         }
     },
-    "node-red-contrib-uibuilder": {
-        "name": "node-red-contrib-uibuilder",
-        "version": "6.8.2",
+    "node-red-contrib-jsonpath": {
+        "name": "node-red-contrib-jsonpath",
+        "version": "0.1.1",
         "local": true,
         "user": true,
         "nodes": {
-            "uibuilder": {
-                "name": "uibuilder",
+            "jsonpath": {
+                "name": "jsonpath",
                 "types": [
-                    "uibuilder"
+                    "jsonpath"
                 ],
-                "enabled": false,
+                "enabled": true,
                 "local": true,
                 "user": false,
-                "module": "node-red-contrib-uibuilder",
-                "file": "/data/node_modules/node-red-contrib-uibuilder/nodes/uibuilder.js"
-            },
-            "uib-cache": {
-                "name": "uib-cache",
-                "types": [
-                    "uib-cache"
-                ],
-                "enabled": false,
-                "local": true,
-                "user": false,
-                "module": "node-red-contrib-uibuilder",
-                "file": "/data/node_modules/node-red-contrib-uibuilder/nodes/uib-cache.js"
-            },
-            "uib-tag": {
-                "name": "uib-tag",
-                "types": [
-                    "uib-tag"
-                ],
-                "enabled": false,
-                "local": true,
-                "user": false,
-                "module": "node-red-contrib-uibuilder",
-                "file": "/data/node_modules/node-red-contrib-uibuilder/nodes/uib-tag/customNode.js"
-            },
-            "uib-element": {
-                "name": "uib-element",
-                "types": [
-                    "uib-element"
-                ],
-                "enabled": false,
-                "local": true,
-                "user": false,
-                "module": "node-red-contrib-uibuilder",
-                "file": "/data/node_modules/node-red-contrib-uibuilder/nodes/uib-element/customNode.js"
-            },
-            "uib-update": {
-                "name": "uib-update",
-                "types": [
-                    "uib-update"
-                ],
-                "enabled": false,
-                "local": true,
-                "user": false,
-                "module": "node-red-contrib-uibuilder",
-                "file": "/data/node_modules/node-red-contrib-uibuilder/nodes/uib-update/customNode.js"
-            },
-            "uib-html": {
-                "name": "uib-html",
-                "types": [
-                    "uib-html"
-                ],
-                "enabled": false,
-                "local": true,
-                "user": false,
-                "module": "node-red-contrib-uibuilder",
-                "file": "/data/node_modules/node-red-contrib-uibuilder/nodes/uib-html/customNode.js"
-            },
-            "uib-save": {
-                "name": "uib-save",
-                "types": [
-                    "uib-save"
-                ],
-                "enabled": false,
-                "local": true,
-                "user": false,
-                "module": "node-red-contrib-uibuilder",
-                "file": "/data/node_modules/node-red-contrib-uibuilder/nodes/uib-save/customNode.js"
-            },
-            "uib-sender": {
-                "name": "uib-sender",
-                "types": [
-                    "uib-sender"
-                ],
-                "enabled": false,
-                "local": true,
-                "user": false,
-                "module": "node-red-contrib-uibuilder",
-                "file": "/data/node_modules/node-red-contrib-uibuilder/nodes/uib-sender.js"
-            },
-            "uib-list": {
-                "name": "uib-list",
-                "types": [
-                    "uib-list"
-                ],
-                "enabled": false,
-                "local": true,
-                "user": false,
-                "module": "node-red-contrib-uibuilder",
-                "file": "/data/node_modules/node-red-contrib-uibuilder/nodes/uib-list/customNode.js"
+                "module": "node-red-contrib-jsonpath",
+                "file": "/data/node_modules/node-red-contrib-jsonpath/jsonpath/node-red-contrib-jsonpath.js"
             }
         }
     },
     "node-red-contrib-llm-nodes": {
         "name": "node-red-contrib-llm-nodes",
-        "version": "0.2.9",
+        "version": "0.2.11",
         "local": true,
         "user": true,
         "nodes": {
@@ -594,25 +506,6 @@
                 "user": false,
                 "module": "node-red-contrib-llm-nodes",
                 "file": "/data/node_modules/node-red-contrib-llm-nodes/ui-builder/ui-builder.js"
-            }
-        }
-    },
-    "node-red-contrib-jsonpath": {
-        "name": "node-red-contrib-jsonpath",
-        "version": "0.1.1",
-        "local": true,
-        "user": true,
-        "nodes": {
-            "jsonpath": {
-                "name": "jsonpath",
-                "types": [
-                    "jsonpath"
-                ],
-                "enabled": true,
-                "local": true,
-                "user": false,
-                "module": "node-red-contrib-jsonpath",
-                "file": "/data/node_modules/node-red-contrib-jsonpath/jsonpath/node-red-contrib-jsonpath.js"
             }
         }
     }
