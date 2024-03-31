@@ -656,7 +656,7 @@
         ],
         "out": [
             {
-                "x": 1820,
+                "x": 1900,
                 "y": 380,
                 "wires": [
                     {
@@ -1100,6 +1100,56 @@
         "color": "#E2D96E"
     },
     {
+        "id": "9d188e904c4abf9e",
+        "type": "subflow",
+        "name": "Prompt",
+        "info": "",
+        "category": "llm:ui",
+        "in": [
+            {
+                "x": 50,
+                "y": 30,
+                "wires": [
+                    {
+                        "id": "f7baf9a2b6aa04e9"
+                    }
+                ]
+            }
+        ],
+        "out": [
+            {
+                "x": 460,
+                "y": 540,
+                "wires": [
+                    {
+                        "id": "db2c82fdd3e4fd59",
+                        "port": 0
+                    }
+                ]
+            }
+        ],
+        "env": [
+            {
+                "name": "HTML Id",
+                "type": "str",
+                "value": ""
+            },
+            {
+                "name": "Parent",
+                "type": "str",
+                "value": "body"
+            },
+            {
+                "name": "Title",
+                "type": "str",
+                "value": "Prompt"
+            }
+        ],
+        "meta": {},
+        "color": "#A6BBCF",
+        "icon": "node-red/parser-html.svg"
+    },
+    {
         "id": "573a66c74ad47252",
         "type": "group",
         "z": "2b3efcc977e88d91",
@@ -1116,12 +1166,13 @@
             "24d6b22fbb3331ef",
             "fa93074c3844e72a",
             "e64c01c3ce72e42c",
-            "fd30589c82c22c62"
+            "fd30589c82c22c62",
+            "f99c0d4e42875ff9"
         ],
         "x": 314,
         "y": 459,
         "w": 452,
-        "h": 202
+        "h": 222
     },
     {
         "id": "ffdcd8798ee03933",
@@ -1184,12 +1235,13 @@
         "nodes": [
             "2f187dab7a1ae2ad",
             "2c75870eb28bb7c5",
-            "07a96f21f7eb4899"
+            "07a96f21f7eb4899",
+            "e9e910c0b95eb6fc"
         ],
         "x": 514,
         "y": 719,
         "w": 252,
-        "h": 202
+        "h": 242
     },
     {
         "id": "3cdc7422abfbe82e",
@@ -1469,7 +1521,7 @@
             "e34397c8aec9b431",
             "3cd23f12c0321b72"
         ],
-        "x": 654,
+        "x": 734,
         "y": 139,
         "w": 472,
         "h": 162
@@ -2678,7 +2730,7 @@
             }
         ],
         "x": 430,
-        "y": 620,
+        "y": 640,
         "wires": [
             [
                 "fd30589c82c22c62",
@@ -2710,7 +2762,7 @@
         "y": 560,
         "wires": [
             [
-                "24d6b22fbb3331ef"
+                "f99c0d4e42875ff9"
             ]
         ]
     },
@@ -2911,7 +2963,7 @@
         "statusVal": "",
         "statusType": "auto",
         "x": 630,
-        "y": 880,
+        "y": 920,
         "wires": []
     },
     {
@@ -2978,12 +3030,45 @@
         "wires": [
             [
                 "d0bc8cbbd38f96d0",
-                "ec546330d29baba3"
+                "ec546330d29baba3",
+                "e9e910c0b95eb6fc"
             ],
             [
                 "2c75870eb28bb7c5"
             ]
         ]
+    },
+    {
+        "id": "f99c0d4e42875ff9",
+        "type": "subflow:9d188e904c4abf9e",
+        "z": "2b3efcc977e88d91",
+        "g": "573a66c74ad47252",
+        "name": "",
+        "x": 430,
+        "y": 600,
+        "wires": [
+            [
+                "24d6b22fbb3331ef"
+            ]
+        ]
+    },
+    {
+        "id": "e9e910c0b95eb6fc",
+        "type": "debug",
+        "z": "2b3efcc977e88d91",
+        "g": "1309c3c5cd6f1b74",
+        "name": "UI Builder Events",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 630,
+        "y": 880,
+        "wires": []
     },
     {
         "id": "e43978271213406b",
@@ -3320,15 +3405,12 @@
                 "t": "eq",
                 "v": "model-streaming-content",
                 "vt": "str"
-            },
-            {
-                "t": "else"
             }
         ],
         "checkall": "true",
         "repair": false,
-        "outputs": 5,
-        "x": 470,
+        "outputs": 4,
+        "x": 550,
         "y": 480,
         "wires": [
             [
@@ -3342,9 +3424,6 @@
             ],
             [
                 "1bce8e1d0eace47a"
-            ],
-            [
-                "fb59f74f4175c251"
             ]
         ]
     },
@@ -3360,7 +3439,7 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 980,
+        "x": 1060,
         "y": 480,
         "wires": [
             [
@@ -3380,7 +3459,7 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 1010,
+        "x": 1090,
         "y": 620,
         "wires": [
             [
@@ -3400,7 +3479,7 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 980,
+        "x": 1060,
         "y": 400,
         "wires": [
             [
@@ -3421,7 +3500,7 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 730,
+        "x": 810,
         "y": 240,
         "wires": [
             [
@@ -3435,7 +3514,7 @@
         "z": "74bd10ee8e354d0a",
         "g": "1ae11ef02f19ba42",
         "name": "",
-        "x": 1020,
+        "x": 1100,
         "y": 260,
         "wires": [
             [
@@ -3466,7 +3545,7 @@
         "checkall": "true",
         "repair": false,
         "outputs": 2,
-        "x": 870,
+        "x": 950,
         "y": 240,
         "wires": [
             [
@@ -3483,7 +3562,7 @@
         "z": "74bd10ee8e354d0a",
         "g": "1ae11ef02f19ba42",
         "name": "",
-        "x": 1010,
+        "x": 1090,
         "y": 220,
         "wires": [
             [
@@ -3513,7 +3592,7 @@
         "checkall": "false",
         "repair": false,
         "outputs": 2,
-        "x": 750,
+        "x": 830,
         "y": 500,
         "wires": [
             [
@@ -3536,7 +3615,7 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 980,
+        "x": 1060,
         "y": 540,
         "wires": [
             [
@@ -3561,7 +3640,7 @@
         "id": "21642c9bdd34ddea",
         "type": "switch",
         "z": "74bd10ee8e354d0a",
-        "name": "If history-init, Else",
+        "name": "If history-init, Else valid action",
         "property": "action",
         "propertyType": "msg",
         "rules": [
@@ -3571,13 +3650,16 @@
                 "vt": "str"
             },
             {
-                "t": "else"
+                "t": "regex",
+                "v": "(history-add-entry)|(model-streaming-status)|(model-streaming-content)",
+                "vt": "str",
+                "case": false
             }
         ],
         "checkall": "true",
         "repair": false,
         "outputs": 2,
-        "x": 230,
+        "x": 270,
         "y": 440,
         "wires": [
             [
@@ -3593,7 +3675,7 @@
         "type": "subflow:680a38a9fc7ffbbc",
         "z": "74bd10ee8e354d0a",
         "name": "",
-        "x": 1420,
+        "x": 1500,
         "y": 420,
         "wires": [
             [
@@ -3639,7 +3721,7 @@
         "from": "",
         "to": "",
         "reg": false,
-        "x": 1660,
+        "x": 1740,
         "y": 380,
         "wires": [
             [
@@ -3679,7 +3761,7 @@
         "targetType": "full",
         "statusVal": "",
         "statusType": "auto",
-        "x": 1860,
+        "x": 1940,
         "y": 460,
         "wires": []
     },
@@ -3695,8 +3777,8 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 985,
-        "y": 800,
+        "x": 1065,
+        "y": 780,
         "wires": [
             [
                 "40c235a781afb37d"
@@ -3737,7 +3819,7 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 1430,
+        "x": 1510,
         "y": 460,
         "wires": [
             [
@@ -3752,7 +3834,7 @@
         "g": "1ae11ef02f19ba42",
         "name": "Init",
         "info": "",
-        "x": 730,
+        "x": 810,
         "y": 180,
         "wires": []
     },
@@ -3775,28 +3857,6 @@
                 "40c235a781afb37d"
             ]
         ]
-    },
-    {
-        "id": "fb59f74f4175c251",
-        "type": "function",
-        "z": "74bd10ee8e354d0a",
-        "name": " ",
-        "func": "\nreturn msg;",
-        "outputs": 1,
-        "timeout": 0,
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
-        "x": 1055,
-        "y": 760,
-        "wires": [
-            [
-                "d1e76fbf62daa7ea"
-            ]
-        ],
-        "icon": "font-awesome/fa-arrows",
-        "l": false
     },
     {
         "id": "059dcd4099b7cba7",
@@ -5437,6 +5497,104 @@
         "l": false
     },
     {
+        "id": "7fef69cf88d9cc09",
+        "type": "subflow:6dcab040eb85e22f",
+        "z": "9d188e904c4abf9e",
+        "name": "",
+        "x": 170,
+        "y": 300,
+        "wires": [
+            [
+                "b1f8acb01b9cf529"
+            ]
+        ]
+    },
+    {
+        "id": "fa630c201c72b3c4",
+        "type": "function",
+        "z": "9d188e904c4abf9e",
+        "name": "Render App - Props",
+        "func": "msg.elementId = env.get(\"HTML Id\");\nmsg.parentElement = env.get(\"Parent\");\nmsg.heading = env.get(\"Title\");\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 190,
+        "y": 240,
+        "wires": [
+            [
+                "7fef69cf88d9cc09"
+            ]
+        ]
+    },
+    {
+        "id": "db2c82fdd3e4fd59",
+        "type": "function",
+        "z": "9d188e904c4abf9e",
+        "name": "Render App",
+        "func": "const parent = msg.parent;\n\n// Add the form tag\nparent.components.push({\n    'type': 'form',\n    'parent': msg.parentElement,\n    'id': msg.elementId,\n    'components': [],\n    'attributes': {\n        'class': 'prompt-ui'\n    },\n})\n\n// Convenient references\nconst frmBody = parent.components[parent.components.length - 1]\n\n// Add the header\nfrmBody.components.push({\n    'type': 'h1',\n    'slot': msg.heading,\n})\n\n// Add a div to wrap the textarea and send button\nconst formDiv = {\n    'type': 'div',\n    'attributes': {\n        'class': 'prompt-form'\n    },\n    'components': [\n        {\n            'type': 'textarea',\n            'id': `${msg.elementId}-prompt`,\n            'properties': {\n                'value': msg.systemPrompt\n            },\n            'events': {\n                \"change\": \"uibuilder.eventSend\"\n            }\n        },\n    ],\n}\n\n// Add the message div to the form body components\nfrmBody.components.push(formDiv)\n\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 170,
+        "y": 380,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "b1f8acb01b9cf529",
+        "type": "style-ui",
+        "z": "9d188e904c4abf9e",
+        "name": "prompt-styles",
+        "elementId": "prompt-style-01",
+        "parent": "head",
+        "slotContent": "\r\n",
+        "x": 180,
+        "y": 340,
+        "wires": [
+            [
+                "db2c82fdd3e4fd59"
+            ]
+        ]
+    },
+    {
+        "id": "f7baf9a2b6aa04e9",
+        "type": "switch",
+        "z": "9d188e904c4abf9e",
+        "name": "message handler switch",
+        "property": "type",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "render-app",
+                "vt": "str"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "false",
+        "repair": false,
+        "outputs": 2,
+        "x": 450,
+        "y": 80,
+        "wires": [
+            [
+                "fa630c201c72b3c4"
+            ],
+            [
+                "fa630c201c72b3c4"
+            ]
+        ]
+    },
+    {
         "id": "c0c36621780669a4",
         "type": "subflow:a59054999730c251",
         "z": "9e23ccbf2e0608ed",
@@ -5492,14 +5650,12 @@
         "syntax": "mustache",
         "template": "You are a helpful chat bot that will perform any requested tasks to the best of your ability.",
         "output": "str",
-        "x": 140,
-        "y": 400,
+        "x": 540,
+        "y": 280,
         "wires": [
             [
-                "c0c36621780669a4",
-                "977f9402195729c4",
-                "378e8541feaf87ec",
-                "33ca3631b9af0d55"
+                "d9e8ec2ee480957d",
+                "5e149325f881f48b"
             ]
         ]
     },
@@ -5561,10 +5717,11 @@
             }
         ],
         "x": 550,
-        "y": 300,
+        "y": 160,
         "wires": [
             [
-                "246a383da043e031"
+                "246a383da043e031",
+                "d7a8dd27f97a1a87"
             ]
         ]
     },
@@ -5595,7 +5752,6 @@
         "y": 220,
         "wires": [
             [
-                "5e149325f881f48b",
                 "d7a8dd27f97a1a87"
             ]
         ]
@@ -5745,6 +5901,31 @@
                 "45671622e142be7e"
             ]
         ]
+    },
+    {
+        "id": "d9e8ec2ee480957d",
+        "type": "function",
+        "z": "9e23ccbf2e0608ed",
+        "name": " ",
+        "func": "\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 205,
+        "y": 460,
+        "wires": [
+            [
+                "378e8541feaf87ec",
+                "c0c36621780669a4",
+                "977f9402195729c4",
+                "33ca3631b9af0d55"
+            ]
+        ],
+        "icon": "font-awesome/fa-arrows",
+        "l": false
     },
     {
         "id": "fe160cbe0df384e5",

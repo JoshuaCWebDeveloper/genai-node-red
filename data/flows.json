@@ -472,6 +472,10 @@
                     {
                         "id": "d0bc8cbbd38f96d0",
                         "port": 0
+                    },
+                    {
+                        "id": "8898a853cc54512d",
+                        "port": 0
                     }
                 ]
             }
@@ -1100,6 +1104,56 @@
         "color": "#E2D96E"
     },
     {
+        "id": "9d188e904c4abf9e",
+        "type": "subflow",
+        "name": "Prompt",
+        "info": "",
+        "category": "llm:ui",
+        "in": [
+            {
+                "x": 50,
+                "y": 30,
+                "wires": [
+                    {
+                        "id": "f7baf9a2b6aa04e9"
+                    }
+                ]
+            }
+        ],
+        "out": [
+            {
+                "x": 460,
+                "y": 540,
+                "wires": [
+                    {
+                        "id": "db2c82fdd3e4fd59",
+                        "port": 0
+                    }
+                ]
+            }
+        ],
+        "env": [
+            {
+                "name": "HTML Id",
+                "type": "str",
+                "value": ""
+            },
+            {
+                "name": "Parent",
+                "type": "str",
+                "value": "body"
+            },
+            {
+                "name": "Title",
+                "type": "str",
+                "value": "Prompt"
+            }
+        ],
+        "meta": {},
+        "color": "#A6BBCF",
+        "icon": "node-red/parser-html.svg"
+    },
+    {
         "id": "573a66c74ad47252",
         "type": "group",
         "z": "2b3efcc977e88d91",
@@ -1116,12 +1170,13 @@
             "24d6b22fbb3331ef",
             "fa93074c3844e72a",
             "e64c01c3ce72e42c",
-            "fd30589c82c22c62"
+            "fd30589c82c22c62",
+            "f99c0d4e42875ff9"
         ],
         "x": 314,
         "y": 459,
         "w": 452,
-        "h": 202
+        "h": 222
     },
     {
         "id": "ffdcd8798ee03933",
@@ -1142,7 +1197,7 @@
             "b7a0d2554c54f30c"
         ],
         "x": 854,
-        "y": 599,
+        "y": 779,
         "w": 452,
         "h": 142
     },
@@ -1164,7 +1219,7 @@
             "96d1b37cfc101abc"
         ],
         "x": 854,
-        "y": 779,
+        "y": 959,
         "w": 272,
         "h": 142
     },
@@ -1184,12 +1239,13 @@
         "nodes": [
             "2f187dab7a1ae2ad",
             "2c75870eb28bb7c5",
-            "07a96f21f7eb4899"
+            "07a96f21f7eb4899",
+            "e9e910c0b95eb6fc"
         ],
         "x": 514,
-        "y": 719,
+        "y": 759,
         "w": 252,
-        "h": 202
+        "h": 242
     },
     {
         "id": "3cdc7422abfbe82e",
@@ -1670,6 +1726,28 @@
         "y": 579,
         "w": 412,
         "h": 122
+    },
+    {
+        "id": "31f8fa8c2bd1eaa9",
+        "type": "group",
+        "z": "2b3efcc977e88d91",
+        "style": {
+            "stroke": "#999999",
+            "stroke-opacity": "1",
+            "fill": "none",
+            "fill-opacity": "1",
+            "label": true,
+            "label-position": "nw",
+            "color": "#a4a4a4"
+        },
+        "nodes": [
+            "8898a853cc54512d",
+            "d4c07ba40b49d1c4"
+        ],
+        "x": 854,
+        "y": 599,
+        "w": 292,
+        "h": 142
     },
     {
         "id": "abd5674a230a71e1",
@@ -2678,7 +2756,7 @@
             }
         ],
         "x": 430,
-        "y": 620,
+        "y": 640,
         "wires": [
             [
                 "fd30589c82c22c62",
@@ -2710,7 +2788,7 @@
         "y": 560,
         "wires": [
             [
-                "24d6b22fbb3331ef"
+                "f99c0d4e42875ff9"
             ]
         ]
     },
@@ -2728,7 +2806,7 @@
         "finalize": "",
         "libs": [],
         "x": 960,
-        "y": 700,
+        "y": 880,
         "wires": [
             [
                 "ed0c2d4f1d21f64c"
@@ -2750,7 +2828,7 @@
         "statusVal": "",
         "statusType": "auto",
         "x": 1170,
-        "y": 700,
+        "y": 880,
         "wires": []
     },
     {
@@ -2761,7 +2839,7 @@
         "name": "Event handler: submit user message",
         "info": "",
         "x": 1020,
-        "y": 640,
+        "y": 820,
         "wires": []
     },
     {
@@ -2778,7 +2856,7 @@
         "finalize": "",
         "libs": [],
         "x": 990,
-        "y": 880,
+        "y": 1060,
         "wires": [
             [
                 "24d6b22fbb3331ef"
@@ -2793,7 +2871,7 @@
         "name": "Event handler: submit form",
         "info": "",
         "x": 990,
-        "y": 820,
+        "y": 1000,
         "wires": []
     },
     {
@@ -2804,7 +2882,7 @@
         "name": "App Controller",
         "info": "",
         "x": 610,
-        "y": 760,
+        "y": 800,
         "wires": []
     },
     {
@@ -2911,7 +2989,7 @@
         "statusVal": "",
         "statusType": "auto",
         "x": 630,
-        "y": 880,
+        "y": 960,
         "wires": []
     },
     {
@@ -2974,16 +3052,88 @@
         "url": "Url",
         "urlType": "env",
         "x": 600,
-        "y": 820,
+        "y": 860,
         "wires": [
             [
                 "d0bc8cbbd38f96d0",
-                "ec546330d29baba3"
+                "ec546330d29baba3",
+                "e9e910c0b95eb6fc",
+                "8898a853cc54512d"
             ],
             [
                 "2c75870eb28bb7c5"
             ]
         ]
+    },
+    {
+        "id": "f99c0d4e42875ff9",
+        "type": "subflow:9d188e904c4abf9e",
+        "z": "2b3efcc977e88d91",
+        "g": "573a66c74ad47252",
+        "name": "prompt-ui",
+        "env": [
+            {
+                "name": "HTML Id",
+                "value": "prompt-01",
+                "type": "str"
+            }
+        ],
+        "x": 420,
+        "y": 600,
+        "wires": [
+            [
+                "24d6b22fbb3331ef"
+            ]
+        ]
+    },
+    {
+        "id": "e9e910c0b95eb6fc",
+        "type": "debug",
+        "z": "2b3efcc977e88d91",
+        "d": true,
+        "g": "1309c3c5cd6f1b74",
+        "name": "UI Builder Events",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 630,
+        "y": 920,
+        "wires": []
+    },
+    {
+        "id": "8898a853cc54512d",
+        "type": "function",
+        "z": "2b3efcc977e88d91",
+        "g": "31f8fa8c2bd1eaa9",
+        "name": "Update prompt",
+        "func": "const promptId = \"prompt-01\"\n\nconst newPrompt = msg.payload[`${promptId}-prompt`]\n\nif (!newPrompt) {\n    return;\n}\n\nmsg.prompt = newPrompt;\nmsg.action = \"prompt-update\";\n\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 960,
+        "y": 700,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "d4c07ba40b49d1c4",
+        "type": "comment",
+        "z": "2b3efcc977e88d91",
+        "g": "31f8fa8c2bd1eaa9",
+        "name": "Event handler: update prompt",
+        "info": "",
+        "x": 1000,
+        "y": 640,
+        "wires": []
     },
     {
         "id": "e43978271213406b",
@@ -5412,6 +5562,104 @@
         "l": false
     },
     {
+        "id": "7fef69cf88d9cc09",
+        "type": "subflow:6dcab040eb85e22f",
+        "z": "9d188e904c4abf9e",
+        "name": "",
+        "x": 170,
+        "y": 300,
+        "wires": [
+            [
+                "b1f8acb01b9cf529"
+            ]
+        ]
+    },
+    {
+        "id": "fa630c201c72b3c4",
+        "type": "function",
+        "z": "9d188e904c4abf9e",
+        "name": "Render App - Props",
+        "func": "msg.elementId = env.get(\"HTML Id\");\nmsg.parentElement = env.get(\"Parent\");\nmsg.heading = env.get(\"Title\");\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 190,
+        "y": 240,
+        "wires": [
+            [
+                "7fef69cf88d9cc09"
+            ]
+        ]
+    },
+    {
+        "id": "db2c82fdd3e4fd59",
+        "type": "function",
+        "z": "9d188e904c4abf9e",
+        "name": "Render App",
+        "func": "const parent = msg.parent;\n\n// Add the form tag\nparent.components.push({\n    'type': 'form',\n    'parent': msg.parentElement,\n    'id': msg.elementId,\n    'components': [],\n    'attributes': {\n        'class': 'prompt-ui'\n    },\n})\n\n// Convenient references\nconst frmBody = parent.components[parent.components.length - 1]\n\n// Add the header\nfrmBody.components.push({\n    'type': 'h1',\n    'slot': msg.heading,\n})\n\n// Add a div to wrap the textarea and send button\nconst formDiv = {\n    'type': 'div',\n    'attributes': {\n        'class': 'prompt-form'\n    },\n    'components': [\n        {\n            'type': 'textarea',\n            'id': `${msg.elementId}-prompt`,\n            'properties': {\n                'value': msg.systemPrompt\n            },\n            'events': {\n                \"change\": \"uibuilder.eventSend\"\n            }\n        },\n    ],\n}\n\n// Add the message div to the form body components\nfrmBody.components.push(formDiv)\n\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 170,
+        "y": 380,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "b1f8acb01b9cf529",
+        "type": "style-ui",
+        "z": "9d188e904c4abf9e",
+        "name": "prompt-styles",
+        "elementId": "prompt-style-01",
+        "parent": "head",
+        "slotContent": "\r\n",
+        "x": 180,
+        "y": 340,
+        "wires": [
+            [
+                "db2c82fdd3e4fd59"
+            ]
+        ]
+    },
+    {
+        "id": "f7baf9a2b6aa04e9",
+        "type": "switch",
+        "z": "9d188e904c4abf9e",
+        "name": "message handler switch",
+        "property": "type",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "render-app",
+                "vt": "str"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "false",
+        "repair": false,
+        "outputs": 2,
+        "x": 450,
+        "y": 80,
+        "wires": [
+            [
+                "fa630c201c72b3c4"
+            ],
+            [
+                "fa630c201c72b3c4"
+            ]
+        ]
+    },
+    {
         "id": "c0c36621780669a4",
         "type": "subflow:a59054999730c251",
         "z": "9e23ccbf2e0608ed",
@@ -5455,28 +5703,6 @@
         "x": 510,
         "y": 720,
         "wires": []
-    },
-    {
-        "id": "d7a8dd27f97a1a87",
-        "type": "template",
-        "z": "9e23ccbf2e0608ed",
-        "name": "Prompt",
-        "field": "systemPrompt",
-        "fieldType": "msg",
-        "format": "handlebars",
-        "syntax": "mustache",
-        "template": "You are a helpful chat bot that will perform any requested tasks to the best of your ability.",
-        "output": "str",
-        "x": 140,
-        "y": 400,
-        "wires": [
-            [
-                "c0c36621780669a4",
-                "977f9402195729c4",
-                "378e8541feaf87ec",
-                "33ca3631b9af0d55"
-            ]
-        ]
     },
     {
         "id": "977f9402195729c4",
@@ -5536,10 +5762,11 @@
             }
         ],
         "x": 550,
-        "y": 300,
+        "y": 160,
         "wires": [
             [
-                "246a383da043e031"
+                "246a383da043e031",
+                "c865bad2cdc088e0"
             ]
         ]
     },
@@ -5570,8 +5797,7 @@
         "y": 220,
         "wires": [
             [
-                "5e149325f881f48b",
-                "d7a8dd27f97a1a87"
+                "c865bad2cdc088e0"
             ]
         ]
     },
@@ -5643,7 +5869,6 @@
         "id": "378e8541feaf87ec",
         "type": "subflow:a59054999730c251",
         "z": "9e23ccbf2e0608ed",
-        "d": true,
         "g": "0e1cb402b61eb646",
         "name": "Model - dummy sse",
         "env": [
@@ -5699,6 +5924,7 @@
         "id": "33ca3631b9af0d55",
         "type": "subflow:a59054999730c251",
         "z": "9e23ccbf2e0608ed",
+        "d": true,
         "g": "0e1cb402b61eb646",
         "name": "Model - genai - llama-cpp-mistral-8x",
         "env": [
@@ -5718,6 +5944,52 @@
         "wires": [
             [
                 "45671622e142be7e"
+            ]
+        ]
+    },
+    {
+        "id": "d9e8ec2ee480957d",
+        "type": "function",
+        "z": "9e23ccbf2e0608ed",
+        "name": " ",
+        "func": "\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 205,
+        "y": 460,
+        "wires": [
+            [
+                "378e8541feaf87ec",
+                "c0c36621780669a4",
+                "977f9402195729c4",
+                "33ca3631b9af0d55"
+            ]
+        ],
+        "icon": "font-awesome/fa-arrows",
+        "l": false
+    },
+    {
+        "id": "c865bad2cdc088e0",
+        "type": "function",
+        "z": "9e23ccbf2e0608ed",
+        "name": "System Prompt",
+        "func": "// Initial prompt\nconst initialPrompt = `You are a helpful chat bot that will perform any requested tasks to the best of your ability.`;\n\n// if this is an update prompt message\nif (msg.action == \"prompt-update\") {\n    // update our prompt\n    context.set(\"prompt\", msg.prompt);\n    // that's all\n    return msg;\n}\n\n// get current prompt\nlet currentPrompt = context.get(\"prompt\");\n\nif (!currentPrompt) {\n    currentPrompt = initialPrompt\n    context.set(\"prompt\", currentPrompt);\n}\n\nmsg.systemPrompt = currentPrompt;\n\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 540,
+        "y": 260,
+        "wires": [
+            [
+                "5e149325f881f48b",
+                "d9e8ec2ee480957d"
             ]
         ]
     },
