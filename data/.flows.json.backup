@@ -32,22 +32,6 @@
         "env": []
     },
     {
-        "id": "9e87c8093f3fec74",
-        "type": "tab",
-        "label": "UI Flow 1",
-        "disabled": false,
-        "info": "",
-        "env": []
-    },
-    {
-        "id": "485c70f6fb13d295",
-        "type": "tab",
-        "label": "UI Flow 3",
-        "disabled": false,
-        "info": "",
-        "env": []
-    },
-    {
         "id": "4d258c7de41d3e07",
         "type": "tab",
         "label": "Simple RAG",
@@ -164,17 +148,20 @@
                 "wires": [
                     {
                         "id": "1cc3136b62faf259"
+                    },
+                    {
+                        "id": "30aeae0f9f54280e"
                     }
                 ]
             }
         ],
         "out": [
             {
-                "x": 780,
-                "y": 320,
+                "x": 940,
+                "y": 180,
                 "wires": [
                     {
-                        "id": "cb3d5d88fb5e1a7c",
+                        "id": "43f0b2ac4f71e572",
                         "port": 0
                     }
                 ]
@@ -472,6 +459,10 @@
                     {
                         "id": "d0bc8cbbd38f96d0",
                         "port": 0
+                    },
+                    {
+                        "id": "8898a853cc54512d",
+                        "port": 0
                     }
                 ]
             }
@@ -656,8 +647,8 @@
         ],
         "out": [
             {
-                "x": 1900,
-                "y": 380,
+                "x": 1540,
+                "y": 420,
                 "wires": [
                     {
                         "id": "1cfad4d12606eb35",
@@ -870,45 +861,6 @@
             }
         ],
         "env": [],
-        "meta": {},
-        "color": "#DDAA99"
-    },
-    {
-        "id": "af1b515113cefcff",
-        "type": "subflow",
-        "name": "UI Subflow 1",
-        "info": "",
-        "category": "",
-        "in": [
-            {
-                "x": 50,
-                "y": 30,
-                "wires": [
-                    {
-                        "id": "16dd70ed6252b1f2"
-                    }
-                ]
-            }
-        ],
-        "out": [
-            {
-                "x": 520,
-                "y": 80,
-                "wires": [
-                    {
-                        "id": "16dd70ed6252b1f2",
-                        "port": 0
-                    }
-                ]
-            }
-        ],
-        "env": [
-            {
-                "name": "Url",
-                "type": "str",
-                "value": ""
-            }
-        ],
         "meta": {},
         "color": "#DDAA99"
     },
@@ -1150,6 +1102,45 @@
         "icon": "node-red/parser-html.svg"
     },
     {
+        "id": "f19bc65164444615",
+        "type": "subflow",
+        "name": "Programmatic History",
+        "info": "",
+        "category": "llm storage",
+        "in": [
+            {
+                "x": 50,
+                "y": 30,
+                "wires": [
+                    {
+                        "id": "249204d92550e10f"
+                    }
+                ]
+            }
+        ],
+        "out": [
+            {
+                "x": 1380,
+                "y": 320,
+                "wires": [
+                    {
+                        "id": "56d72b63240b58d6",
+                        "port": 0
+                    }
+                ]
+            }
+        ],
+        "env": [
+            {
+                "name": "Factory Id",
+                "type": "str",
+                "value": ""
+            }
+        ],
+        "meta": {},
+        "color": "#E2D96E"
+    },
+    {
         "id": "573a66c74ad47252",
         "type": "group",
         "z": "2b3efcc977e88d91",
@@ -1193,7 +1184,7 @@
             "b7a0d2554c54f30c"
         ],
         "x": 854,
-        "y": 599,
+        "y": 779,
         "w": 452,
         "h": 142
     },
@@ -1215,7 +1206,7 @@
             "96d1b37cfc101abc"
         ],
         "x": 854,
-        "y": 779,
+        "y": 959,
         "w": 272,
         "h": 142
     },
@@ -1239,7 +1230,7 @@
             "e9e910c0b95eb6fc"
         ],
         "x": 514,
-        "y": 719,
+        "y": 759,
         "w": 252,
         "h": 242
     },
@@ -1724,6 +1715,50 @@
         "h": 122
     },
     {
+        "id": "31f8fa8c2bd1eaa9",
+        "type": "group",
+        "z": "2b3efcc977e88d91",
+        "style": {
+            "stroke": "#999999",
+            "stroke-opacity": "1",
+            "fill": "none",
+            "fill-opacity": "1",
+            "label": true,
+            "label-position": "nw",
+            "color": "#a4a4a4"
+        },
+        "nodes": [
+            "8898a853cc54512d",
+            "d4c07ba40b49d1c4"
+        ],
+        "x": 854,
+        "y": 599,
+        "w": 292,
+        "h": 142
+    },
+    {
+        "id": "bf3cb919a9b18a74",
+        "type": "group",
+        "z": "9e23ccbf2e0608ed",
+        "style": {
+            "stroke": "#999999",
+            "stroke-opacity": "1",
+            "fill": "none",
+            "fill-opacity": "1",
+            "label": true,
+            "label-position": "nw",
+            "color": "#a4a4a4"
+        },
+        "nodes": [
+            "c865bad2cdc088e0",
+            "34dd380b3322dc77"
+        ],
+        "x": 474,
+        "y": 239,
+        "w": 212,
+        "h": 122
+    },
+    {
         "id": "abd5674a230a71e1",
         "type": "function",
         "z": "9941dd1769d8bb1b",
@@ -1816,7 +1851,9 @@
         "x": 510,
         "y": 260,
         "wires": [
-            [],
+            [
+                "43f0b2ac4f71e572"
+            ],
             [
                 "6931cc06352d9988"
             ]
@@ -1826,6 +1863,7 @@
         "id": "6931cc06352d9988",
         "type": "debug",
         "z": "6d317c39edd7ba27",
+        "d": true,
         "name": "SSE Requests",
         "active": true,
         "tosidebar": true,
@@ -1838,6 +1876,44 @@
         "x": 520,
         "y": 340,
         "wires": []
+    },
+    {
+        "id": "43f0b2ac4f71e572",
+        "type": "function",
+        "z": "6d317c39edd7ba27",
+        "name": "Handle responses",
+        "func": "// if this is a forward messge\nif (msg.action == \"forward-msg\") {\n    // save our msg for later\n    msg.action = msg.msgAction;\n    delete msg.msgAction;\n    context.set(\"forwardedMsg\", msg);\n    // don't send anything for now\n    return;\n}\n\n// get any forwarded input we might have\nconst forwardedMsg = context.get(\"forwardedMsg\");\n\nreturn {\n    ...msg,\n    msgIn: forwardedMsg\n};\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 750,
+        "y": 240,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "30aeae0f9f54280e",
+        "type": "function",
+        "z": "6d317c39edd7ba27",
+        "name": "Forward msg",
+        "func": "return {\n    ...msg,\n    action: \"forward-msg\",\n    msgAction: msg.action\n};\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 410,
+        "y": 80,
+        "wires": [
+            [
+                "43f0b2ac4f71e572"
+            ]
+        ]
     },
     {
         "id": "f4b58a4a17cbb986",
@@ -1915,7 +1991,7 @@
         "name": "chat-styles",
         "elementId": "chat-style-01",
         "parent": "head",
-        "slotContent": "@keyframes spin {\r\n  0% { transform: rotate(0deg); }\r\n  100% { transform: rotate(360deg); }\r\n}\r\n\r\n.loading {\r\n  border: 4px solid #f3f3f3;\r\n  border-top: 4px solid #3498db;\r\n  border-radius: 50%;\r\n  display: block;\r\n  width: 50px;\r\n  height: 50px;\r\n  animation: spin 2s linear infinite;\r\n}\r\n\r\n.chat-ui {\r\n    display: flex;\r\n}\r\n\r\nh1 {\r\n    text-align: center;\r\n}\r\n\r\n.chat-history {\r\n    display: block;\r\n    flex: 1;\r\n    overflow: auto;\r\n}\r\n\r\n.chat-history .role {\r\n    font-weight: bold;\r\n    text-transform: capitalize;\r\n}\r\n\r\n.chat-history .role:after {\r\n    content: \": \";\r\n}\r\n\r\n.message-form {\r\n    display: flex;\r\n    flex: 0;\r\n    min-height: 100px;\r\n    padding: 10px;\r\n}\r\n\r\n.message-form *:disabled {\r\n    opacity: .5;\r\n}\r\n\r\n.message-form textarea {\r\n    flex: 1;\r\n    padding: 10px;\r\n    height: 100%;\r\n}\r\n\r\n.message-form button {\r\n    width: 80px;\r\n    height: 100%;\r\n}\r\n",
+        "slotContent": "@keyframes spin {\r\n  0% { transform: rotate(0deg); }\r\n  100% { transform: rotate(360deg); }\r\n}\r\n\r\n.loading {\r\n  border: 4px solid #f3f3f3;\r\n  border-top: 4px solid #3498db;\r\n  border-radius: 50%;\r\n  display: block;\r\n  width: 50px;\r\n  height: 50px;\r\n  animation: spin 2s linear infinite;\r\n}\r\n\r\n.chat-ui {\r\n    display: flex;\r\n}\r\n\r\n.chat-history {\r\n    display: block;\r\n    flex: 1;\r\n    overflow: auto;\r\n}\r\n\r\n.chat-history .role {\r\n    font-weight: bold;\r\n    text-transform: capitalize;\r\n}\r\n\r\n.chat-history .role:after {\r\n    content: \": \";\r\n}\r\n\r\n.message-form {\r\n    display: flex;\r\n    flex: 0;\r\n    min-height: 100px;\r\n    padding: 10px;\r\n}\r\n\r\n.message-form *:disabled {\r\n    opacity: .5;\r\n}\r\n\r\n.message-form textarea {\r\n    flex: 1;\r\n    padding: 10px;\r\n    height: 100%;\r\n}\r\n\r\n.message-form button {\r\n    width: 80px;\r\n    height: 100%;\r\n}\r\n",
         "x": 170,
         "y": 300,
         "wires": [
@@ -2449,7 +2525,7 @@
         "type": "function",
         "z": "a59054999730c251",
         "name": "Send Streaming Status CONNECTING",
-        "func": "return [[\n    {\n        action: \"model-streaming-status\",\n        state: \"CONNECTING\"\n    },\n    {\n        action: \"model-connecting\",\n        type: \"chat-completions-streaming\",\n        id: env.get(\"Id\")\n    }\n]];\n",
+        "func": "return [[\n    {\n        action: \"model-streaming-status\",\n        state: \"CONNECTING\"\n    },\n    {\n        action: \"model-connecting\",\n        type: \"chat-completions-streaming\",\n        id: env.get(\"Id\"),\n        historyId: msg.msgIn.historyId\n    }\n]];\n",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -2467,7 +2543,7 @@
         "type": "function",
         "z": "a59054999730c251",
         "name": "Send Streaming Content",
-        "func": "// parse our message\nlet content = ''\ntry {\n    const response = JSON.parse(msg.payload);\n    content = response.choices[0].delta.content;\n}\ncatch (e) {\n    // note this, but do nothing\n    node.log(`Model - Error parsing JSON: ${e}`);\n    return;\n}\n\n// if we have no content\nif (!content) {\n    // do nothing\n    return;\n}\n\nreturn [[\n    {\n        action: \"model-streaming-content\",\n        content\n    },\n    {\n        action: \"model-content\",\n        type: \"chat-completions-streaming\",\n        id: env.get(\"Id\"),\n        content\n    }\n]];\n",
+        "func": "// parse our message\nlet content = ''\ntry {\n    const response = JSON.parse(msg.payload);\n    content = response.choices[0].delta.content;\n}\ncatch (e) {\n    // note this, but do nothing\n    node.log(`Model - Error parsing JSON: ${e}`);\n    return;\n}\n\n// if we have no content\nif (!content) {\n    // do nothing\n    return;\n}\n\nreturn [[\n    {\n        action: \"model-streaming-content\",\n        content\n    },\n    {\n        action: \"model-content\",\n        type: \"chat-completions-streaming\",\n        id: env.get(\"Id\"),\n        historyId: msg.msgIn.historyId,\n        content\n    }\n]];\n",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -2487,7 +2563,7 @@
         "type": "function",
         "z": "a59054999730c251",
         "name": "Send Streaming Status DONE",
-        "func": "return [[\n    {\n        action: \"model-streaming-status\",\n        state: \"DONE\"\n    },\n    {\n        action: \"model-done\",\n        type: \"chat-completions-streaming\",\n        id: env.get(\"Id\")\n    }\n]];\n",
+        "func": "return [[\n    {\n        action: \"model-streaming-status\",\n        state: \"DONE\"\n    },\n    {\n        action: \"model-done\",\n        type: \"chat-completions-streaming\",\n        id: env.get(\"Id\"),\n        historyId: msg.msgIn.historyId\n    }\n]];\n",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -2507,7 +2583,7 @@
         "type": "function",
         "z": "a59054999730c251",
         "name": "Send Model Error",
-        "func": "return {\n    action: \"model-error\",\n    type: \"chat-completions-streaming\",\n    id: env.get(\"Id\"),\n    error: msg.error\n};\n",
+        "func": "return {\n    action: \"model-error\",\n    type: \"chat-completions-streaming\",\n    id: env.get(\"Id\"),\n    historyId: msg.msgIn.historyId,\n    error: msg.error\n};\n",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -2640,28 +2716,11 @@
         ]
     },
     {
-        "id": "91b8f324ded5c846",
-        "type": "batch",
-        "z": "a59054999730c251",
-        "name": "",
-        "mode": "count",
-        "count": 10,
-        "overlap": 0,
-        "interval": "1",
-        "allowEmptySequence": false,
-        "topics": [],
-        "x": 480,
-        "y": 900,
-        "wires": [
-            []
-        ]
-    },
-    {
         "id": "b02f3649626d6560",
         "type": "function",
         "z": "a59054999730c251",
         "name": "Batch",
-        "func": "const batchSize = env.get(\"Batch\");\n\n// ignore legacy actions\nif ([\"model-streaming-content\", \"model-streaming-status\"].includes(msg.action)) {\n    // we'll resend the legeacy actions\n    return;\n}\n\nlet messageBuffer = context.get(\"messageBuffer\");\nif (!messageBuffer) {\n    messageBuffer = []\n}\n\nconst makeBatch = () => {\n    const batchedContent = messageBuffer.reduce((content, message) => content + message.content, \"\");\n    const batchedMessages = [\n        {\n            action: \"model-content\",\n            type: messageBuffer[0].type,\n            id: messageBuffer[0].id,\n            content: batchedContent\n        },\n        {\n            action: \"model-streaming-content\",\n            content: batchedContent\n        }\n    ];\n    context.set(\"messageBuffer\", []);\n    return batchedMessages;\n}\n\n// if we are stopping\nif (msg.action == \"model-done\") {\n    // send the rest of our current batch before sending our status\n    const messages = [msg, {\n        action: \"model-streaming-status\",\n        state: \"DONE\"\n    }];\n    if (messageBuffer.length > 0) {\n        messages.unshift(...makeBatch());\n    }\n    return [messages];\n}\n\nmessageBuffer.push(msg);\ncontext.set(\"messageBuffer\", messageBuffer);\nif (messageBuffer.length === batchSize) {\n    return [makeBatch()];\n}\n",
+        "func": "const batchSize = env.get(\"Batch\");\n\n// ignore legacy actions\nif ([\"model-streaming-content\", \"model-streaming-status\"].includes(msg.action)) {\n    // we'll resend the legeacy actions\n    return;\n}\n\nlet messageBuffer = context.get(\"messageBuffer\");\nif (!messageBuffer) {\n    messageBuffer = []\n}\n\nconst makeBatch = () => {\n    const batchedContent = messageBuffer.reduce((content, message) => content + message.content, \"\");\n    const batchedMessages = [\n        {\n            action: \"model-content\",\n            type: messageBuffer[0].type,\n            id: messageBuffer[0].id,\n            historyId: messageBuffer[0].historyId,\n            content: batchedContent\n        },\n        {\n            action: \"model-streaming-content\",\n            content: batchedContent\n        }\n    ];\n    context.set(\"messageBuffer\", []);\n    return batchedMessages;\n}\n\n// if we are stopping\nif (msg.action == \"model-done\") {\n    // send the rest of our current batch before sending our status\n    const messages = [msg, {\n        action: \"model-streaming-status\",\n        state: \"DONE\"\n    }];\n    if (messageBuffer.length > 0) {\n        messages.unshift(...makeBatch());\n    }\n    return [messages];\n}\n\nmessageBuffer.push(msg);\ncontext.set(\"messageBuffer\", messageBuffer);\nif (messageBuffer.length === batchSize) {\n    return [makeBatch()];\n}\n",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -2757,7 +2816,7 @@
         "name": "chat styles",
         "elementId": "style-01",
         "parent": "head",
-        "slotContent": "html, body {\r\n    height: 100%;\r\n    width: 100%;\r\n}\r\n\r\n.chat-ui {\r\n    margin: 50px auto;\r\n    height: 80%;\r\n    width: 80%;\r\n    max-width: 1000px;\r\n}\r\n",
+        "slotContent": "html, body {\r\n    height: 100%;\r\n    width: 100%;\r\n    margin: 0;\r\n    padding: 0;\r\n}\r\n\r\nh1 {\r\n    font-size: 1em;\r\n    margin: 0;\r\n}\r\n\r\n.prompt-ui {\r\n    margin: 10px auto;\r\n    width: 80%;\r\n    max-width: 1000px;\r\n    gap: 0;\r\n}\r\n\r\n.chat-ui {\r\n    margin: 10px auto;\r\n    height: calc(100% - 200px);\r\n    width: 80%;\r\n    max-width: 1000px;\r\n}\r\n",
         "x": 410,
         "y": 560,
         "wires": [
@@ -2780,7 +2839,7 @@
         "finalize": "",
         "libs": [],
         "x": 960,
-        "y": 700,
+        "y": 880,
         "wires": [
             [
                 "ed0c2d4f1d21f64c"
@@ -2802,7 +2861,7 @@
         "statusVal": "",
         "statusType": "auto",
         "x": 1170,
-        "y": 700,
+        "y": 880,
         "wires": []
     },
     {
@@ -2813,7 +2872,7 @@
         "name": "Event handler: submit user message",
         "info": "",
         "x": 1020,
-        "y": 640,
+        "y": 820,
         "wires": []
     },
     {
@@ -2830,7 +2889,7 @@
         "finalize": "",
         "libs": [],
         "x": 990,
-        "y": 880,
+        "y": 1060,
         "wires": [
             [
                 "24d6b22fbb3331ef"
@@ -2845,7 +2904,7 @@
         "name": "Event handler: submit form",
         "info": "",
         "x": 990,
-        "y": 820,
+        "y": 1000,
         "wires": []
     },
     {
@@ -2856,7 +2915,7 @@
         "name": "App Controller",
         "info": "",
         "x": 610,
-        "y": 760,
+        "y": 800,
         "wires": []
     },
     {
@@ -2952,6 +3011,7 @@
         "id": "2c75870eb28bb7c5",
         "type": "debug",
         "z": "2b3efcc977e88d91",
+        "d": true,
         "g": "1309c3c5cd6f1b74",
         "name": "UI Builder Debug",
         "active": true,
@@ -2963,7 +3023,7 @@
         "statusVal": "",
         "statusType": "auto",
         "x": 630,
-        "y": 920,
+        "y": 960,
         "wires": []
     },
     {
@@ -3026,12 +3086,13 @@
         "url": "Url",
         "urlType": "env",
         "x": 600,
-        "y": 820,
+        "y": 860,
         "wires": [
             [
                 "d0bc8cbbd38f96d0",
                 "ec546330d29baba3",
-                "e9e910c0b95eb6fc"
+                "e9e910c0b95eb6fc",
+                "8898a853cc54512d"
             ],
             [
                 "2c75870eb28bb7c5"
@@ -3043,8 +3104,15 @@
         "type": "subflow:9d188e904c4abf9e",
         "z": "2b3efcc977e88d91",
         "g": "573a66c74ad47252",
-        "name": "",
-        "x": 430,
+        "name": "prompt-ui",
+        "env": [
+            {
+                "name": "HTML Id",
+                "value": "prompt-01",
+                "type": "str"
+            }
+        ],
+        "x": 420,
         "y": 600,
         "wires": [
             [
@@ -3056,6 +3124,7 @@
         "id": "e9e910c0b95eb6fc",
         "type": "debug",
         "z": "2b3efcc977e88d91",
+        "d": true,
         "g": "1309c3c5cd6f1b74",
         "name": "UI Builder Events",
         "active": true,
@@ -3067,7 +3136,37 @@
         "statusVal": "",
         "statusType": "auto",
         "x": 630,
-        "y": 880,
+        "y": 920,
+        "wires": []
+    },
+    {
+        "id": "8898a853cc54512d",
+        "type": "function",
+        "z": "2b3efcc977e88d91",
+        "g": "31f8fa8c2bd1eaa9",
+        "name": "Update prompt",
+        "func": "const promptId = \"prompt-01\"\n\nconst newPrompt = msg.payload[`${promptId}-prompt`]\n\nif (!newPrompt) {\n    return;\n}\n\nmsg.prompt = newPrompt;\nmsg.action = \"prompt-update\";\n\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 960,
+        "y": 700,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "d4c07ba40b49d1c4",
+        "type": "comment",
+        "z": "2b3efcc977e88d91",
+        "g": "31f8fa8c2bd1eaa9",
+        "name": "Event handler: update prompt",
+        "info": "",
+        "x": 1000,
+        "y": 640,
         "wires": []
     },
     {
@@ -3172,7 +3271,7 @@
         "type": "function",
         "z": "ce6026c0ffde68ba",
         "name": "Read historyDb file",
-        "func": "const { readFileSync } = fs;\n\nconst id = env.get(\"Id\") || msg.id;\nconst filename = msg.historyDbFilenames[id]\n\ntry {\n    msg.payload = readFileSync(filename).toString().trim();\n    if (!msg.payload) {\n        throw new Error(\"HistoryDb file empty.\");\n    }\n    node.log(`Parsed history file content: \\`${msg.payload}\\``);\n}\ncatch (e) {\n    throw new Error(`Error reading historyDb (id: ${id}) file (${filename}): ${e}`);\n}\n\nreturn msg;\n",
+        "func": "const { readFileSync } = fs;\n\nmsg.historyId = env.get(\"Id\") || msg.id;\nconst filename = msg.historyDbFilenames[msg.historyId]\n\ntry {\n    msg.payload = readFileSync(filename).toString().trim();\n    if (!msg.payload) {\n        throw new Error(\"HistoryDb file empty.\");\n    }\n    node.log(`Parsed history file content: \\`${msg.payload}\\``);\n}\ncatch (e) {\n    throw new Error(`Error reading historyDb (id: ${msg.historyId}) file (${filename}): ${e}`);\n}\n\nreturn msg;\n",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -3352,7 +3451,7 @@
         "type": "function",
         "z": "ae4739904e91e32d",
         "name": "provide parseMarkdown",
-        "func": "const escapeHTML = str => str.replace(\n    /[&<>'\"]/g,\n    tag => ({\n        '&': '&amp;',\n        '<': '&lt;',\n        '>': '&gt;',\n        \"'\": '&#39;',\n        '\"': '&quot;'\n    }[tag])\n);\nconst DOMPurify = createDOMPurify(new jsdom.JSDOM('').window);\nmsg.parseMarkdown = (md) =>\n    DOMPurify.sanitize(marked.parse(escapeHTML(md)));\n\nreturn msg;\n",
+        "func": "const escapeHTML = str => {\n    let inCodeBlock = false;\n    let escapedStr = '';\n\n    for (let i = 0; i < str.length; i++) {\n        if (str[i] === '`' && str[i - 1] !== '`') {\n            inCodeBlock = !inCodeBlock;\n        }\n\n        if (!inCodeBlock) {\n            switch (str[i]) {\n                case '&':\n                    escapedStr += '&amp;';\n                    break;\n                case '<':\n                    escapedStr += '&lt;';\n                    break;\n                case '>':\n                    escapedStr += '&gt;';\n                    break;\n                case \"'\":\n                    escapedStr += '&#39;';\n                    break;\n                case '\"':\n                    escapedStr += '&quot;';\n                    break;\n                default:\n                    escapedStr += str[i];\n            }\n        } else {\n            escapedStr += str[i];\n        }\n    }\n\n    return escapedStr;\n};\n\nconst DOMPurify = createDOMPurify(new jsdom.JSDOM('').window);\nmsg.parseMarkdown = (md) =>\n    DOMPurify.sanitize(marked.parse(escapeHTML(md)));\n\nreturn msg;\n",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -3398,18 +3497,23 @@
             },
             {
                 "t": "eq",
-                "v": "model-streaming-status",
+                "v": "model-connecting",
                 "vt": "str"
             },
             {
                 "t": "eq",
-                "v": "model-streaming-content",
+                "v": "model-done",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "model-content",
                 "vt": "str"
             }
         ],
         "checkall": "true",
         "repair": false,
-        "outputs": 4,
+        "outputs": 5,
         "x": 550,
         "y": 480,
         "wires": [
@@ -3420,7 +3524,10 @@
                 "7249f13b4ba0284a"
             ],
             [
-                "5cd0f799077a1cbe"
+                "17e166dfd3532851"
+            ],
+            [
+                "93f4adc1d2f5c323"
             ],
             [
                 "1bce8e1d0eace47a"
@@ -3439,8 +3546,8 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 1060,
-        "y": 480,
+        "x": 820,
+        "y": 460,
         "wires": [
             [
                 "6fa0a1f2a8dfa0a6"
@@ -3459,8 +3566,8 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 1090,
-        "y": 620,
+        "x": 850,
+        "y": 600,
         "wires": [
             [
                 "6fa0a1f2a8dfa0a6"
@@ -3479,8 +3586,8 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 1060,
-        "y": 400,
+        "x": 820,
+        "y": 380,
         "wires": [
             [
                 "6fa0a1f2a8dfa0a6"
@@ -3571,39 +3678,6 @@
         ]
     },
     {
-        "id": "5cd0f799077a1cbe",
-        "type": "switch",
-        "z": "74bd10ee8e354d0a",
-        "name": "Streaming Statuses",
-        "property": "state",
-        "propertyType": "msg",
-        "rules": [
-            {
-                "t": "eq",
-                "v": "CONNECTING",
-                "vt": "str"
-            },
-            {
-                "t": "eq",
-                "v": "DONE",
-                "vt": "str"
-            }
-        ],
-        "checkall": "false",
-        "repair": false,
-        "outputs": 2,
-        "x": 830,
-        "y": 500,
-        "wires": [
-            [
-                "17e166dfd3532851"
-            ],
-            [
-                "93f4adc1d2f5c323"
-            ]
-        ]
-    },
-    {
         "id": "93f4adc1d2f5c323",
         "type": "function",
         "z": "74bd10ee8e354d0a",
@@ -3615,8 +3689,8 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 1060,
-        "y": 540,
+        "x": 820,
+        "y": 520,
         "wires": [
             [
                 "6fa0a1f2a8dfa0a6"
@@ -3628,8 +3702,8 @@
         "type": "subflow:ce6026c0ffde68ba",
         "z": "74bd10ee8e354d0a",
         "name": "",
-        "x": 290,
-        "y": 640,
+        "x": 330,
+        "y": 720,
         "wires": [
             [
                 "5ecc4c49da25a80b"
@@ -3651,7 +3725,7 @@
             },
             {
                 "t": "regex",
-                "v": "(history-add-entry)|(model-streaming-status)|(model-streaming-content)",
+                "v": "(history-add-entry)|(model-connecting)|(model-content)|(model-done)",
                 "vt": "str",
                 "case": false
             }
@@ -3675,8 +3749,8 @@
         "type": "subflow:680a38a9fc7ffbbc",
         "z": "74bd10ee8e354d0a",
         "name": "",
-        "x": 1500,
-        "y": 420,
+        "x": 1140,
+        "y": 460,
         "wires": [
             [
                 "d1e76fbf62daa7ea",
@@ -3721,8 +3795,8 @@
         "from": "",
         "to": "",
         "reg": false,
-        "x": 1740,
-        "y": 380,
+        "x": 1380,
+        "y": 420,
         "wires": [
             [
                 "cb144a6f342ae0b4"
@@ -3761,8 +3835,8 @@
         "targetType": "full",
         "statusVal": "",
         "statusType": "auto",
-        "x": 1940,
-        "y": 460,
+        "x": 1580,
+        "y": 500,
         "wires": []
     },
     {
@@ -3777,8 +3851,8 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 1065,
-        "y": 780,
+        "x": 875,
+        "y": 720,
         "wires": [
             [
                 "40c235a781afb37d"
@@ -3799,8 +3873,8 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 280,
-        "y": 600,
+        "x": 320,
+        "y": 680,
         "wires": [
             [
                 "0d2c7f406e329ad7"
@@ -3819,8 +3893,8 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 1510,
-        "y": 460,
+        "x": 1150,
+        "y": 500,
         "wires": [
             [
                 "3b954f62045abd5b"
@@ -3839,6 +3913,63 @@
         "wires": []
     },
     {
+        "id": "b4d35d18f82cbc61",
+        "type": "switch",
+        "z": "74bd10ee8e354d0a",
+        "name": "If model action, else",
+        "property": "action",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "regex",
+                "v": "^model-",
+                "vt": "str",
+                "case": false
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 260,
+        "y": 560,
+        "wires": [
+            [
+                "ac72e1cba245a8cd"
+            ],
+            [
+                "40c235a781afb37d"
+            ]
+        ]
+    },
+    {
+        "id": "ac72e1cba245a8cd",
+        "type": "switch",
+        "z": "74bd10ee8e354d0a",
+        "name": "If correct history id",
+        "property": "historyId",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "id",
+                "vt": "msg"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 250,
+        "y": 600,
+        "wires": [
+            [
+                "40c235a781afb37d"
+            ]
+        ]
+    },
+    {
         "id": "89c8968be6b620cf",
         "type": "function",
         "z": "74bd10ee8e354d0a",
@@ -3850,11 +3981,11 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 290,
-        "y": 560,
+        "x": 230,
+        "y": 500,
         "wires": [
             [
-                "40c235a781afb37d"
+                "b4d35d18f82cbc61"
             ]
         ]
     },
@@ -4453,39 +4584,6 @@
                 "a99b59b008d644da"
             ]
         ]
-    },
-    {
-        "id": "16dd70ed6252b1f2",
-        "type": "ui-builder",
-        "z": "af1b515113cefcff",
-        "name": "test",
-        "url": "Url",
-        "urlType": "env",
-        "x": 250,
-        "y": 200,
-        "wires": [
-            [],
-            [
-                "2271bbb4b52b5909"
-            ]
-        ]
-    },
-    {
-        "id": "2271bbb4b52b5909",
-        "type": "debug",
-        "z": "af1b515113cefcff",
-        "name": "debug 30",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "true",
-        "targetType": "full",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 510,
-        "y": 240,
-        "wires": []
     },
     {
         "id": "6d867683994b3ab2",
@@ -5595,6 +5693,216 @@
         ]
     },
     {
+        "id": "1f9838526c71a615",
+        "type": "subflow:74bd10ee8e354d0a",
+        "z": "f19bc65164444615",
+        "name": "",
+        "x": 900,
+        "y": 440,
+        "wires": [
+            [
+                "c9503f57f2cb91a0"
+            ]
+        ]
+    },
+    {
+        "id": "6ea2427c62da31ce",
+        "type": "function",
+        "z": "f19bc65164444615",
+        "name": "Init",
+        "func": "msg.id = env.get(\"Factory Id\") || msg.factoryId || `programatic-history-factory-${Math.floor(Math.random() * 1000)}`;\nflow.set(\"Id\", msg.id);\nflow.set(\"Histories\", {});\n\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 630,
+        "y": 240,
+        "wires": [
+            [
+                "56d72b63240b58d6"
+            ]
+        ]
+    },
+    {
+        "id": "ac1128419ebdc901",
+        "type": "switch",
+        "z": "f19bc65164444615",
+        "name": "Action",
+        "property": "action",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "prog-factory-init",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "prog-history-init",
+                "vt": "str"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 3,
+        "x": 410,
+        "y": 420,
+        "wires": [
+            [
+                "6ea2427c62da31ce"
+            ],
+            [
+                "91e592e7dd2607ad"
+            ],
+            [
+                "385f44c059a65470"
+            ]
+        ]
+    },
+    {
+        "id": "91e592e7dd2607ad",
+        "type": "function",
+        "z": "f19bc65164444615",
+        "name": "Create History",
+        "func": "const defaultId = `programatic-history-${Math.floor(Math.random() * 1000)}`;\n\nmsg.action = \"history-init\";\n\nif (!msg.historyId) {\n    msg.historyId = defaultId;\n}\n\nif (!msg.historySourceFilename) {\n    msg.historySourceFilename = `/data/db/${defaultId}.json`;\n}\n\nmsg.histories[msg.historyId] = msg.historySourceFilename;\n\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 660,
+        "y": 360,
+        "wires": [
+            [
+                "1f9838526c71a615"
+            ]
+        ]
+    },
+    {
+        "id": "c9503f57f2cb91a0",
+        "type": "switch",
+        "z": "f19bc65164444615",
+        "name": "If history-init, else",
+        "property": "action",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "history-init",
+                "vt": "str"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 930,
+        "y": 480,
+        "wires": [
+            [
+                "385f44c059a65470"
+            ],
+            [
+                "56d72b63240b58d6"
+            ]
+        ]
+    },
+    {
+        "id": "385f44c059a65470",
+        "type": "function",
+        "z": "f19bc65164444615",
+        "name": "Send history action",
+        "func": "const histories = flow.get(\"Histories\");\nconst queue = context.get(\"Queue\") || {};\n\nif (msg.action == \"history-init\") {\n    // get our queue\n    const historyQueue = queue[msg.id];\n\n    // if we have no queue\n    if (!historyQueue) {\n        // then just send the init action along\n        return {\n            ...msg,\n            passThrough: true\n        };\n    }\n\n    // else, send our queued actions to our now initialized history\n    delete queue[msg.id];\n    context.set(\"Queue\", queue);\n    return [historyQueue];\n}\n\nlet historyId,\n    historyAction,\n    missingIdError = true;\n\nif (msg.action.startsWith(\"model-\")) {\n    historyId = msg.historyId;\n    historyAction = msg.action;\n    missingIdError = false;\n}\n\nif (msg.action.startsWith(\"prog-history-\")) {\n    historyId = msg.id;\n    historyAction = msg.action.replace(\"prog-history-\", \"history-\");\n}\n\n// if we don't have this history on record\nconst historyFilename = msg.histories[historyId];\nif (!historyFilename) {\n    if (missingIdError) {\n        node.error(`Skipping action: ${msg.action} for history id: ${historyId}`);\n    }\n    return;\n}\n\n// add to queue\nconst historyQueue = queue[historyId] || {};\nhistoryQueue.push({\n    ...msg,\n    action: historyAction\n});\ncontext.set(\"Queue\", queue);\n\n// init our history before sending our action\nreturn {\n    action: \"history-init\",\n    historySourceFilename: historyFilename\n};\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 670,
+        "y": 580,
+        "wires": [
+            [
+                "2f18c3b72b0c9ed4"
+            ]
+        ]
+    },
+    {
+        "id": "2f18c3b72b0c9ed4",
+        "type": "switch",
+        "z": "f19bc65164444615",
+        "name": "Pass through",
+        "property": "passThrough",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "true"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 690,
+        "y": 620,
+        "wires": [
+            [
+                "56d72b63240b58d6"
+            ],
+            [
+                "1f9838526c71a615"
+            ]
+        ]
+    },
+    {
+        "id": "249204d92550e10f",
+        "type": "function",
+        "z": "f19bc65164444615",
+        "name": "Inject histories",
+        "func": "msg.histories = flow.get(\"Histories\");\n\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 220,
+        "y": 360,
+        "wires": [
+            [
+                "ac1128419ebdc901"
+            ]
+        ]
+    },
+    {
+        "id": "56d72b63240b58d6",
+        "type": "function",
+        "z": "f19bc65164444615",
+        "name": "Update histories",
+        "func": "flow.set(\"Histories\", msg.histories);\n\ndelete msg.histories;\n\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1220,
+        "y": 480,
+        "wires": [
+            []
+        ]
+    },
+    {
         "id": "c0c36621780669a4",
         "type": "subflow:a59054999730c251",
         "z": "9e23ccbf2e0608ed",
@@ -5640,30 +5948,9 @@
         "wires": []
     },
     {
-        "id": "d7a8dd27f97a1a87",
-        "type": "template",
-        "z": "9e23ccbf2e0608ed",
-        "name": "Prompt",
-        "field": "systemPrompt",
-        "fieldType": "msg",
-        "format": "handlebars",
-        "syntax": "mustache",
-        "template": "You are a helpful chat bot that will perform any requested tasks to the best of your ability.",
-        "output": "str",
-        "x": 540,
-        "y": 280,
-        "wires": [
-            [
-                "d9e8ec2ee480957d",
-                "5e149325f881f48b"
-            ]
-        ]
-    },
-    {
         "id": "977f9402195729c4",
         "type": "subflow:a59054999730c251",
         "z": "9e23ccbf2e0608ed",
-        "d": true,
         "g": "0e1cb402b61eb646",
         "name": "Model - genai - llama-cpp-llava",
         "env": [
@@ -5690,6 +5977,7 @@
         "id": "a63ac3946c2843eb",
         "type": "debug",
         "z": "9e23ccbf2e0608ed",
+        "d": true,
         "g": "aaf9af66d3e39da8",
         "name": "Model Output",
         "active": true,
@@ -5721,7 +6009,7 @@
         "wires": [
             [
                 "246a383da043e031",
-                "d7a8dd27f97a1a87"
+                "34dd380b3322dc77"
             ]
         ]
     },
@@ -5744,7 +6032,7 @@
         "env": [
             {
                 "name": "SourceFilename",
-                "value": "/data/db/bad-prompt-01.json",
+                "value": "/data/db/history-1711926907124.json",
                 "type": "str"
             }
         ],
@@ -5752,7 +6040,7 @@
         "y": 220,
         "wires": [
             [
-                "d7a8dd27f97a1a87"
+                "c865bad2cdc088e0"
             ]
         ]
     },
@@ -5880,6 +6168,7 @@
         "id": "33ca3631b9af0d55",
         "type": "subflow:a59054999730c251",
         "z": "9e23ccbf2e0608ed",
+        "d": true,
         "g": "0e1cb402b61eb646",
         "name": "Model - genai - llama-cpp-mistral-8x",
         "env": [
@@ -5926,6 +6215,55 @@
         ],
         "icon": "font-awesome/fa-arrows",
         "l": false
+    },
+    {
+        "id": "c865bad2cdc088e0",
+        "type": "function",
+        "z": "9e23ccbf2e0608ed",
+        "g": "bf3cb919a9b18a74",
+        "name": "System Prompt",
+        "func": "// Initial prompt\nconst initialPrompt = `You are a helpful chat bot that will perform any requested tasks to the best of your ability.`;\n\n// if this is an update prompt message\nif (msg.action == \"prompt-update\") {\n    // update our prompt\n    context.set(\"prompt\", msg.prompt);\n    // that's all\n    return msg;\n}\n\n// get current prompt\nlet currentPrompt = context.get(\"prompt\");\n\nif (!currentPrompt) {\n    currentPrompt = initialPrompt\n    context.set(\"prompt\", currentPrompt);\n}\n\nmsg.systemPrompt = currentPrompt;\n\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 580,
+        "y": 320,
+        "wires": [
+            [
+                "5e149325f881f48b",
+                "d9e8ec2ee480957d"
+            ]
+        ]
+    },
+    {
+        "id": "34dd380b3322dc77",
+        "type": "switch",
+        "z": "9e23ccbf2e0608ed",
+        "g": "bf3cb919a9b18a74",
+        "name": "If prompt action",
+        "property": "action",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "regex",
+                "v": "^prompt-",
+                "vt": "str",
+                "case": false
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 580,
+        "y": 280,
+        "wires": [
+            [
+                "c865bad2cdc088e0"
+            ]
+        ]
     },
     {
         "id": "fe160cbe0df384e5",
@@ -7611,130 +7949,6 @@
         "wires": [
             [
                 "3fe3f4f66c1086bc"
-            ]
-        ]
-    },
-    {
-        "id": "15aec0fd7f870fd5",
-        "type": "debug",
-        "z": "9e87c8093f3fec74",
-        "name": "debug 28",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "true",
-        "targetType": "full",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 660,
-        "y": 300,
-        "wires": []
-    },
-    {
-        "id": "08050dfc39edd7b4",
-        "type": "inject",
-        "z": "9e87c8093f3fec74",
-        "name": "",
-        "props": [
-            {
-                "p": "_ui",
-                "v": "{\"method\":\"add\",\"parent\":\"body\",\"components\":[{\"type\":\"p\",\"id\":\"uniqueid\",\"slot\":\"HTML to <i>add</i> to <sup>slot</sup> instead of <code>msg.payload</code>\"}]}",
-                "vt": "json"
-            }
-        ],
-        "repeat": "",
-        "crontab": "",
-        "once": false,
-        "onceDelay": 0.1,
-        "topic": "",
-        "x": 250,
-        "y": 180,
-        "wires": [
-            [
-                "4dbabd6e04735026"
-            ]
-        ]
-    },
-    {
-        "id": "4dbabd6e04735026",
-        "type": "subflow:af1b515113cefcff",
-        "z": "9e87c8093f3fec74",
-        "name": "",
-        "env": [
-            {
-                "name": "Url",
-                "value": "ui-8787",
-                "type": "str"
-            }
-        ],
-        "x": 450,
-        "y": 260,
-        "wires": [
-            [
-                "15aec0fd7f870fd5"
-            ]
-        ]
-    },
-    {
-        "id": "78593eaf43bbf554",
-        "type": "debug",
-        "z": "485c70f6fb13d295",
-        "name": "debug 31",
-        "active": true,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "true",
-        "targetType": "full",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 639.2000122070312,
-        "y": 233.1999969482422,
-        "wires": []
-    },
-    {
-        "id": "b8689089755dbc55",
-        "type": "inject",
-        "z": "485c70f6fb13d295",
-        "name": "",
-        "props": [
-            {
-                "p": "_ui",
-                "v": "{\"method\":\"add\",\"parent\":\"body\",\"components\":[{\"type\":\"p\",\"id\":\"uniqueid\",\"slot\":\"HTML to <i>add</i> to <sup>slot</sup> instead of <code>UI FLOW 3</code>\"}]}",
-                "vt": "json"
-            }
-        ],
-        "repeat": "",
-        "crontab": "",
-        "once": false,
-        "onceDelay": 0.1,
-        "topic": "",
-        "x": 219.20001220703125,
-        "y": 113.19999694824219,
-        "wires": [
-            [
-                "9a118035ea1a4303"
-            ]
-        ]
-    },
-    {
-        "id": "9a118035ea1a4303",
-        "type": "subflow:af1b515113cefcff",
-        "z": "485c70f6fb13d295",
-        "name": "",
-        "env": [
-            {
-                "name": "Url",
-                "value": "ui-99",
-                "type": "str"
-            }
-        ],
-        "x": 439.20001220703125,
-        "y": 193.1999969482422,
-        "wires": [
-            [
-                "78593eaf43bbf554"
             ]
         ]
     },
