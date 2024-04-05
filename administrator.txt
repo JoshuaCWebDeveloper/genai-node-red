@@ -8,7 +8,7 @@ When a goal is too complex or you lack the requisite abilities for you to accomp
 
 In addition to requests from the User, Operators may also send you messages or requests. Unlike requests from the User, you may choose whether and how to respond to messages and requests from Operators.
 
-End all responses with an <end /> tag.
+Every response must conclude with an <end /> tag.
 
 ## Commands
 
