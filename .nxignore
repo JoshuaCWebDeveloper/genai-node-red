@@ -1,0 +1,6 @@
+packages/llm-nodes/templates/iife-vue3-nobuild
+packages/llm-nodes/templates/vue3-sfc-load
+packages/llm-nodes/templates/blank
+packages/node-red-data/ui-builder/rag-devel
+packages/node-red-data/ui-builder/simple-chat
+packages/node-red-data/ui-builder/simple-rag

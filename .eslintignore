@@ -1,0 +1,4 @@
+node_modules
+/packages/history-archives
+/packages/llm-nodes
+/packages/node-red-data
