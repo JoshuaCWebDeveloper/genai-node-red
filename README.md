@@ -89,7 +89,7 @@ This section outlines the epics and their associated tasks for the development o
 
 -   [ ] **Flow Builder**
 
-    -   [ ] (Priority 1) Design the flow canvas for placing and connecting nodes.
+    -   [x] (Priority 1) Design the flow canvas for placing and connecting nodes.
     -   [ ] (Priority 2) Implement the node palette with search and filter capabilities.
     -   [ ] (Priority 3) Implement drag-and-drop interface for nodes.
     -   [ ] (Priority 4) Develop node connection functionality.
