@@ -81,77 +81,156 @@ The custom frontend client for Node-RED will focus on providing an intuitive and
 -   [Subscribe to the Nx Youtube Channel](https://www.youtube.com/@nxdevtools)
 -   [Follow us on Twitter](https://twitter.com/nxdevtools)
 
-## Project Management
+## Project Management - SCRUM Flow
 
-This section outlines the epics and their associated tasks for the development of the custom frontend client for Node-RED. We use checklists to track progress on each epic and its tasks.
+### Backlog
 
-### Epics and Tasks
+The backlog is organized by epic, with each task having a unique ID, description, priority, associated epic, and detailed descriptions all in one place, using nested lists to preserve the structure of task details.
 
--   [ ] **Flow Builder**
+#### Epic: Flow Builder
 
-    -   [x] (Priority 1) Design the flow canvas for placing and connecting nodes.
-    -   [ ] (Priority 2) Implement the node palette with search and filter capabilities.
-    -   [ ] (Priority 3) Implement drag-and-drop interface for nodes.
-    -   [ ] (Priority 4) Develop node connection functionality.
-    -   [ ] (Priority 5) Implement editor UI for nodes (individual node attributes, properties, dialog box, etc...).
-    -   [ ] (Priority 7) Create context menu for node options.
-    -   [ ] (Priority 8) Add undo/redo functionality for flow editing.
-    -   [ ] (Priority 9) Implement an auto-save feature to periodically save work.
-    -   [ ] (Priority 10) Implement connection validation to ensure valid flows and report any errors to the user before saving.
-    -   [ ] (Priority 11) Ensure the flow builder interface is responsive across devices.
-    -   [ ] (Priority 12) Optimize performance for a smooth user experience.
-    -   [ ] (Priority 13) Provide help and tutorial guides for new users.
+-   **FB-01** (Priority: 1): Design the flow canvas for placing and connecting nodes.
+    -   **Objective**: Create a user-friendly and intuitive canvas area where users can add, arrange, and connect nodes to form flows.
+    -   **Technical Requirements**:
+        -   Implement a scalable and navigable canvas that supports zooming and panning.
+        -   Design considerations must include how nodes will be displayed, selected, and how connections between nodes will be visualized.
+        -   The canvas should support high performance, even with a large number of nodes and connections.
+        -   Integration points with `@projectstorm/react-diagrams` need to be identified and utilized for rendering the canvas and its elements.
+        -   To accomplish this task, the following components from `@projectstorm/react-diagrams` and React will be utilized:
+            1. **DiagramEngine**: Manages the rendering and operation of the diagram, handling the setup and rendering of the canvas, nodes, and links.
+            2. **DiagramModel**: Represents the model of the diagram, including nodes, links, and their connections. This is used by the `DiagramEngine` to render the diagram.
+            3. **CanvasWidget**: Renders the flow canvas, taking a `DiagramEngine` as a prop and displaying the diagram based on the current model.
+            4. **DefaultNodeModel** and **DefaultPortModel**: Used for creating nodes with ports that can be connected with links. These models support the basic functionality needed for the initial task.
+            5. **DefaultLinkModel**: Represents the connections between ports on different nodes, supporting straight and curved links that can be styled.
+-   **FB-02** (Priority: 2): Implement the node palette with search and filter capabilities.
+    -   **Objective**: Develop a sidebar or palette that displays available nodes, allowing users to search and filter nodes to find what they need quickly.
+    -   **Technical Requirements**:
+        -   The node palette should categorize nodes based on their type or functionality to help users find the appropriate nodes for their flows.
+        -   Implement search functionality that allows users to type in keywords to filter and quickly locate specific nodes.
+        -   Each node in the palette should have a visual representation (icon and label) that makes it easy to identify.
+        -   Ensure that the node palette is responsive and accessible, with considerations for keyboard navigation and screen readers.
+        -   The implementation should be modular, allowing for easy updates or additions of new node types in the future.
+-   **FB-03** (Priority: 3): Implement drag-and-drop interface for nodes.
+    -   **Objective**: Enable users to drag nodes from the node palette and drop them onto the canvas to add them to their flow.
+    -   **Technical Requirements**:
+        -   Utilize `react-dnd` for implementing the drag-and-drop functionality, ensuring a smooth and intuitive user experience.
+        -   Ensure that nodes can be dragged from the palette and visually follow the cursor until dropped onto the canvas.
+        -   On dropping a node onto the canvas, the node should be added to the flow at the drop location, with its position being adjustable by dragging.
+        -   Implement visual feedback during the drag operation, such as highlighting potential drop areas or showing a "ghost" of the node being dragged.
+        -   Considerations must be made for how the canvas and nodes respond to different screen sizes and resolutions.
+-   **FB-04** (Priority: 4): Develop node connection functionality.
+    -   **Objective**: Allow users to create connections between nodes on the canvas, forming logical flows.
+    -   **Technical Requirements**:
+        -   Implement a method for users to draw connections between nodes, possibly by dragging from one node's output port to another node's input port.
+        -   Utilize `@projectstorm/react-diagrams` for managing the rendering and logic of connections, ensuring compatibility with the library's way of handling links.
+        -   Connections should be visually distinct and should support different styles (straight lines, curves) to enhance readability.
+        -   Include validation to ensure that connections between incompatible node types or ports are not allowed.
+        -   Provide visual feedback during the connection process, such as highlighting compatible ports when drawing a connection.
+-   **FB-05** (Priority: 5): Implement editor UI for nodes.
+    -   **Objective**: Provide a user-friendly interface for configuring and editing node properties.
+    -   **Technical Requirements**:
+        -   Implement UI components for editing node properties, including individual node attributes and dialog boxes for configuration.
 
--   [ ] **Node Management Interface**
+#### Epic: Node Management Interface
 
-    -   [ ] Design sidebar for displaying nodes.
-    -   [ ] Categorize nodes by type/functionality.
-    -   [ ] Implement UI for node configuration and editing.
+-   **NMI-01**: Design sidebar for displaying nodes.
+    -   **Objective**: Create a sidebar interface for displaying available nodes to the user.
+    -   **Technical Requirements**: The sidebar should categorize nodes by type/functionality and provide an easy-to-navigate interface.
+-   **NMI-02**: Categorize nodes by type/functionality.
+    -   **Objective**: Organize nodes in the sidebar based on their type or functionality.
+    -   **Technical Requirements**: Implement a categorization system within the UI that allows for easy filtering and selection of node types.
 
--   [ ] **Flow and Subflow Management**
+#### Epic: Flow and Subflow Management
 
-    -   [ ] Develop UI for creating new flows/subflows.
-    -   [ ] Implement flow/subflow organization mechanisms.
+-   **FM-01**: Develop UI for creating new flows/subflows.
+    -   **Objective**: Facilitate the creation of new flows and subflows within the application.
+    -   **Technical Requirements**: Implement a user interface that allows for the easy organization and management of flows and subflows.
+-   **FM-02**: Implement flow/subflow organization mechanisms.
+    -   **Objective**: Provide mechanisms for organizing and managing flows and subflows.
+    -   **Technical Requirements**: Develop features that allow users to segment their work into manageable, modular flows and subflows.
 
--   [ ] **Integration with Node-RED Backend**
+#### Epic: Integration with Node-RED Backend
 
-    -   [ ] Establish API communication for flow management.
-    -   [ ] Implement import/export functionality for flows.
-    -   [ ] Ensure authentication and authorization mechanisms.
+-   **IR-01**: Establish API communication for flow management.
+    -   **Objective**: Enable communication between the frontend client and the Node-RED backend for flow management.
+    -   **Technical Requirements**: Design and implement a service layer in the frontend that communicates with Node-RED's backend APIs.
+-   **IR-02**: Implement import/export functionality for flows.
+    -   **Objective**: Allow users to import and export their flows in JSON format.
+    -   **Technical Requirements**: Develop functionality within the frontend client that enables users to easily import and export their flows, facilitating sharing, backup, and migration of work.
+-   **IR-03**: Ensure authentication and authorization mechanisms.
+    -   **Objective**: Implement security measures for accessing and managing flows.
+    -   **Technical Requirements**: Design and integrate authentication and authorization mechanisms to protect user data and flows.
 
--   [ ] **UI/UX Design and Responsive Layout**
+#### Epic: UI/UX Design and Responsive Layout
 
-    -   [ ] Sketch initial design mockups.
-    -   [ ] Develop high-fidelity prototypes.
-    -   [ ] Implement responsive design.
+-   **UX-01**: Sketch initial design mockups.
+    -   **Objective**: Create initial design concepts for the main interface of the frontend client.
+    -   **Technical Requirements**: Use tools like Figma or Sketch to develop initial design mockups that outline the user interface and user experience.
+-   **UX-02**: Develop high-fidelity prototypes.
+    -   **Objective**: Refine design mockups into high-fidelity prototypes.
+    -   **Technical Requirements**: Utilize UI/UX design tools to create detailed and interactive prototypes that closely represent the final product.
+-   **UX-03**: Implement responsive design.
+    -   **Objective**: Ensure the frontend client is accessible and usable across various devices.
+    -   **Technical Requirements**: Adopt a responsive design approach that allows the frontend client to adapt to different screen sizes and resolutions, ensuring a consistent user experience.
 
--   [ ] **Debugging and Testing Tools**
+#### Epic: Debugging and Testing Tools
 
-    -   [ ] Incorporate basic debugging tools.
-    -   [ ] Plan and implement a logging system.
+-   **DT-01**: Incorporate basic debugging tools.
+    -   **Objective**: Enhance the development experience by providing tools for testing and troubleshooting flows.
+    -   **Technical Requirements**: Integrate debugging tools into the frontend client that assist developers and users in identifying and resolving issues within their flows.
+-   **DT-02**: Plan and implement a logging system.
+    -   **Objective**: Facilitate the monitoring and troubleshooting of the frontend client.
+    -   **Technical Requirements**: Develop a logging system that captures and stores important events and errors, aiding in the analysis and debugging of the application.
 
--   [ ] **Development Environment and Tooling Setup**
+#### Epic: Development Environment and Tooling Setup
 
-    -   [ ] Set up Nx workspace and necessary libraries.
-    -   [ ] Configure code quality tools and practices.
+-   **DE-01**: Set up Nx workspace and necessary libraries.
+    -   **Objective**: Prepare the development environment for the Node-RED frontend client project.
+    -   **Technical Requirements**: Ensure Node.js and npm are installed, set up an Nx workspace specifically for the project, and install necessary libraries and frameworks.
+-   **DE-02**: Configure code quality tools and practices.
+    -   **Objective**: Maintain high code quality throughout the development process.
+    -   **Technical Requirements**: Implement linting, code reviews, and other best practices to ensure the codebase remains clean, efficient, and maintainable.
 
--   [ ] **Testing and Quality Assurance**
+#### Epic: Testing and Quality Assurance
 
-    -   [ ] Write unit and integration tests.
-    -   [ ] Execute end-to-end tests for critical flows.
+-   **QA-01**: Write unit and integration tests.
+    -   **Objective**: Ensure the reliability and functionality of the frontend components and services.
+    -   **Technical Requirements**: Plan and execute unit and integration tests that cover critical aspects of the frontend client, using testing frameworks compatible with the project's technology stack.
+-   **QA-02**: Execute end-to-end tests for critical flows.
+    -   **Objective**: Validate the end-to-end functionality and user experience of critical user flows.
+    -   **Technical Requirements**: Design and conduct end-to-end tests that simulate real user interactions, ensuring that key features and flows work as expected.
 
--   [ ] **Deployment and CI/CD**
+#### Epic: Deployment and CI/CD
 
-    -   [ ] Configure build process for deployment.
-    -   [ ] Set up CI/CD pipelines.
+-   **CD-01**: Configure build process for deployment.
+    -   **Objective**: Prepare the frontend client for production deployment.
+    -   **Technical Requirements**: Set up and configure the build process, optimizing the application for performance and security in a production environment.
+-   **CD-02**: Set up CI/CD pipelines.
+    -   **Objective**: Automate the testing, building, and deployment processes.
+    -   **Technical Requirements**: Implement continuous integration and continuous deployment pipelines that streamline the development workflow, ensuring that changes are automatically tested and deployed.
 
--   [ ] **Documentation and Community Engagement**
-    -   [ ] Create project documentation.
-    -   [ ] Engage with the community for feedback.
+#### Epic: Documentation and Community Engagement
+
+-   **CE-01**: Create project documentation.
+    -   **Objective**: Provide comprehensive documentation for the project.
+    -   **Technical Requirements**: Develop detailed documentation that covers the setup, features, and usage of the frontend client, assisting users and developers in understanding and working with the application.
+-   **CE-02**: Engage with the community for feedback.
+    -   **Objective**: Gather feedback and insights from the community.
+    -   **Technical Requirements**: Establish channels for communication with the user and developer community, encouraging feedback and collaboration to improve the project.
+
+### Scrum Board
+
+| To Do | In Progress | In Review | Done  |
+| ----- | ----------- | --------- | ----- |
+| FB-02 |             |           | FB-01 |
+| FB-03 |             |           |       |
+| FB-04 |             |           |       |
+| FB-05 |             |           |       |
+|       |             |           |       |
 
 ### Progress Tracking
 
-As tasks are completed, check them off to visually track progress towards the completion of each epic. This interactive checklist will help keep the project organized and provide a clear view of what has been accomplished and what remains to be done.
+Use the Scrum Board to visually track the progress of tasks through the To Do, In Progress, In Review, and Done columns. This method provides a clear view of the project's progress and helps identify any bottlenecks or areas that require additional focus.
 
 ## Flow Builder Development - Technical Details
 
@@ -179,60 +258,3 @@ The Flow Builder is the cornerstone of our custom frontend client for Node-RED, 
 -   **react-hook-form** will be employed in modal dialogs for node configuration, ensuring that form data is efficiently managed and validated, providing a user-friendly configuration experience.
 
 By leveraging these libraries, we aim to build a Flow Builder that is not only powerful and flexible but also intuitive and user-friendly. This will enable users to efficiently create and manage their Node-RED flows directly within our custom frontend client.
-
-## Flow Builder - Detailed Task Descriptions
-
-### Priority 1: Design the Flow Canvas for Placing and Connecting Nodes
-
-**Objective**: Create a user-friendly and intuitive canvas area where users can add, arrange, and connect nodes to form flows.
-
-**Technical Requirements**:
-
--   Implement a scalable and navigable canvas that supports zooming and panning.
--   Design considerations must include how nodes will be displayed, selected, and how connections between nodes will be visualized.
--   The canvas should be implemented in a way that supports high performance, even with a large number of nodes and connections.
--   Integration points with `@projectstorm/react-diagrams` need to be identified and utilized for rendering the canvas and its elements.
-
-To accomplish this task, the following components from `@projectstorm/react-diagrams` and React will be utilized:
-
-1. **DiagramEngine**: Manages the rendering and operation of the diagram, handling the setup and rendering of the canvas, nodes, and links.
-2. **DiagramModel**: Represents the model of the diagram, including nodes, links, and their connections. This is used by the `DiagramEngine` to render the diagram.
-3. **CanvasWidget**: Renders the flow canvas, taking a `DiagramEngine` as a prop and displaying the diagram based on the current model.
-4. **DefaultNodeModel** and **DefaultPortModel**: Used for creating nodes with ports that can be connected with links. These models support the basic functionality needed for the initial task.
-5. **DefaultLinkModel**: Represents the connections between ports on different nodes, supporting straight and curved links that can be styled.
-
-### Priority 2: Implement the Node Palette with Search and Filter Capabilities
-
-**Objective**: Develop a sidebar or palette that displays available nodes, allowing users to search and filter nodes to find what they need quickly.
-
-**Technical Requirements**:
-
--   The node palette should categorize nodes based on their type or functionality to help users find the appropriate nodes for their flows.
--   Implement search functionality that allows users to type in keywords to filter and quickly locate specific nodes.
--   Each node in the palette should have a visual representation (icon and label) that makes it easy to identify.
--   Ensure that the node palette is responsive and accessible, with considerations for keyboard navigation and screen readers.
--   The implementation should be modular, allowing for easy updates or additions of new node types in the future.
-
-### Priority 3: Implement Drag-and-Drop Interface for Nodes
-
-**Objective**: Enable users to drag nodes from the node palette and drop them onto the canvas to add them to their flow.
-
-**Technical Requirements**:
-
--   Utilize `react-dnd` for implementing the drag-and-drop functionality, ensuring a smooth and intuitive user experience.
--   Ensure that nodes can be dragged from the palette and visually follow the cursor until dropped onto the canvas.
--   On dropping a node onto the canvas, the node should be added to the flow at the drop location, with its position being adjustable by dragging.
--   Implement visual feedback during the drag operation, such as highlighting potential drop areas or showing a "ghost" of the node being dragged.
--   Considerations must be made for how the canvas and nodes respond to different screen sizes and resolutions.
-
-### Priority 4: Develop Node Connection Functionality
-
-**Objective**: Allow users to create connections between nodes on the canvas, forming logical flows.
-
-**Technical Requirements**:
-
--   Implement a method for users to draw connections between nodes, possibly by dragging from one node's output port to another node's input port.
--   Utilize `@projectstorm/react-diagrams` for managing the rendering and logic of connections, ensuring compatibility with the library's way of handling links.
--   Connections should be visually distinct and should support different styles (straight lines, curves) to enhance readability.
--   Include validation to ensure that connections between incompatible node types or ports are not allowed.
--   Provide visual feedback during the connection process, such as highlighting compatible ports when drawing a connection.
