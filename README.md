@@ -180,7 +180,7 @@ The Flow Builder is the cornerstone of our custom frontend client for Node-RED, 
 
 By leveraging these libraries, we aim to build a Flow Builder that is not only powerful and flexible but also intuitive and user-friendly. This will enable users to efficiently create and manage their Node-RED flows directly within our custom frontend client.
 
-## Flow Builder Development - Detailed Task Descriptions
+## Flow Builder - Detailed Task Descriptions
 
 ### Priority 1: Design the Flow Canvas for Placing and Connecting Nodes
 
@@ -189,10 +189,17 @@ By leveraging these libraries, we aim to build a Flow Builder that is not only p
 **Technical Requirements**:
 
 -   Implement a scalable and navigable canvas that supports zooming and panning.
--   The canvas should have a grid or some form of visual aid to assist users in aligning nodes.
 -   Design considerations must include how nodes will be displayed, selected, and how connections between nodes will be visualized.
 -   The canvas should be implemented in a way that supports high performance, even with a large number of nodes and connections.
 -   Integration points with `@projectstorm/react-diagrams` need to be identified and utilized for rendering the canvas and its elements.
+
+To accomplish this task, the following components from `@projectstorm/react-diagrams` and React will be utilized:
+
+1. **DiagramEngine**: Manages the rendering and operation of the diagram, handling the setup and rendering of the canvas, nodes, and links.
+2. **DiagramModel**: Represents the model of the diagram, including nodes, links, and their connections. This is used by the `DiagramEngine` to render the diagram.
+3. **CanvasWidget**: Renders the flow canvas, taking a `DiagramEngine` as a prop and displaying the diagram based on the current model.
+4. **DefaultNodeModel** and **DefaultPortModel**: Used for creating nodes with ports that can be connected with links. These models support the basic functionality needed for the initial task.
+5. **DefaultLinkModel**: Represents the connections between ports on different nodes, supporting straight and curved links that can be styled.
 
 ### Priority 2: Implement the Node Palette with Search and Filter Capabilities
 
