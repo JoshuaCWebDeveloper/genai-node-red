@@ -1,5 +1,5 @@
 import { Action, configureStore, ThunkAction } from '@reduxjs/toolkit';
-import { setupListeners } from '@reduxjs/toolkit/dist/query';
+import { setupListeners } from '@reduxjs/toolkit/query';
 
 import { featureApi } from './modules/api/feature.api';
 import {
@@ -17,8 +17,6 @@ export const createStore = () => {
         middleware: getDefaultMiddleware =>
             getDefaultMiddleware().concat(featureApi.middleware),
         devTools: process.env.NODE_ENV !== 'production',
-        // Optional Redux store enhancers
-        enhancers: [],
     });
 
     setupListeners(store.dispatch);
