@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import FlowCanvasContainer from './components/flow-canvas-container'; // Ensure the path is correct
+import NodePalette from './components/node-palette/node-palette'; // Import NodePalette
 import {
     DefaultNodeModel,
     DefaultLinkModel,
@@ -10,16 +11,30 @@ import {
 // It ensures the flow canvas takes up the full viewport height for better visibility.
 const StyledApp = styled.div`
     height: 100vh; // Full viewport height
-`;
 
-const Toolbar = styled.div`
-    height: 60px; /* Example height */
-    background-color: #333; /* Dark background for contrast */
-    color: white; /* Light text for readability */
-    display: flex;
-    align-items: center;
-    padding: 0 20px; /* Padding on the sides */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Adds a subtle shadow for depth */
+    header {
+        height: 60px; /* Example height */
+        background-color: #333; /* Dark background for contrast */
+        color: white; /* Light text for readability */
+        display: flex;
+        align-items: center;
+        padding: 0 20px; /* Padding on the sides */
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Adds a subtle shadow for depth */
+    }
+
+    .builder-container {
+        display: flex;
+        flex-direction: row;
+        height: calc(100% - 60px);
+
+        .node-palette {
+            width: 200px;
+        }
+
+        .flow-canvas {
+            flex: 1;
+        }
+    }
 `;
 
 export type DiagramProps = {
@@ -58,10 +73,13 @@ export function App() {
 
     return (
         <StyledApp>
-            <Toolbar>
+            <header className="toolbar">
                 <h1>Flow Canvas</h1>
-            </Toolbar>
-            <FlowCanvasContainer initialDiagram={diagramData} />
+            </header>
+            <div className="builder-container">
+                <NodePalette />
+                <FlowCanvasContainer initialDiagram={diagramData} />
+            </div>
         </StyledApp>
     );
 }

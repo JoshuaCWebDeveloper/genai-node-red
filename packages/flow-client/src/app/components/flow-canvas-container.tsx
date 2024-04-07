@@ -134,7 +134,7 @@ export const FlowCanvasContainer: React.FC<FlowCanvasContainerProps> = ({
 
     // The CanvasWidget component is used to render the flow canvas within the UI.
     // The "canvas-widget" className can be targeted for custom styling.
-    return <StyledCanvasWidget engine={engine} className="canvas-widget" />;
+    return <StyledCanvasWidget engine={engine} className="flow-canvas" />;
 };
 
 export default FlowCanvasContainer;
