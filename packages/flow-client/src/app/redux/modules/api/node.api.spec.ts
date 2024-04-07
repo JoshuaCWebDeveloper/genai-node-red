@@ -34,6 +34,7 @@ describe('nodeApi', () => {
     it('fetchBaseQuery is called with correct baseUrl', () => {
         expect(mockedBaseQuery).toHaveBeenCalledWith({
             baseUrl: BASE_URL,
+            responseHandler: 'content-type',
         });
     });
 
