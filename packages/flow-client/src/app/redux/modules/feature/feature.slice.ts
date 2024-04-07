@@ -16,7 +16,7 @@ export interface FeatureEntity {
     id: number;
 }
 
-export interface FeatureState extends EntityState<FeatureEntity> {
+export interface FeatureState extends EntityState<FeatureEntity, number> {
     loadingStatus: 'not loaded' | 'loading' | 'loaded' | 'error';
     error?: string | null;
 }

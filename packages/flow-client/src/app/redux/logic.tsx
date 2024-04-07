@@ -2,9 +2,11 @@ import React, { createContext, ReactNode } from 'react';
 import { Provider } from 'react-redux';
 import { AppStore } from './store';
 import { FeatureLogic } from './modules/feature/feature.logic';
+import { NodeLogic } from './modules/node/node.logic';
 
 export const createLogic = () => ({
     feature: new FeatureLogic(),
+    node: new NodeLogic(),
 });
 
 export type AppLogic = ReturnType<typeof createLogic>;
