@@ -110,6 +110,43 @@ The backlog is organized by epic, with each task having a unique ID, description
         -   Each node in the palette should have a visual representation (icon and label) that makes it easy to identify.
         -   Ensure that the node palette is responsive and accessible, with considerations for keyboard navigation and screen readers.
         -   The implementation should be modular, allowing for easy updates or additions of new node types in the future.
+    -   **Implementation Details**:
+        -   **Components to Create**:
+            1. **NodePalette**: The main container component for the node palette. It will host the search bar, node categories, and the list of nodes.
+            2. **SearchBar**: A component for the search functionality. It will allow users to filter nodes based on keywords.
+            3. **NodeCategory**: A component to display each category of nodes. It can be expandable to show or hide the nodes under each category.
+            4. **NodeItem**: Represents an individual node in the palette. It will display the node's icon and label. Interaction with a node item will trigger CSS style changes and tooltips for immediate feedback but does not involve a selection state.
+        -   **Interaction Feedback**:
+            -   Implement CSS styles to change the appearance of a node item on hover or when the user interacts with it, providing visual feedback.
+            -   Use tooltips to display brief information about the node, such as its purpose or usage tips, when the user hovers over a node item.
+        -   **Libraries and Frameworks**:
+            -   Utilize React for building the UI components.
+            -   Consider using a state management library (e.g., Redux or Context API) to manage the state of the node palette, especially the active filters and search query.
+            -   For UI elements (like expandable lists and search bars), consider using a component library like Material-UI or Ant Design to speed up development.
+        -   **Data Handling**:
+            -   The node palette will need to fetch the list of available nodes from the backend or a static JSON file during the initial load.
+            -   Implement a mechanism to dynamically update the node list when new nodes are added or existing nodes are updated in the backend.
+        -   **Accessibility and Responsiveness**:
+            -   Ensure that all components are accessible, including keyboard navigation and screen reader support.
+            -   Use responsive design principles to make sure the node palette is usable on various screen sizes.
+        -   **Redux Toolkit and RTK Query Integration**:
+            -   **Slices to Update**:
+                1. **nodesSlice**: Manages the state of nodes within the node palette, including the list of nodes, the selected node, any filters applied, and the search query. This consolidation simplifies state management by handling all node-related UI state within a single slice.
+                    - **State Structure**:
+                        - `nodes`: An array of node objects available in the palette.
+                        - `searchQuery`: The current search filter applied to the node list.
+                    - **Reducers**:
+                        - `setNodes`: Sets the list of nodes.
+                        - `setSearchQuery`: Sets the current search query to filter the node list.
+            -   **API Slice to Create**:
+                1. **nodesApi**: Handles asynchronous requests for fetching nodes from the Node-RED backend. This API slice will use the `Accept` header to differentiate between JSON and HTML responses from the same `/nodes` endpoint.
+                    - **Endpoints**:
+                        - `getNodes`: Fetches the list of available nodes. This endpoint will conditionally set the `Accept` header to `application/json` for fetching the JSON list of nodes, or to `text/html` for fetching HTML script elements, based on the requirements of the request.
+                    - **Integration Details**:
+                        - Utilize the `createApi` function from Redux Toolkit Query (RTK Query) to define this API slice.
+                        - Ensure that the API service correctly handles the `Accept` header to fetch either JSON data or HTML script elements as needed.
+                        - Since the `/nodes` API is read-only and there's no backend support for adding or updating nodes through this API, the slice will focus solely on fetching data.
+                        - The search functionality will be implemented as a frontend filter within the `nodesSlice`, leveraging the `searchQuery` state to filter the node list based on the user's input.
 -   **FB-03** (Priority: 3): Implement drag-and-drop interface for nodes.
     -   **Objective**: Enable users to drag nodes from the node palette and drop them onto the canvas to add them to their flow.
     -   **Technical Requirements**:
@@ -222,11 +259,9 @@ The backlog is organized by epic, with each task having a unique ID, description
 
 | To Do | In Progress | In Review | Done  |
 | ----- | ----------- | --------- | ----- |
-| FB-02 |             |           | FB-01 |
-| FB-03 |             |           |       |
-| FB-04 |             |           |       |
+| FB-03 |             |           | FB-01 |
+| FB-04 |             |           | FB-02 |
 | FB-05 |             |           |       |
-|       |             |           |       |
 
 ### Progress Tracking
 
