@@ -31,4 +31,4 @@ jobs:
       - name: Install dependencies
         if: steps.cache.outputs.cache-hit != 'true'
         run: npm ci
-      - run: npm run nx -- affected --target test
+      - run: npm run nx -- affected --target test --base origin/master
