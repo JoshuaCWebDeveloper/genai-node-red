@@ -31,8 +31,11 @@ jobs:
       - name: Install dependencies
         if: steps.cache.outputs.cache-hit != 'true'
         run: npm ci
-      - run: npm run nx -- format:check --base origin/master
-      - run: npm run nx -- affected --target lint --base origin/master
+      - name: Determine Base Branch
+        id: base_branch
+        run: echo "branch=$(if [ '${{ github.ref }}' = 'refs/heads/master' ]; then echo 'master~1'; else echo 'origin/master'; fi)" >> $GITHUB_OUTPUT
+      - run: npm run nx -- format:check --base ${{ steps.base_branch.outputs.branch }}
+      - run: npm run nx -- affected --target lint --base ${{ steps.base_branch.outputs.branch }}
   build:
     runs-on: ubuntu-22.04
 
@@ -54,7 +57,10 @@ jobs:
       - name: Install dependencies
         if: steps.cache.outputs.cache-hit != 'true'
         run: npm ci
-      - run: npm run nx -- affected --target build --base origin/master
+      - name: Determine Base Branch
+        id: base_branch
+        run: echo "branch=$(if [ '${{ github.ref }}' = 'refs/heads/master' ]; then echo 'master~1'; else echo 'origin/master'; fi)" >> $GITHUB_OUTPUT
+      - run: npm run nx -- affected --target build --base ${{ steps.base_branch.outputs.branch }}
   test:
     runs-on: ubuntu-22.04
 
@@ -76,4 +82,7 @@ jobs:
       - name: Install dependencies
         if: steps.cache.outputs.cache-hit != 'true'
         run: npm ci
-      - run: npm run nx -- affected --target test --base origin/master
+      - name: Determine Base Branch
+        id: base_branch
+        run: echo "branch=$(if [ '${{ github.ref }}' = 'refs/heads/master' ]; then echo 'master~1'; else echo 'origin/master'; fi)" >> $GITHUB_OUTPUT
+      - run: npm run nx -- affected --target test --base ${{ steps.base_branch.outputs.branch }}
