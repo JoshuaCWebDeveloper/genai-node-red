@@ -33,7 +33,7 @@ jobs:
         run: npm ci
       - name: Determine Base Branch
         id: base_branch
-        run: echo "::set-output name=branch::$(if [ '${{ github.ref }}' = 'refs/heads/master' ]; then echo 'master~1'; else echo 'origin/master'; fi)"
+        run: echo "branch=$(if [ '${{ github.ref }}' = 'refs/heads/master' ]; then echo 'master~1'; else echo 'origin/master'; fi)" >> $GITHUB_OUTPUT
       - run: npm run nx -- format:check --base ${{ steps.base_branch.outputs.branch }}
       - run: npm run nx -- affected --target lint --base ${{ steps.base_branch.outputs.branch }}
   build:
@@ -59,7 +59,7 @@ jobs:
         run: npm ci
       - name: Determine Base Branch
         id: base_branch
-        run: echo "::set-output name=branch::$(if [ '${{ github.ref }}' = 'refs/heads/master' ]; then echo 'master~1'; else echo 'origin/master'; fi)"
+        run: echo "branch=$(if [ '${{ github.ref }}' = 'refs/heads/master' ]; then echo 'master~1'; else echo 'origin/master'; fi)" >> $GITHUB_OUTPUT
       - run: npm run nx -- affected --target build --base ${{ steps.base_branch.outputs.branch }}
   test:
     runs-on: ubuntu-22.04
@@ -84,5 +84,5 @@ jobs:
         run: npm ci
       - name: Determine Base Branch
         id: base_branch
-        run: echo "::set-output name=branch::$(if [ '${{ github.ref }}' = 'refs/heads/master' ]; then echo 'master~1'; else echo 'origin/master'; fi)"
+        run: echo "branch=$(if [ '${{ github.ref }}' = 'refs/heads/master' ]; then echo 'master~1'; else echo 'origin/master'; fi)" >> $GITHUB_OUTPUT
       - run: npm run nx -- affected --target test --base ${{ steps.base_branch.outputs.branch }}
