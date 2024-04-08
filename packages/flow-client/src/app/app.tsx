@@ -48,6 +48,7 @@ export function App() {
     // Create an initial node
     const node1 = new DefaultNodeModel({
         name: 'Node 1',
+         // lint error
          color: 'rgb(0,192,255)',
     });
     node1.addOutPort('Out');
