@@ -53,8 +53,11 @@ export function App() {
     node1.addOutPort('Out');
     node1.setPosition(100, 100);
 
+    // lint error
+    const adfd = 23;
     const node2 = new DefaultNodeModel({
-        name: 'Node 2',
+         // format error
+         name: 'Node 2',
         color: 'rgb(192,255,0)',
     });
     node2.addInPort('In');
