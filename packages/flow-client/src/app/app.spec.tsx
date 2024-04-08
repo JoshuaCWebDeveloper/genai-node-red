@@ -7,17 +7,31 @@ const { AppProvider, createLogic } = await import('./redux/logic');
 const { createStore } = await import('./redux/store');
 
 // Mock the API queries
-vi.mock('../../../redux/modules/api/node.api', () => ({
-    useGetNodesQuery: vi.fn(() => ({
-        data: [{ id: '1', name: 'Test Node' }],
-        error: null,
-        isLoading: false,
-    })),
-    useGetNodeScriptsQuery: vi.fn(() => ({
-        data: [{ id: '1', script: 'console.log("test script");' }],
-        error: null,
-        isLoading: false,
-    })),
+vi.mock('./redux/modules/api/node.api', async importOriginal => {
+    const originalModule = await importOriginal<
+        typeof import('./redux/modules/api/node.api')
+    >();
+    const nodesData = [{ id: '1', name: 'Test Node' }];
+    const nodeScriptsData = [
+        { id: '1', script: 'console.log("test script");' },
+    ];
+    return {
+        ...originalModule,
+        useGetNodesQuery: vi.fn(() => ({
+            data: nodesData,
+            error: null,
+            isLoading: false,
+        })),
+        useGetNodeScriptsQuery: vi.fn(() => ({
+            data: nodeScriptsData,
+            error: null,
+            isLoading: false,
+        })),
+    };
+});
+
+vi.mock('./components/flow-canvas-container', () => ({
+    FlowCanvasContainer: () => <div>Flow Container</div>,
 }));
 
 describe('App', () => {
