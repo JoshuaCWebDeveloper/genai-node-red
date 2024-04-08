@@ -53,11 +53,8 @@ export function App() {
     node1.addOutPort('Out');
     node1.setPosition(100, 100);
 
-    // lint error
-    const adfd = 23;
     const node2 = new DefaultNodeModel({
-         // format error
-         name: 'Node 2',
+        name: 'Node 2',
         color: 'rgb(192,255,0)',
     });
     node2.addInPort('In');
@@ -77,7 +74,7 @@ export function App() {
     return (
         <StyledApp>
             <header className="toolbar">
-                <h1>Flow Canvas 23</h1>
+                <h1>Flow Canvas</h1>
             </header>
             <div className="builder-container">
                 <NodePalette />
