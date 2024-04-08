@@ -48,8 +48,7 @@ export function App() {
     // Create an initial node
     const node1 = new DefaultNodeModel({
         name: 'Node 1',
-         // lint error
-         color: 'rgb(0,192,255)' ?? 'rgb(0,192,255)',
+        color: 'rgb(0,192,255)',
     });
     node1.addOutPort('Out');
     node1.setPosition(100, 100);
@@ -75,7 +74,7 @@ export function App() {
     return (
         <StyledApp>
             <header className="toolbar">
-                <h1>Flow Canvas</h1>
+                <h1>Flow Canvas 23</h1>
             </header>
             <div className="builder-container">
                 <NodePalette />
