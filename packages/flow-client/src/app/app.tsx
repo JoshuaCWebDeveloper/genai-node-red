@@ -48,7 +48,7 @@ export function App() {
     // Create an initial node
     const node1 = new DefaultNodeModel({
         name: 'Node 1',
-        color: 'rgb(0,192,255)',
+         color: 'rgb(0,192,255)',
     });
     node1.addOutPort('Out');
     node1.setPosition(100, 100);
