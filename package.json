@@ -8,6 +8,7 @@
     "start": "nx serve",
     "nx": "nx"
   },
+  "type": "module",
   "private": true,
   "dependencies": {
     "@projectstorm/react-canvas-core": "^7.0.3",
