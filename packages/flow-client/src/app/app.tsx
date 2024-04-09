@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { FlowCanvasContainer } from './components/flow-canvas-container'; // Ensure the path is correct
+import { FlowCanvasContainer } from './components/flow-canvas/flow-canvas-container'; // Ensure the path is correct
 import NodePalette from './components/node-palette/node-palette'; // Import NodePalette
 import {
     DefaultNodeModel,
