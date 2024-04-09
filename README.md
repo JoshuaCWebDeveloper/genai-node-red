@@ -155,6 +155,17 @@ The backlog is organized by epic, with each task having a unique ID, description
         -   On dropping a node onto the canvas, the node should be added to the flow at the drop location, with its position being adjustable by dragging.
         -   Implement visual feedback during the drag operation, such as highlighting potential drop areas or showing a "ghost" of the node being dragged.
         -   Considerations must be made for how the canvas and nodes respond to different screen sizes and resolutions.
+    -   **Implementation Details**:
+        -   **New Components to Create**:
+            1. **DraggableNodeComponent**: A new component that wraps each node in the node palette, making it draggable. This component will handle the drag start and end events, and carry the necessary node data that will be used when the node is dropped onto the canvas.
+            2. **DropZoneComponent**: This component will represent areas on the canvas where nodes can be dropped. It will handle the drop events and use the data from the `DraggableNodeComponent` to add a new node to the flow at the drop location.
+        -   **Existing Components to Update**:
+            1. **NodePalette**: Update to incorporate drag functionality, making each node in the palette draggable.
+            2. **FlowCanvasContainer**: Update to include `DropZoneComponent` functionality, allowing it to accept nodes dropped from the node palette.
+            3. **Node (custom-node-component.tsx)**: This component, intended for rendering each node on the canvas, may require updates to support being positioned based on where it is dropped and to integrate with the overall drag-and-drop logic.
+        -   **Utilize `react-dnd` for Drag-and-Drop Functionality**: `react-dnd` will be used to handle the drag-and-drop operations, providing a flexible and intuitive user experience for adding nodes to the canvas.
+        -   **Visual Feedback and User Experience**: Implement visual cues during the drag-and-drop operation, such as changing the cursor, highlighting potential drop zones, and showing a "ghost" image of the node being dragged to provide clear feedback to the user.
+        -   **Responsive Design Considerations**: Ensure that the drag-and-drop functionality is fully responsive and provides a consistent experience across different devices and screen sizes.
 -   **FB-04** (Priority: 4): Develop node connection functionality.
     -   **Objective**: Allow users to create connections between nodes on the canvas, forming logical flows.
     -   **Technical Requirements**:
@@ -259,9 +270,8 @@ The backlog is organized by epic, with each task having a unique ID, description
 
 | To Do | In Progress | In Review | Done  |
 | ----- | ----------- | --------- | ----- |
-| FB-03 |             |           | FB-01 |
-| FB-04 |             |           | FB-02 |
-| FB-05 |             |           |       |
+| FB-04 | FB-03       |           | FB-01 |
+| FB-05 |             |           | FB-02 |
 
 ### Progress Tracking
 
