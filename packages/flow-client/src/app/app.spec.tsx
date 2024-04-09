@@ -30,7 +30,7 @@ vi.mock('./redux/modules/api/node.api', async importOriginal => {
     };
 });
 
-vi.mock('./components/flow-canvas-container', () => ({
+vi.mock('./components/flow-canvas/flow-canvas-container', () => ({
     FlowCanvasContainer: () => <div>Flow Container</div>,
 }));
 
