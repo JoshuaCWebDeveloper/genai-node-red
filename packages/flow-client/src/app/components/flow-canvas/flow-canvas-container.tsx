@@ -78,11 +78,14 @@ export const FlowCanvasContainer: React.FC<FlowCanvasContainerProps> = ({
         const canvas = document.querySelector('.flow-canvas');
         const handleZoom = (event: Event) =>
             engine.increaseZoomLevel(event as WheelEvent);
+        const disableContextMenu = (event: Event) => event.preventDefault();
 
         canvas?.addEventListener('wheel', handleZoom);
+        canvas?.addEventListener('contextmenu', disableContextMenu);
 
         return () => {
             canvas?.removeEventListener('wheel', handleZoom);
+            canvas?.removeEventListener('contextmenu', disableContextMenu);
         };
     }, []);
 
