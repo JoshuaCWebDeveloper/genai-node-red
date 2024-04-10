@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { NodeEntity } from '../../redux/modules/node/node.slice';
 import Node from './node';
+import DraggableNodeWrapper from './draggable-node-wrapper'; // Import the DraggableNodeWrapper
 
 export type CategoryProps = {
     title: string;
@@ -21,11 +22,12 @@ const StyledCategory = styled.div`
         padding: 0;
     }
 
+    .draggable-wrapper {
+        margin: 0 20px 10px;
+    }
+
     li {
         background-color: #fff;
-        border: 1px solid #ddd;
-        padding: 10px 15px;
-        margin: 0 20px 10px;
         cursor: pointer;
         transition: background-color 0.3s ease;
     }
@@ -37,7 +39,9 @@ export const Category: React.FC<CategoryProps> = ({ title, nodes }) => {
             <h3>{title}</h3>
             <ul>
                 {nodes.map(node => (
-                    <Node key={node.id} node={node} />
+                    <DraggableNodeWrapper key={node.id} node={node}>
+                        <Node node={node} />
+                    </DraggableNodeWrapper>
                 ))}
             </ul>
         </StyledCategory>

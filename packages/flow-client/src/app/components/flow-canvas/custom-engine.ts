@@ -3,7 +3,6 @@ import {
     DefaultDiagramState,
     DefaultLabelFactory,
     DefaultLinkFactory,
-    DefaultNodeFactory,
     DefaultPortFactory,
     DiagramEngine,
     LayerModel,
@@ -13,6 +12,8 @@ import {
     PathFindingLinkFactory,
     SelectionBoxLayerFactory,
 } from '@projectstorm/react-diagrams';
+
+import { CustomNodeFactory } from './node';
 
 export class CustomEngine extends DiagramEngine {
     public increaseZoomLevel(event: WheelEvent): void {
@@ -65,7 +66,7 @@ export const createEngine = (options = {}) => {
         );
     engine.getLayerFactories().registerFactory(new SelectionBoxLayerFactory());
     engine.getLabelFactories().registerFactory(new DefaultLabelFactory());
-    engine.getNodeFactories().registerFactory(new DefaultNodeFactory()); // i cant figure out why
+    engine.getNodeFactories().registerFactory(new CustomNodeFactory()); // i cant figure out why
     engine.getLinkFactories().registerFactory(new DefaultLinkFactory());
     engine.getLinkFactories().registerFactory(new PathFindingLinkFactory());
     engine.getPortFactories().registerFactory(new DefaultPortFactory());

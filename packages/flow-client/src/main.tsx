@@ -6,6 +6,8 @@ import App from './app/app';
 import { AppProvider, createLogic } from './app/redux/logic';
 import { createStore } from './app/redux/store';
 import { createGlobalStyle } from 'styled-components';
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
 
 const GlobalStyle = createGlobalStyle`
   body, html, #root {
@@ -28,9 +30,11 @@ const root = ReactDOM.createRoot(
 
 root.render(
     <AppProvider store={createStore()} logic={createLogic()}>
-        <StrictMode>
-            <GlobalStyle />
-            <App />
-        </StrictMode>
+        <DndProvider backend={HTML5Backend}>
+            <StrictMode>
+                <GlobalStyle />
+                <App />
+            </StrictMode>
+        </DndProvider>
     </AppProvider>
 );
