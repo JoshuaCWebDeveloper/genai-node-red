@@ -1,4 +1,6 @@
 import { render } from '@testing-library/react';
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
 
 vi.stubEnv('VITE_NODE_RED_API_ROOT', 'https://www.example.com/api');
 
@@ -38,7 +40,9 @@ describe('App', () => {
     const renderApp = () =>
         render(
             <AppProvider store={createStore()} logic={createLogic()}>
-                <App />
+                <DndProvider backend={HTML5Backend}>
+                    <App />
+                </DndProvider>
             </AppProvider>
         );
 
