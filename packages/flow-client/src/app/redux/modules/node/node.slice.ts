@@ -26,8 +26,14 @@ export interface NodeEntity {
     color?: string;
     align?: string;
     paletteLabel?: string;
-    inputLabels?: string | string[];
-    outputLabels?: string | string[];
+    inputLabels?: {
+        type: 'serialized-function';
+        value: string;
+    };
+    outputLabels?: {
+        type: 'serialized-function';
+        value: string;
+    };
     label?: string;
     labelStyle?: string;
     editorTemplate?: string;
