@@ -18,6 +18,31 @@ import { useAppLogic } from '../../redux/hooks';
 
 const StyledCanvasWidget = styled(CanvasWidget)`
     background-color: #f0f0f0; /* Light grey background */
+    background-image: linear-gradient(
+            0deg,
+            transparent 24%,
+            rgba(0, 0, 0, 0.1) 25%,
+            rgba(0, 0, 0, 0.1) 26%,
+            transparent 27%,
+            transparent 74%,
+            rgba(0, 0, 0, 0.1) 75%,
+            rgba(0, 0, 0, 0.1) 76%,
+            transparent 77%,
+            transparent
+        ),
+        linear-gradient(
+            90deg,
+            transparent 24%,
+            rgba(0, 0, 0, 0.1) 25%,
+            rgba(0, 0, 0, 0.1) 26%,
+            transparent 27%,
+            transparent 74%,
+            rgba(0, 0, 0, 0.1) 75%,
+            rgba(0, 0, 0, 0.1) 76%,
+            transparent 77%,
+            transparent
+        );
+    background-size: 50px 50px;
     border: 1px solid #ccc; /* Adds a border around the canvas */
     height: calc(
         100vh - 60px
@@ -43,6 +68,7 @@ export const FlowCanvasContainer: React.FC<FlowCanvasContainerProps> = ({
     const nodeLogic = useAppLogic().node;
 
     const model = new DiagramModel();
+    model.setGridSize(20);
 
     // Your existing setup code for adding nodes and links to the model
 
