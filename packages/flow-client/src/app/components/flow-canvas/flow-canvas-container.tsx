@@ -40,6 +40,8 @@ export type FlowCanvasContainerProps = {
 export const FlowCanvasContainer: React.FC<FlowCanvasContainerProps> = ({
     initialDiagram = {},
 }) => {
+    const nodeLogic = useAppLogic().node;
+
     const model = new DiagramModel();
 
     // Your existing setup code for adding nodes and links to the model
