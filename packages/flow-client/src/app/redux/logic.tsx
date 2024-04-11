@@ -3,10 +3,12 @@ import { Provider } from 'react-redux';
 import { AppStore } from './store';
 import { FeatureLogic } from './modules/feature/feature.logic';
 import { NodeLogic } from './modules/node/node.logic';
+import { FlowLogic } from './modules/flow/flow.logic';
 
 export const createLogic = () => ({
     feature: new FeatureLogic(),
     node: new NodeLogic(),
+    flow: new FlowLogic(),
 });
 
 export type AppLogic = ReturnType<typeof createLogic>;

@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-import { FlowCanvasContainer } from './components/flow-canvas/flow-canvas-container'; // Ensure the path is correct
+import { FlowCanvas } from './components/flow-canvas/flow-canvas'; // Ensure the path is correct
 import NodePalette from './components/node-palette/node-palette'; // Import NodePalette
 
 // StyledApp defines the main application container styles.
@@ -43,7 +43,7 @@ export function App() {
             </header>
             <div className="builder-container">
                 <NodePalette />
-                <FlowCanvasContainer />
+                <FlowCanvas />
             </div>
         </StyledApp>
     );

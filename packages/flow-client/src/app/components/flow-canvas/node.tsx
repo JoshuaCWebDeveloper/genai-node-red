@@ -8,7 +8,7 @@ import {
 import React from 'react';
 import styled from 'styled-components';
 
-import { CustomEngine } from './custom-engine';
+import { CustomEngine } from './engine';
 import NodeRedNode from '../node/node-red-node';
 import { NodeEntity } from '../../redux/modules/node/node.slice';
 
@@ -162,6 +162,10 @@ export class CustomNodeModel extends DefaultNodeModel {
     constructor(public entity: NodeEntity, options?: Record<string, unknown>) {
         super({
             ...options,
+            extras: {
+                ...(options?.extras ?? {}),
+                entity: entity,
+            },
             type: 'custom-node',
         });
     }

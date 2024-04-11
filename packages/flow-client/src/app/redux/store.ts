@@ -8,6 +8,7 @@ import {
     featureReducer,
 } from './modules/feature/feature.slice';
 import { NODE_FEATURE_KEY, nodeReducer } from './modules/node/node.slice';
+import { FLOW_FEATURE_KEY, flowReducer } from './modules/flow/flow.slice';
 // Add more imports for other slices as needed
 
 export const createStore = () => {
@@ -18,6 +19,7 @@ export const createStore = () => {
             [NODE_FEATURE_KEY]: nodeReducer,
             [nodeApi.reducerPath]: nodeApi.reducer, // Add the nodeApi reducer
             // Add more reducers here as needed
+            [FLOW_FEATURE_KEY]: flowReducer,
         },
         // Additional middleware can be passed to this array
         middleware: getDefaultMiddleware =>
