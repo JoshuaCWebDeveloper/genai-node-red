@@ -166,18 +166,13 @@ The backlog is organized by epic, with each task having a unique ID, description
         -   **Utilize `react-dnd` for Drag-and-Drop Functionality**: `react-dnd` will be used to handle the drag-and-drop operations, providing a flexible and intuitive user experience for adding nodes to the canvas.
         -   **Visual Feedback and User Experience**: Implement visual cues during the drag-and-drop operation, such as changing the cursor, highlighting potential drop zones, and showing a "ghost" image of the node being dragged to provide clear feedback to the user.
         -   **Responsive Design Considerations**: Ensure that the drag-and-drop functionality is fully responsive and provides a consistent experience across different devices and screen sizes.
--   **FB-04** (Priority: 4): Develop node connection functionality.
-    -   **Objective**: Allow users to create connections between nodes on the canvas, forming logical flows.
+-   **FB-04** (Priority: 4): Verify and Enhance Node Connection Functionality.
+    -   **Objective**: Ensure the existing node connection functionality is working as expected and introduce enhancements for a more intuitive user experience.
     -   **Technical Requirements**:
-        -   Implement a method for users to draw connections between nodes, possibly by dragging from one node's output port to another node's input port.
-        -   Utilize `@projectstorm/react-diagrams` for managing the rendering and logic of connections, ensuring compatibility with the library's way of handling links.
-        -   Connections should be visually distinct and should support different styles (straight lines, curves) to enhance readability.
-        -   Include validation to ensure that connections between incompatible node types or ports are not allowed.
-        -   Provide visual feedback during the connection process, such as highlighting compatible ports when drawing a connection.
--   **FB-05** (Priority: 5): Implement editor UI for nodes.
-    -   **Objective**: Provide a user-friendly interface for configuring and editing node properties.
-    -   **Technical Requirements**:
-        -   Implement UI components for editing node properties, including individual node attributes and dialog boxes for configuration.
+        -   Verify that users can draw connections between nodes by dragging from one node's output port to another node's input port, utilizing `@projectstorm/react-diagrams` for rendering and logic. Ensure connections are visually distinct, support different styles for enhanced readability, include validation for incompatible node types or ports, and provide visual feedback during the connection process.
+        -   Implement state management for the flow canvas that streams changes into our application state, ensuring the state matches the spec for a Node-RED `flows.yaml` file. This will involve capturing the state of nodes, their connections, and any other relevant flow information in a format that is compatible with Node-RED, facilitating seamless integration and future features such as exporting flows.
+        -   Explore the feasibility of enhancing the connection drawing process to allow for auto-attachment of connections to the nearest appropriate port (input or output) when a user draws a connection over a node. This feature aims to simplify the process of creating connections by reducing the precision required to attach a wire to a specific port, thereby improving the user experience.
+        -   Implement visual indicators for compatible and incompatible connections during the drag-and-drop operation. This could involve changing the color of the connection line or displaying icons to indicate whether the connection can be successfully made, enhancing the feedback provided to the user in real-time. Limit this requirement to what is easily accomplished via react-diagrams.
 
 #### Epic: Node Management Interface
 
