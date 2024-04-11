@@ -165,6 +165,14 @@ export class CustomNodeModel extends DefaultNodeModel {
             type: 'custom-node',
         });
     }
+
+    // Method to calculate distance from the port to a given point
+    calculateDistanceToPoint(x: number, y: number): number {
+        const portPosition = this.getPosition();
+        return Math.sqrt(
+            Math.pow(portPosition.x - x, 2) + Math.pow(portPosition.y - y, 2)
+        );
+    }
 }
 
 // Factory for the custom node, if you're using TypeScript, you might need to extend the appropriate factory class

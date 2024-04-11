@@ -2,7 +2,6 @@ import {
     AbstractReactFactory,
     DefaultDiagramState,
     DefaultLabelFactory,
-    DefaultLinkFactory,
     DefaultPortFactory,
     DiagramEngine,
     LayerModel,
@@ -13,6 +12,7 @@ import {
     SelectionBoxLayerFactory,
 } from '@projectstorm/react-diagrams';
 
+import { CustomLinkFactory } from './link';
 import { CustomNodeFactory } from './node';
 
 export class CustomEngine extends DiagramEngine {
@@ -67,7 +67,7 @@ export const createEngine = (options = {}) => {
     engine.getLayerFactories().registerFactory(new SelectionBoxLayerFactory());
     engine.getLabelFactories().registerFactory(new DefaultLabelFactory());
     engine.getNodeFactories().registerFactory(new CustomNodeFactory()); // i cant figure out why
-    engine.getLinkFactories().registerFactory(new DefaultLinkFactory());
+    engine.getLinkFactories().registerFactory(new CustomLinkFactory());
     engine.getLinkFactories().registerFactory(new PathFindingLinkFactory());
     engine.getPortFactories().registerFactory(new DefaultPortFactory());
     // register the default interaction behaviours
