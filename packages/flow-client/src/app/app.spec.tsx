@@ -32,8 +32,8 @@ vi.mock('./redux/modules/api/node.api', async importOriginal => {
     };
 });
 
-vi.mock('./components/flow-canvas/flow-canvas-container', () => ({
-    FlowCanvasContainer: () => <div>Flow Container</div>,
+vi.mock('./components/flow-canvas/flow-canvas', () => ({
+    FlowCanvas: () => <div>Flow Container</div>,
 }));
 
 describe('App', () => {

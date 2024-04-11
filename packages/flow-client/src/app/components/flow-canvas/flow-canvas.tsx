@@ -1,20 +1,21 @@
-import { CanvasWidget } from '@projectstorm/react-canvas-core';
+import { CanvasWidget, ListenerHandle } from '@projectstorm/react-canvas-core';
 import {
     DefaultLinkModel,
     DefaultPortModel,
-    DiagramModel,
     PortModelAlignment,
 } from '@projectstorm/react-diagrams';
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useDrop } from 'react-dnd';
 import styled from 'styled-components';
 
-import { ItemTypes } from '../node/draggable-item-types'; // Assuming ItemTypes is defined elsewhere
-
+import { useAppDispatch, useAppLogic, useAppSelector } from '../../redux/hooks';
+import { SerializedGraph } from '../../redux/modules/flow/flow.logic';
+import { selectAllEntities } from '../../redux/modules/flow/flow.slice';
 import { NodeEntity } from '../../redux/modules/node/node.slice';
-import { createEngine } from './custom-engine';
+import { ItemTypes } from '../node/draggable-item-types'; // Assuming ItemTypes is defined elsewhere
+import { createEngine } from './engine';
+import { CustomDiagramModel } from './model';
 import { CustomNodeModel } from './node';
-import { useAppLogic } from '../../redux/hooks';
 
 const StyledCanvasWidget = styled(CanvasWidget)`
     background-color: #f0f0f0; /* Light grey background */
@@ -50,9 +51,38 @@ const StyledCanvasWidget = styled(CanvasWidget)`
     overflow: auto; /* Allows scrolling within the canvas */
 `;
 
+const debounce = (func: (...args: unknown[]) => void, wait: number) => {
+    let timeout: NodeJS.Timeout;
+    return function executedFunction(...args: unknown[]) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+};
+
+const LogFlowSlice = () => {
+    const flowSlice = useAppSelector(selectAllEntities);
+
+    useEffect(() => {
+        console.log('Flow state: ', flowSlice);
+    }, [flowSlice]);
+
+    return null; // This component does not render anything
+};
+
 const engine = createEngine();
 
-export type FlowCanvasContainerProps = {
+// engine.registerListener({
+//     _globalEngine: (event: BaseEvent) => {
+//         console.log('Global Engine event fired: ', event);
+//     },
+// });
+
+export type FlowCanvasProps = {
     initialDiagram?: {
         nodes?: CustomNodeModel[];
         links?: DefaultLinkModel[];
@@ -62,17 +92,62 @@ export type FlowCanvasContainerProps = {
 // FlowCanvasContainer initializes and displays the flow canvas.
 // It sets up the diagram engine and model for rendering nodes and connections.
 // It now accepts initialDiagram as props to allow hardcoded diagrams with nodes and links.
-export const FlowCanvasContainer: React.FC<FlowCanvasContainerProps> = ({
+export const FlowCanvas: React.FC<FlowCanvasProps> = ({
     initialDiagram = {},
 }) => {
+    const dispatch = useAppDispatch();
     const nodeLogic = useAppLogic().node;
+    const flowLogic = useAppLogic().flow;
 
-    const model = new DiagramModel();
-    model.setGridSize(20);
+    const [model] = useState(new CustomDiagramModel());
 
-    // Your existing setup code for adding nodes and links to the model
+    // Inside your component
+    const listenerHandleRef = useRef<ListenerHandle | null>(null);
 
-    engine.setModel(model);
+    useMemo(() => {
+        model.setGridSize(20);
+
+        // Add initial nodes and links to the model if any
+        initialDiagram.nodes?.forEach(node => model.addNode(node));
+        initialDiagram.links?.forEach(link => model.addLink(link));
+
+        // Configure engine and model as needed
+        engine.setModel(model);
+    }, [initialDiagram.links, initialDiagram.nodes, model]);
+
+    useEffect(() => {
+        // Event listener for any change in the model
+        const handleModelChange = debounce(() => {
+            // Serialize the current state of the diagram
+            // serialize() is defined with the incorrect type
+            const serializedModel =
+                model.serialize() as unknown as SerializedGraph;
+            // Dispatch an action to update the Redux state with the serialized model
+            dispatch(flowLogic.updateFlowFromSerializedGraph(serializedModel));
+        }, 500);
+
+        // Register event listeners and store the handle in the ref
+        listenerHandleRef.current = engine.registerListener({
+            'CustomDiagramModel:nodesUpdated': handleModelChange,
+            'CustomNodeModel:positionChanged': handleModelChange,
+            'DefaultLinkModel:targetPortChanged': handleModelChange,
+            // Add more listeners as needed
+        });
+
+        return () => {
+            // Cleanup: use the ref to access the handle for deregistering listeners
+            if (listenerHandleRef.current) {
+                engine.deregisterListener(listenerHandleRef.current);
+                listenerHandleRef.current = null; // Reset the ref after cleanup
+            }
+        };
+    }, [
+        dispatch,
+        flowLogic,
+        initialDiagram.links,
+        initialDiagram.nodes,
+        model,
+    ]);
 
     useEffect(() => {
         const canvas = document.querySelector('.flow-canvas');
@@ -88,13 +163,6 @@ export const FlowCanvasContainer: React.FC<FlowCanvasContainerProps> = ({
             canvas?.removeEventListener('contextmenu', disableContextMenu);
         };
     }, []);
-
-    // Add initial nodes and links to the model if any
-    initialDiagram.nodes?.forEach(node => model.addNode(node));
-    initialDiagram.links?.forEach(link => model.addLink(link));
-
-    // Configure engine and model as needed
-    engine.setModel(model);
 
     const [, drop] = useDrop(() => ({
         accept: ItemTypes.NODE,
@@ -183,9 +251,10 @@ export const FlowCanvasContainer: React.FC<FlowCanvasContainerProps> = ({
     // The "canvas-widget" className can be targeted for custom styling.
     return (
         <div ref={drop} style={{ height: '100%', width: '100%' }}>
+            <LogFlowSlice />
             <StyledCanvasWidget engine={engine} className="flow-canvas" />
         </div>
     );
 };
 
-export default FlowCanvasContainer;
+export default FlowCanvas;
