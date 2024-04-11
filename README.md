@@ -184,6 +184,10 @@ The backlog is organized by epic, with each task having a unique ID, description
             -   **User Experience (UX) Improvements**: Simplify the process of creating connections with intuitive auto-attachment to the nearest valid port and provide visual feedback during the process.
             -   **Technical Feasibility**: Implement port proximity detection and valid port identification to support auto-attachment features.
             -   **Implementation Strategies**: Explore extending or customizing `@projectstorm/react-diagrams` for auto-attachment functionality and develop custom drag-and-drop logic as needed.
+-   **FB-05** (Priority: 5): Implement editor UI for nodes.
+    -   **Objective**: Provide a user-friendly interface for configuring and editing node properties.
+    -   **Technical Requirements**:
+        -   Implement UI components for editing node properties, including individual node attributes and dialog boxes for configuration.
 
 #### Epic: Node Management Interface
 
