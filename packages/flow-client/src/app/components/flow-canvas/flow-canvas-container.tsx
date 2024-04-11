@@ -5,7 +5,7 @@ import {
     DiagramModel,
     PortModelAlignment,
 } from '@projectstorm/react-diagrams';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDrop } from 'react-dnd';
 import styled from 'styled-components';
 
@@ -15,6 +15,7 @@ import { NodeEntity } from '../../redux/modules/node/node.slice';
 import { createEngine } from './custom-engine';
 import { CustomNodeModel } from './node';
 import { useAppLogic } from '../../redux/hooks';
+import { CustomDiagramModel } from './diagram';
 
 const StyledCanvasWidget = styled(CanvasWidget)`
     background-color: #f0f0f0; /* Light grey background */
@@ -67,31 +68,21 @@ export const FlowCanvasContainer: React.FC<FlowCanvasContainerProps> = ({
 }) => {
     const nodeLogic = useAppLogic().node;
 
-    const model = new DiagramModel();
-    model.setGridSize(20);
-
-    // Your existing setup code for adding nodes and links to the model
-
-    engine.setModel(model);
+    const [model, setModel] = useState<DiagramModel>(new CustomDiagramModel());
 
     useEffect(() => {
-        const canvas = document.querySelector('.flow-canvas');
-        const handleZoom = (event: Event) =>
-            engine.increaseZoomLevel(event as WheelEvent);
+        engine.setModel(model);
 
-        canvas?.addEventListener('wheel', handleZoom);
+        model.setGridSize(20);
+        // Add initial nodes and links to the model if any
+        initialDiagram.nodes?.forEach(node => model.addNode(node));
+        initialDiagram.links?.forEach(link => model.addLink(link));
 
-        return () => {
-            canvas?.removeEventListener('wheel', handleZoom);
-        };
-    }, []);
-
-    // Add initial nodes and links to the model if any
-    initialDiagram.nodes?.forEach(node => model.addNode(node));
-    initialDiagram.links?.forEach(link => model.addLink(link));
-
-    // Configure engine and model as needed
-    engine.setModel(model);
+        const links = model.getLinks();
+        links.forEach(link => {
+            setupLinkDragEvents(link);
+        });
+    }, [initialDiagram.links, initialDiagram.nodes, model]);
 
     const [, drop] = useDrop(() => ({
         accept: ItemTypes.NODE,
@@ -175,6 +166,65 @@ export const FlowCanvasContainer: React.FC<FlowCanvasContainerProps> = ({
             engine.repaintCanvas();
         },
     }));
+
+    useEffect(() => {
+        const canvas = document.querySelector('.flow-canvas');
+        const handleZoom = (event: Event) =>
+            engine.increaseZoomLevel(event as WheelEvent);
+        const disableContextMenu = (event: Event) => event.preventDefault();
+
+        canvas?.addEventListener('wheel', handleZoom);
+        canvas?.addEventListener('contextmenu', disableContextMenu);
+
+        return () => {
+            canvas?.removeEventListener('wheel', handleZoom);
+            canvas?.removeEventListener('contextmenu', disableContextMenu);
+        };
+    }, []);
+
+    useEffect(() => {
+        const handleDrop = (event: DragEvent) => {
+            event.preventDefault();
+            // Assuming you have a way to get the currently dragged link
+            const draggedLink = getCurrentDraggedLink();
+            if (!draggedLink) {
+                return;
+            }
+
+            const mousePoint = engine.getRelativeMousePoint(event);
+            const nodes = engine.getModel().getNodes();
+            let closestPort = null;
+            let minDistance = Infinity;
+
+            nodes.forEach(node => {
+                node.getPorts().forEach(port => {
+                    const portPosition = engine.getPortCoords(port);
+                    const distance = Math.hypot(
+                        portPosition.x - mousePoint.x,
+                        portPosition.y - mousePoint.y
+                    );
+
+                    if (distance < minDistance) {
+                        closestPort = port;
+                        minDistance = distance;
+                    }
+                });
+            });
+
+            if (closestPort && minDistance < YOUR_DEFINED_THRESHOLD) {
+                // Check if the port is compatible with the link
+                if (isPortCompatibleWithLink(closestPort, draggedLink)) {
+                    // Attach the link to the port
+                    draggedLink.setTargetPort(closestPort);
+                    engine.repaintCanvas();
+                }
+            }
+        };
+
+        const canvas = document.querySelector('.flow-canvas');
+        canvas?.addEventListener('drop', handleDrop);
+        return () => canvas?.removeEventListener('drop', handleDrop);
+    }, []); // Add dependencies as needed
 
     // The CanvasWidget component is used to render the flow canvas within the UI.
     // The "canvas-widget" className can be targeted for custom styling.
