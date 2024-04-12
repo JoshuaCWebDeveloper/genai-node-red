@@ -1,3 +1,4 @@
+import { Point } from '@projectstorm/geometry';
 import { CanvasWidget, ListenerHandle } from '@projectstorm/react-canvas-core';
 import {
     DefaultLinkModel,
@@ -167,58 +168,34 @@ export const FlowCanvas: React.FC<FlowCanvasProps> = ({
     const [, drop] = useDrop(() => ({
         accept: ItemTypes.NODE,
         drop: (entity: NodeEntity, monitor) => {
-            // Get the monitor's client offset
-            const monitorOffset = monitor.getClientOffset();
-
-            // Get the initial client offset (cursor position at drag start)
-            const initialClientOffset = monitor.getInitialClientOffset();
-
-            // Get the initial source client offset (dragged item's position at drag start)
-            const initialSourceClientOffset =
-                monitor.getInitialSourceClientOffset();
-
-            // Get the current zoom level from the engine's model
-            const zoomLevel = engine.getModel().getZoomLevel() / 100; // Convert to decimal
-
-            if (
-                !monitorOffset ||
-                !initialClientOffset ||
-                !initialSourceClientOffset
-            ) {
-                return;
-            }
-
-            // Calculate the cursor's offset within the dragged item
-            const cursorOffsetX =
-                initialClientOffset.x - initialSourceClientOffset.x;
-            const cursorOffsetY =
-                initialClientOffset.y - initialSourceClientOffset.y;
-
             // Find the canvas widget element
-            const canvasElement = document.querySelector('.flow-canvas > svg');
+            const canvasElement = document.querySelector(
+                '.flow-canvas > svg'
+            ) as HTMLCanvasElement;
 
             if (!canvasElement) {
+                console.error('Error finding canvas element');
                 return;
             }
 
-            // Get the bounding rectangle of the canvas widget
-            const canvasRect = canvasElement.getBoundingClientRect();
+            let nodePosition: Point;
 
-            // Calculate the correct position by subtracting the canvas's top and left offsets
-            const canvasOffsetX =
-                (monitorOffset.x - canvasRect.left) / zoomLevel;
-            const canvasOffsetY =
-                (monitorOffset.y - canvasRect.top) / zoomLevel;
-
-            const correctedX = canvasOffsetX - cursorOffsetX;
-            const correctedY = canvasOffsetY - cursorOffsetY;
+            try {
+                nodePosition = engine.calculateDropPosition(
+                    monitor,
+                    canvasElement
+                );
+            } catch (error) {
+                console.error('Error calculating drop position:', error);
+                return;
+            }
 
             const node = new CustomNodeModel(entity, {
                 name: entity.type,
                 color: entity.color,
             });
 
-            node.setPosition(correctedX, correctedY);
+            node.setPosition(nodePosition);
 
             const ports = nodeLogic.getNodeInputsOutputs(entity);
             ports.inputs.forEach(input => {

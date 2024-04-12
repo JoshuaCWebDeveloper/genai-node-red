@@ -1,3 +1,4 @@
+import { Point } from '@projectstorm/geometry';
 import {
     AbstractReactFactory,
     BaseEvent,
@@ -14,9 +15,10 @@ import {
     PathFindingLinkFactory,
     SelectionBoxLayerFactory,
 } from '@projectstorm/react-diagrams';
+import { DropTargetMonitor } from 'react-dnd';
 
-import { CustomNodeFactory } from './node';
 import { CustomDiagramModel } from './model';
+import { CustomNodeFactory } from './node';
 
 export class CustomEngine extends DiagramEngine {
     constructor(options?: CanvasEngineOptions) {
@@ -104,6 +106,52 @@ export class CustomEngine extends DiagramEngine {
             model.setOffset(newOffsetX, newOffsetY);
             this.repaintCanvas();
         }
+    }
+
+    public calculateDropPosition(
+        monitor: DropTargetMonitor,
+        canvas: HTMLCanvasElement
+    ): Point {
+        // Get the monitor's client offset
+        const monitorOffset = monitor.getClientOffset();
+
+        // Get the initial client offset (cursor position at drag start)
+        const initialClientOffset = monitor.getInitialClientOffset();
+
+        // Get the initial source client offset (dragged item's position at drag start)
+        const initialSourceClientOffset =
+            monitor.getInitialSourceClientOffset();
+
+        if (
+            !monitorOffset ||
+            !initialClientOffset ||
+            !initialSourceClientOffset
+        ) {
+            throw new Error(
+                `Unable to get monitor offsets: ${monitorOffset}, ${initialClientOffset}, ${initialSourceClientOffset}`
+            );
+        }
+
+        // Get the current zoom level from the engine's model
+        const zoomLevel = this.getModel().getZoomLevel() / 100; // Convert to decimal
+
+        // Calculate the cursor's offset within the dragged item
+        const cursorOffsetX =
+            initialClientOffset.x - initialSourceClientOffset.x;
+        const cursorOffsetY =
+            initialClientOffset.y - initialSourceClientOffset.y;
+
+        // Get the bounding rectangle of the canvas widget
+        const canvasRect = canvas.getBoundingClientRect();
+
+        // Calculate the correct position by subtracting the canvas's top and left offsets
+        const canvasOffsetX = (monitorOffset.x - canvasRect.left) / zoomLevel;
+        const canvasOffsetY = (monitorOffset.y - canvasRect.top) / zoomLevel;
+
+        const correctedX = canvasOffsetX - cursorOffsetX;
+        const correctedY = canvasOffsetY - cursorOffsetY;
+
+        return new Point(correctedX, correctedY);
     }
 }
 
