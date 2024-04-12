@@ -76,7 +76,7 @@ export class CustomEngine extends DiagramEngine {
         }
     }
 
-    public setModel(model: CustomDiagramModel): void {
+    public override setModel(model: CustomDiagramModel): void {
         const ret = super.setModel(model);
 
         // Add a global event listener to the model
