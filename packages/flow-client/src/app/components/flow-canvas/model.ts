@@ -8,7 +8,7 @@ import {
 
 export class CustomDiagramModel extends DiagramModel {
     // Custom method to add a node and register an event listener
-    addNode(node: NodeModel): NodeModel {
+    override addNode(node: NodeModel): NodeModel {
         const ret = super.addNode(node);
         // Register an event listener for the node
         node.registerListener({
@@ -30,7 +30,7 @@ export class CustomDiagramModel extends DiagramModel {
     }
 
     // Custom method to add a link and register an event listener
-    addLink(link: LinkModel): LinkModel {
+    override addLink(link: LinkModel): LinkModel {
         const ret = super.addLink(link);
         // Register an event listener for the link
         link.registerListener({
