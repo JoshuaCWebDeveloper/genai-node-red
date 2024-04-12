@@ -48,34 +48,6 @@ export class CustomEngine extends DiagramEngine {
         });
     }
 
-    public increaseZoomLevel(event: WheelEvent): void {
-        const model = this.getModel();
-        if (model) {
-            const zoomFactor = 0.1; // Adjust this value based on your needs
-            const oldZoomLevel = model.getZoomLevel();
-            const newZoomLevel = Math.max(
-                oldZoomLevel + event.deltaY * -zoomFactor,
-                50
-            );
-
-            // Calculate the new offset
-            const boundingRect = (
-                event.currentTarget as Element
-            )?.getBoundingClientRect();
-            const clientX = event.clientX - boundingRect.left;
-            const clientY = event.clientY - boundingRect.top;
-            const deltaX = clientX - model.getOffsetX();
-            const deltaY = clientY - model.getOffsetY();
-            const zoomRatio = newZoomLevel / oldZoomLevel;
-            const newOffsetX = clientX - deltaX * zoomRatio;
-            const newOffsetY = clientY - deltaY * zoomRatio;
-
-            model.setZoomLevel(newZoomLevel);
-            model.setOffset(newOffsetX, newOffsetY);
-            this.repaintCanvas();
-        }
-    }
-
     public override setModel(model: CustomDiagramModel): void {
         const ret = super.setModel(model);
 
@@ -104,6 +76,34 @@ export class CustomEngine extends DiagramEngine {
         });
 
         return ret;
+    }
+
+    public increaseZoomLevel(event: WheelEvent): void {
+        const model = this.getModel();
+        if (model) {
+            const zoomFactor = 0.1; // Adjust this value based on your needs
+            const oldZoomLevel = model.getZoomLevel();
+            const newZoomLevel = Math.max(
+                oldZoomLevel + event.deltaY * -zoomFactor,
+                50
+            );
+
+            // Calculate the new offset
+            const boundingRect = (
+                event.currentTarget as Element
+            )?.getBoundingClientRect();
+            const clientX = event.clientX - boundingRect.left;
+            const clientY = event.clientY - boundingRect.top;
+            const deltaX = clientX - model.getOffsetX();
+            const deltaY = clientY - model.getOffsetY();
+            const zoomRatio = newZoomLevel / oldZoomLevel;
+            const newOffsetX = clientX - deltaX * zoomRatio;
+            const newOffsetY = clientY - deltaY * zoomRatio;
+
+            model.setZoomLevel(newZoomLevel);
+            model.setOffset(newOffsetX, newOffsetY);
+            this.repaintCanvas();
+        }
     }
 }
 
