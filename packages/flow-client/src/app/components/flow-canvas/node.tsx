@@ -187,7 +187,9 @@ export class CustomNodeFactory extends AbstractReactFactory<
     }
 
     generateModel(_event: GenerateModelEvent) {
-        throw new Error('Not implemented');
-        return undefined as unknown as CustomNodeModel;
+        return new CustomNodeModel(
+            _event.initialConfig.extras.entity,
+            _event.initialConfig
+        );
     }
 }

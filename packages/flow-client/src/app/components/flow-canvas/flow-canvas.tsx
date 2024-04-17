@@ -102,6 +102,10 @@ export const FlowCanvas: React.FC<FlowCanvasProps> = ({
 
     const [model] = useState(new CustomDiagramModel());
 
+    const serializedGraph = useAppSelector(state =>
+        flowLogic.selectSerializedGraphByFlowId(state, model.getID())
+    );
+
     // Inside your component
     const listenerHandleRef = useRef<ListenerHandle | null>(null);
 
@@ -117,6 +121,22 @@ export const FlowCanvas: React.FC<FlowCanvasProps> = ({
     }, [initialDiagram.links, initialDiagram.nodes, model]);
 
     useEffect(() => {
+        // we deserialize our graph in the same selector so that it doesn't trigger event handlers
+        if (serializedGraph) {
+            // don't overwrite some properties
+            serializedGraph.offsetX = model.getOffsetX() ?? 0;
+            serializedGraph.offsetY = model.getOffsetY() ?? 0;
+            serializedGraph.zoom = model.getZoomLevel() ?? 1;
+            serializedGraph.gridSize = model.getOptions().gridSize ?? 20;
+            // order our layers: links, nodes
+            serializedGraph.layers.sort((a, b) => {
+                if (a.type === 'diagram-links') return -1;
+                if (b.type === 'diagram-links') return 1;
+                return 0;
+            });
+            // model.deserializeModel(serializedGraph, engine);
+            // engine.repaintCanvas();
+        }
         // Event listener for any change in the model
         const handleModelChange = debounce(() => {
             // Serialize the current state of the diagram
@@ -132,6 +152,8 @@ export const FlowCanvas: React.FC<FlowCanvasProps> = ({
             'CustomDiagramModel:nodesUpdated': handleModelChange,
             'CustomNodeModel:positionChanged': handleModelChange,
             'DefaultLinkModel:targetPortChanged': handleModelChange,
+            'DefaultLinkModel:pointsUpdated': handleModelChange,
+            'PointModel:positionChanged': handleModelChange,
             // Add more listeners as needed
         });
 
@@ -148,6 +170,7 @@ export const FlowCanvas: React.FC<FlowCanvasProps> = ({
         initialDiagram.links,
         initialDiagram.nodes,
         model,
+        serializedGraph,
     ]);
 
     useEffect(() => {

@@ -9,14 +9,65 @@ import { RootState } from '../../store';
 
 export const FLOW_FEATURE_KEY = 'flow';
 
+export type PointModel = {
+    id: string;
+    type: string;
+    x: number;
+    y: number;
+};
+
+export type PortModel = {
+    id: string;
+    type: string;
+    x: number;
+    y: number;
+    name: string;
+    alignment: string;
+    parentNode: string;
+    links: string[];
+    in: boolean;
+    label: string;
+};
+
+export type LinkModel = {
+    id: string;
+    type: string;
+    source: string;
+    sourcePort: string;
+    target: string;
+    targetPort: string;
+    points: PointModel[];
+    labels: LabelModel[];
+    width: number;
+    color: string;
+    curvyness: number;
+    selectedColor: string;
+    locked: boolean;
+    selected: boolean;
+    extras: Record<string, unknown>;
+};
+
+export type LabelModel = {
+    id: string;
+    type: string;
+    offsetX: number;
+    offsetY: number;
+    label: string;
+};
+
 // Define interfaces for the different entities
 export interface FlowNodeEntity {
     id: string;
     type: string;
+    x: number;
+    y: number;
     z?: string; // Flow ID for nodes that belong to a flow or subflow
     name?: string;
     wires?: string[][]; // For nodes, to represent connections
     [key: string]: unknown; // To allow for other properties dynamically
+    // React Diagrams
+    ports?: PortModel[];
+    links?: Record<string, LinkModel>;
 }
 
 export interface FlowEntity {

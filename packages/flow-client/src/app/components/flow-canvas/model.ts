@@ -4,6 +4,7 @@ import {
     LinkModel,
     BaseEvent,
     PortModel,
+    PointModel,
 } from '@projectstorm/react-diagrams';
 
 export class CustomDiagramModel extends DiagramModel {
@@ -32,6 +33,24 @@ export class CustomDiagramModel extends DiagramModel {
     // Custom method to add a link and register an event listener
     override addLink(link: LinkModel): LinkModel {
         const ret = super.addLink(link);
+        // intercept points
+        const linkAddPoint = link.addPoint.bind(link);
+        link.addPoint = <P extends PointModel>(point: P) => {
+            const ret = linkAddPoint(point);
+            point.registerListener({
+                eventDidFire: (e: BaseEvent) => {
+                    this.fireEvent(e, '_globalPassthrough');
+                },
+            });
+            link.fireEvent(
+                {
+                    link,
+                    isCreated: true,
+                },
+                'pointsUpdated'
+            );
+            return ret;
+        };
         // Register an event listener for the link
         link.registerListener({
             eventDidFire: (e: BaseEvent) => {
