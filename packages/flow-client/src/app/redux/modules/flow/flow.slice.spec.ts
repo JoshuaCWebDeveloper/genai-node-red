@@ -1,4 +1,9 @@
-import { flowActions, flowAdapter, flowReducer } from './flow.slice';
+import {
+    FlowEntity,
+    flowActions,
+    flowAdapter,
+    flowReducer,
+} from './flow.slice';
 
 describe('flow reducer', () => {
     it('should handle initial state', () => {
@@ -28,7 +33,10 @@ describe('flow reducer', () => {
             },
         ];
 
-        const state = flowReducer(initialState, flowActions.addEntities(flows));
+        const state = flowReducer(
+            initialState,
+            flowActions.addEntities(flows as FlowEntity[])
+        );
 
         expect(state).toEqual(
             expect.objectContaining({
