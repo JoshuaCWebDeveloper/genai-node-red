@@ -134,9 +134,13 @@ export const Node: React.FC<NodeProps> = ({ node, engine }) => {
     // Convert the ports model to an array for rendering
     const ports = Object.values(node.getPorts());
 
+
+    const entity = node.entity ?? ({} as NodeEntity);
+
     return (
         <StyledNode className={node.isSelected() ? 'selected' : ''}>
             <NodeRedNode node={node.entity}>
+            <NodeRedNode entity={entity} instance={node.config}>
                 {/* Render ports */}
 
                 {ports.map((port, index) => (

@@ -19,6 +19,7 @@ import { DropTargetMonitor } from 'react-dnd';
 
 import { CustomDiagramModel } from './model';
 import { CustomNodeFactory } from './node';
+import { SerializedGraph } from '../../redux/modules/flow/flow.logic';
 
 export class CustomEngine extends DiagramEngine {
     constructor(options?: CanvasEngineOptions) {
@@ -152,6 +153,26 @@ export class CustomEngine extends DiagramEngine {
         const correctedY = canvasOffsetY - cursorOffsetY;
 
         return new Point(correctedX, correctedY);
+    }
+
+    public applySerializedGraph(serializedGraph: SerializedGraph) {
+        const model = this.getModel();
+
+        // don't overwrite some properties
+        serializedGraph.offsetX = model.getOffsetX() ?? 0;
+        serializedGraph.offsetY = model.getOffsetY() ?? 0;
+        serializedGraph.zoom = model.getZoomLevel() ?? 1;
+        serializedGraph.gridSize = model.getOptions().gridSize ?? 20;
+        // order our layers: links, nodes
+        serializedGraph.layers.sort((a, b) => {
+            if (a.type === 'diagram-links') return -1;
+            if (b.type === 'diagram-links') return 1;
+            return 0;
+        });
+
+        model.deserializeModel(serializedGraph, this);
+
+        return this.repaintCanvas(true);
     }
 }
 

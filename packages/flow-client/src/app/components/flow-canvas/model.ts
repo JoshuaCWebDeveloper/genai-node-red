@@ -1,16 +1,16 @@
 import {
-    DiagramModel,
-    NodeModel,
-    LinkModel,
     BaseEvent,
-    PortModel,
+    BaseModel,
+    DiagramModel,
+    LayerModel,
+    LinkModel,
+    NodeModel,
     PointModel,
+    PortModel,
 } from '@projectstorm/react-diagrams';
 
 export class CustomDiagramModel extends DiagramModel {
-    // Custom method to add a node and register an event listener
-    override addNode(node: NodeModel): NodeModel {
-        const ret = super.addNode(node);
+    private attachNodeListeners(node: NodeModel) {
         // Register an event listener for the node
         node.registerListener({
             eventDidFire: (e: BaseEvent) => {
@@ -57,6 +57,31 @@ export class CustomDiagramModel extends DiagramModel {
                 //console.log(`Link event fired: `, event);
                 this.fireEvent(e, '_globalPassthrough');
             },
+        });
+    }
+
+    // Custom method to add a node and register an event listener
+    override addNode(node: NodeModel): NodeModel {
+        const ret = super.addNode(node);
+        this.attachNodeListeners(node);
+        return ret;
+    }
+
+    // Custom method to add a link and register an event listener
+    override addLink(link: LinkModel): LinkModel {
+        const ret = super.addLink(link);
+        this.attachLinkListeners(link);
+        return ret;
+    }
+
+    override addLayer(layer: LayerModel): void {
+        const ret = super.addLayer(layer);
+        Object.values(layer.getModels()).forEach((model: BaseModel) => {
+            if (model instanceof LinkModel) {
+                this.attachLinkListeners(model);
+            } else if (model instanceof NodeModel) {
+                this.attachNodeListeners(model);
+            }
         });
         return ret;
     }

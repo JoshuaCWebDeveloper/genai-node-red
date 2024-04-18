@@ -66,6 +66,8 @@ export interface FlowNodeEntity {
     wires?: string[][]; // For nodes, to represent connections
     [key: string]: unknown; // To allow for other properties dynamically
     // React Diagrams
+    selected?: boolean;
+    locked?: boolean;
     ports?: PortModel[];
     links?: Record<string, LinkModel>;
 }

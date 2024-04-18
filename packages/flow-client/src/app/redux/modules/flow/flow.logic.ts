@@ -113,34 +113,42 @@ export class FlowLogic {
                 flowActions.removeEntities(nodesToRemove.map(it => it.id))
             );
 
-            // First, map all links by their sourcePort to easily find connections later
-            const linksBySourcePort = Object.values(linkModels)
-                .filter(it => it.targetPort in portModels)
+            // Map all links by their out port to organize connections from out -> in
+            const linksByOutPort = Object.values(linkModels)
+                .filter(
+                    link =>
+                        link.sourcePort in portModels &&
+                        link.targetPort in portModels
+                )
                 .reduce<Record<string, string[]>>((acc, link) => {
-                    (acc[link.sourcePort] = acc[link.sourcePort] || []).push(
-                        portModels[link.targetPort].parentNode
-                    );
+                    const outPortId = portModels[link.sourcePort].in
+                        ? link.targetPort
+                        : link.sourcePort;
+                    const inPortId = portModels[link.sourcePort].in
+                        ? link.sourcePort
+                        : link.targetPort;
+                    const inPortNode = portModels[inPortId].parentNode;
+                    (acc[outPortId] = acc[outPortId] || []).push(inPortNode);
                     return acc;
                 }, {});
 
-            // Transform nodes, incorporating links data into the wires property
+            // Transform nodes, incorporating links data into the wires property based on out ports
             const nodes = Object.values(nodeModels).map(
                 (node): FlowNodeEntity => {
-                    // For each port of the node
+                    // For each out port of the node
                     const wires: string[][] = [];
                     const outLinks: Record<string, LinkModel> = {};
                     node.ports
-                        // only look at out ports
-                        .filter(it => !it.in)
-                        //find connected target ports and map them to target node IDs
+                        .filter(port => !port.in) // only look at out ports
                         .forEach(port => {
-                            wires.push(linksBySourcePort[port.id] || []);
+                            wires.push(linksByOutPort[port.id] || []);
                             port.links.forEach(linkId => {
                                 outLinks[linkId] = linkModels[linkId];
                             });
                         });
 
                     return {
+                        ...(node.extras.config as FlowNodeEntity),
                         id: node.id,
                         type: node.extras.entity.type,
                         x: node.x,
@@ -148,9 +156,10 @@ export class FlowLogic {
                         z: graph.id, // Assuming all nodes belong to the same flow
                         name: node.name,
                         wires,
-                        // Add other properties as needed
                         ports: node.ports,
                         links: outLinks,
+                        selected: node.selected,
+                        locked: node.locked,
                     };
                 }
             );
@@ -226,17 +235,16 @@ export class FlowLogic {
                 });
 
                 nodeModels[node.id] = {
-                    id: node.id,
-                    type: 'custom-node',
-                    x: node.x,
-                    y: node.y,
-                    ports: node.ports ?? [],
-                    name: node.name || '',
-                    color: 'defaultColor',
                     locked: false,
                     selected: false,
+                    ports: [],
+                    name: '',
+                    color: 'defaultColor',
+                    ...node,
+                    type: 'custom-node',
                     extras: {
                         entity: nodeEntities[node.type],
+                        config: node,
                     },
                 };
             });
