@@ -1,89 +1,14 @@
+import {
+    executeRegisterType,
+    extractNodePropertyFn,
+} from '../../../red/execute-script';
 import { AppDispatch } from '../../store';
+import { FlowNodeEntity } from '../flow/flow.slice';
 import { NodeEntity, nodeActions } from './node.slice';
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-import { REDUtils } from './red-utils';
-// No need to import the API or service for fetching, as data will be passed directly
 
 export class NodeLogic {
-    private createBaseRedObject() {
-        const RED = new Proxy(
-            // target RED object
-            {
-                nodes: {
-                    registerType(..._args: unknown[]): unknown {
-                        // not implemented
-                        return undefined;
-                    },
-                },
-                validators: {
-                    number(value: unknown) {
-                        return typeof value === 'number';
-                    },
-                    regex(value: unknown, pattern: RegExp) {
-                        return typeof value === 'string' && pattern.test(value);
-                    },
-                    typedInput(type: string, value: unknown) {
-                        switch (type) {
-                            case 'number':
-                                return typeof value === 'number';
-                            case 'string':
-                                return typeof value === 'string';
-                            case 'boolean':
-                                return typeof value === 'boolean';
-                            default:
-                                return false;
-                        }
-                    },
-                },
-                events: {
-                    on(
-                        event: string,
-                        _handler: (...args: unknown[]) => unknown
-                    ) {
-                        console.debug(
-                            'Ignoring node event handler for event: ',
-                            event
-                        );
-                    },
-                },
-                settings: {
-                    get(name: string, defaultValue: unknown) {
-                        console.debug(
-                            'Returning default Node-RED value for setting: ',
-                            name
-                        );
-                        return defaultValue;
-                    },
-                },
-                // il8n method that returns message corresponding with given path
-                _(messagePath: string) {
-                    return messagePath;
-                },
-                utils: REDUtils,
-            },
-            // proxy handler
-            {
-                get: function (target, prop) {
-                    if (prop in target) {
-                        return target[prop as keyof typeof target];
-                    } else {
-                        console.error(
-                            `Attempted to access RED property: \`${String(
-                                prop
-                            )}\` but it was not emulated.`
-                        );
-                        return undefined;
-                    }
-                },
-            }
-        );
-
-        return RED;
-    }
-
     // Define a plain thunk method that accepts nodeScripts data as an argument
-    setNodeScripts(nodeScriptsData: string) {
+    public setNodeScripts(nodeScriptsData: string) {
         return async (dispatch: AppDispatch) => {
             const parser = new DOMParser();
             const doc = parser.parseFromString(nodeScriptsData, 'text/html');
@@ -94,54 +19,22 @@ export class NodeLogic {
                     const scriptContent = script.textContent?.trim();
                     if (!scriptContent) return; // Skip if script.textContent is empty
 
-                    // eslint-disable-next-line no-new-func
-                    const scriptFunction = new Function('RED', scriptContent);
+                    const registeredType = executeRegisterType(scriptContent);
 
-                    const RED = this.createBaseRedObject();
-                    RED.nodes.registerType = (
-                        type: string,
-                        definition: Partial<NodeEntity>
-                    ) => {
-                        // recursively iterate through definition and serialize any functions
-                        const serializeFunctions = (
-                            obj: Record<string, unknown>
-                        ) => {
-                            Object.keys(obj).forEach(key => {
-                                if (typeof obj[key] === 'function') {
-                                    obj[key] = {
-                                        type: 'serialized-function',
-                                        value: (
-                                            obj[key] as (
-                                                ...args: unknown[]
-                                            ) => unknown
-                                        ).toString(),
-                                    };
-                                } else if (
-                                    typeof obj[key] === 'object' &&
-                                    obj[key] !== null
-                                ) {
-                                    serializeFunctions(
-                                        obj[key] as Record<string, unknown>
-                                    );
-                                }
-                            });
-                        };
-                        serializeFunctions(definition);
-                        // Logic to handle the node registration
-                        dispatch(
-                            nodeActions.updateOne({
-                                id: type,
-                                changes: definition,
-                            })
-                        );
-                    };
-
-                    try {
-                        // Call the script function with the RED object
-                        scriptFunction(RED);
-                    } catch (error) {
-                        console.error('Error executing script:', error);
+                    if (!registeredType) {
+                        return;
                     }
+
+                    // Logic to handle the node registration
+                    dispatch(
+                        nodeActions.updateOne({
+                            id: registeredType.type,
+                            changes: {
+                                ...registeredType.definition,
+                                definitionScript: scriptContent,
+                            },
+                        })
+                    );
                 }
             );
 
@@ -177,50 +70,6 @@ export class NodeLogic {
         };
     }
 
-    // Utility function to deserialize a function from its serialized string representation
-    private deserializeFunction<T = (...args: unknown[]) => unknown>(
-        serializedFunction: string
-    ): T {
-        const RED = this.createBaseRedObject();
-        const nodeInstance = new Proxy(
-            {
-                _(messagePath: string) {
-                    return RED._(messagePath);
-                },
-                // switch
-                rules: [],
-            },
-            // proxy handler
-            {
-                get: function (target, prop) {
-                    if (prop in target) {
-                        return target[prop as keyof typeof target];
-                    } else {
-                        console.error(
-                            `Attempted to access RED property: \`${String(
-                                prop
-                            )}\` but it was not emulated.`
-                        );
-                        return undefined;
-                    }
-                },
-            }
-        );
-        try {
-            console.debug('Deserializing function: ');
-            console.debug(serializedFunction);
-            // eslint-disable-next-line no-new-func
-            return new Function(
-                'nodeInstance',
-                `return (${serializedFunction}).bind(nodeInstance);`
-            )(nodeInstance);
-        } catch (error) {
-            console.error('Error deserializing function: ');
-            console.info(serializedFunction);
-            throw error;
-        }
-    }
-
     // Method to extract inputs and outputs from a NodeEntity, including deserializing inputLabels and outputLabels
     public getNodeInputsOutputs(node: NodeEntity): {
         inputs: string[];
@@ -234,24 +83,29 @@ export class NodeLogic {
         const outputsCount = node.outputs ?? 0;
 
         // Deserialize inputLabels and outputLabels functions
-        const inputLabelsFunc = node.inputLabels
-            ? this.deserializeFunction<(index: number) => string>(
-                  node.inputLabels.value
-              )
-            : (index: number) => `Input ${index + 1}`;
-        const outputLabelsFunc = node.outputLabels
-            ? this.deserializeFunction<(index: number) => string>(
-                  node.outputLabels.value
-              )
-            : (index: number) => `Output ${index + 1}`;
+        const inputLabelsFunc =
+            (node.definitionScript
+                ? extractNodePropertyFn<(index: number) => string>(
+                      node.definitionScript,
+                      'inputLabels'
+                  )
+                : null) ?? ((index: number) => `Input ${index + 1}`);
+
+        const outputLabelsFunc =
+            (node.definitionScript
+                ? extractNodePropertyFn<(index: number) => string>(
+                      node.definitionScript,
+                      'outputLabels'
+                  )
+                : null) ?? ((index: number) => `Output ${index + 1}`);
 
         // Generate input and output labels using the deserialized functions
         for (let i = 0; i < inputsCount; i++) {
-            inputs.push(inputLabelsFunc(i) ?? `Input ${i + 1}`);
+            inputs.push(inputLabelsFunc(i));
         }
 
         for (let i = 0; i < outputsCount; i++) {
-            outputs.push(outputLabelsFunc(i) ?? `Output ${i + 1}`);
+            outputs.push(outputLabelsFunc(i));
         }
 
         return { inputs, outputs };
