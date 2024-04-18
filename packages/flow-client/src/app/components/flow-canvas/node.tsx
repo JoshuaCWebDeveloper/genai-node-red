@@ -140,7 +140,6 @@ export const Node: React.FC<NodeProps> = ({ node, engine }) => {
     return (
         <StyledNode className={node.isSelected() ? 'selected' : ''}>
             <NodeRedNode node={node.entity}>
-            <NodeRedNode entity={entity} instance={node.config}>
                 {/* Render ports */}
 
                 {ports.map((port, index) => (
