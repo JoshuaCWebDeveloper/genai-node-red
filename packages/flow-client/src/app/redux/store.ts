@@ -1,5 +1,15 @@
 import { Action, configureStore, ThunkAction } from '@reduxjs/toolkit';
 import { setupListeners } from '@reduxjs/toolkit/query';
+import {
+    FLUSH,
+    PAUSE,
+    PERSIST,
+    persistReducer,
+    PURGE,
+    REGISTER,
+    REHYDRATE,
+} from 'redux-persist';
+import storage from 'redux-persist/lib/storage';
 
 import { featureApi } from './modules/api/feature.api';
 import { nodeApi } from './modules/api/node.api'; // Import the nodeApi
@@ -7,9 +17,12 @@ import {
     FEATURE_FEATURE_KEY,
     featureReducer,
 } from './modules/feature/feature.slice';
+import {
+    FLOW_FEATURE_KEY,
+    flowReducer,
+    FlowState,
+} from './modules/flow/flow.slice';
 import { NODE_FEATURE_KEY, nodeReducer } from './modules/node/node.slice';
-import { FLOW_FEATURE_KEY, flowReducer } from './modules/flow/flow.slice';
-// Add more imports for other slices as needed
 
 export const createStore = () => {
     const store = configureStore({
@@ -19,14 +32,28 @@ export const createStore = () => {
             [NODE_FEATURE_KEY]: nodeReducer,
             [nodeApi.reducerPath]: nodeApi.reducer, // Add the nodeApi reducer
             // Add more reducers here as needed
-            [FLOW_FEATURE_KEY]: flowReducer,
+            [FLOW_FEATURE_KEY]: persistReducer<FlowState>(
+                {
+                    key: FLOW_FEATURE_KEY,
+                    storage: storage,
+                },
+                flowReducer
+            ),
         },
         // Additional middleware can be passed to this array
         middleware: getDefaultMiddleware =>
-            getDefaultMiddleware().concat(
-                featureApi.middleware,
-                nodeApi.middleware
-            ),
+            getDefaultMiddleware({
+                serializableCheck: {
+                    ignoredActions: [
+                        FLUSH,
+                        REHYDRATE,
+                        PAUSE,
+                        PERSIST,
+                        PURGE,
+                        REGISTER,
+                    ],
+                },
+            }).concat(featureApi.middleware, nodeApi.middleware),
         devTools: process.env.NODE_ENV !== 'production',
     });
 
