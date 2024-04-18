@@ -8,6 +8,7 @@ import { createStore } from './app/redux/store';
 import { createGlobalStyle } from 'styled-components';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
+import '@fortawesome/fontawesome-free/css/all.css';
 
 const GlobalStyle = createGlobalStyle`
   body, html, #root {
