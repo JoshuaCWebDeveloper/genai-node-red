@@ -192,6 +192,10 @@ export const FlowCanvas: React.FC<FlowCanvasProps> = ({
 
     useEffect(() => {
         const canvas = document.querySelector('.flow-canvas');
+        const canvasContainer = document.querySelector(
+            '.flow-canvas-container'
+        );
+
         const handleZoom = (event: Event) =>
             engine.increaseZoomLevel(event as WheelEvent);
         const disableContextMenu = (event: Event) => event.preventDefault();
@@ -199,9 +203,28 @@ export const FlowCanvas: React.FC<FlowCanvasProps> = ({
         canvas?.addEventListener('wheel', handleZoom);
         canvas?.addEventListener('contextmenu', disableContextMenu);
 
+        // Disable key events from outside our canvas
+        const actionEventBus = engine.getActionEventBus();
+        const originalFireAction =
+            actionEventBus.fireAction.bind(actionEventBus);
+        actionEventBus.fireAction = actionEvent => {
+            // Check if the event is a key event (keydown or keyup)
+            if (['keydown', 'keyup'].includes(actionEvent.event.type)) {
+                // Check if the event target is not our canvas, then exit
+                if (
+                    !canvasContainer?.contains(actionEvent.event.target as Node)
+                ) {
+                    return;
+                }
+            }
+            // Call the original fireAction method
+            originalFireAction(actionEvent);
+        };
+
         return () => {
             canvas?.removeEventListener('wheel', handleZoom);
             canvas?.removeEventListener('contextmenu', disableContextMenu);
+            actionEventBus.fireAction = originalFireAction;
         };
     }, []);
 
@@ -276,7 +299,12 @@ export const FlowCanvas: React.FC<FlowCanvasProps> = ({
     // The CanvasWidget component is used to render the flow canvas within the UI.
     // The "canvas-widget" className can be targeted for custom styling.
     return (
-        <div ref={drop} style={{ height: '100%', width: '100%' }}>
+        <div
+            className="flow-canvas-container"
+            ref={drop}
+            style={{ height: '100%', width: '100%' }}
+            tabIndex={0}
+        >
             <LogFlowSlice />
             <StyledCanvasWidget engine={engine} className="flow-canvas" />
         </div>

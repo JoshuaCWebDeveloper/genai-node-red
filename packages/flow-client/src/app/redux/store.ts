@@ -14,6 +14,10 @@ import storage from 'redux-persist/lib/storage';
 import { featureApi } from './modules/api/feature.api';
 import { nodeApi } from './modules/api/node.api'; // Import the nodeApi
 import {
+    BUILDER_FEATURE_KEY,
+    builderReducer,
+} from './modules/builder/builder.slice';
+import {
     FEATURE_FEATURE_KEY,
     featureReducer,
 } from './modules/feature/feature.slice';
@@ -39,6 +43,7 @@ export const createStore = () => {
                 },
                 flowReducer
             ),
+            [BUILDER_FEATURE_KEY]: builderReducer,
         },
         // Additional middleware can be passed to this array
         middleware: getDefaultMiddleware =>

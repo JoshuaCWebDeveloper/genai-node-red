@@ -27,12 +27,9 @@ export class CustomDiagramModel extends DiagramModel {
                 },
             });
         });
-        return ret;
     }
 
-    // Custom method to add a link and register an event listener
-    override addLink(link: LinkModel): LinkModel {
-        const ret = super.addLink(link);
+    private attachLinkListeners(link: LinkModel) {
         // intercept points
         const linkAddPoint = link.addPoint.bind(link);
         link.addPoint = <P extends PointModel>(point: P) => {

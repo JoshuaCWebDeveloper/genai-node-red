@@ -8,9 +8,12 @@ import {
 import React from 'react';
 import styled from 'styled-components';
 
-import { CustomEngine } from './engine';
-import NodeRedNode from '../node/node-red-node';
+import { useAppDispatch } from '../../redux/hooks';
+import { builderActions } from '../../redux/modules/builder/builder.slice';
 import { NodeEntity } from '../../redux/modules/node/node.slice';
+import NodeRedNode from '../node/node-red-node';
+import { CustomEngine } from './engine';
+import { FlowNodeEntity } from '../../redux/modules/flow/flow.slice';
 
 // Styled components for the node and its elements
 const StyledNode = styled.div<{ borderColor?: string }>`
@@ -131,15 +134,21 @@ export type NodeProps = {
 };
 
 export const Node: React.FC<NodeProps> = ({ node, engine }) => {
+    const dispatch = useAppDispatch();
+
     // Convert the ports model to an array for rendering
     const ports = Object.values(node.getPorts());
 
+    const handleDoubleClick = () => {
+        dispatch(builderActions.setEditing(node.getID()));
+    };
 
     const entity = node.entity ?? ({} as NodeEntity);
 
     return (
         <StyledNode
             className={node.isSelected() ? 'selected' : ''}
+            onDoubleClick={handleDoubleClick}
         >
             <NodeRedNode entity={entity} instance={node.config}>
                 {/* Render ports */}

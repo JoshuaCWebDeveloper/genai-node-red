@@ -1,7 +1,8 @@
 import styled from 'styled-components';
 
 import { FlowCanvas } from './components/flow-canvas/flow-canvas'; // Ensure the path is correct
-import NodePalette from './components/node-palette/node-palette'; // Import NodePalette
+import { NodeEditor } from './components/node-editor';
+import { NodePalette } from './components/node-palette/node-palette'; // Import NodePalette
 
 // StyledApp defines the main application container styles.
 // It ensures the flow canvas takes up the full viewport height for better visibility.
@@ -21,6 +22,7 @@ const StyledApp = styled.div`
     .builder-container {
         display: flex;
         flex-direction: row;
+        position: relative;
         height: calc(100% - 60px);
 
         .node-palette {
@@ -44,6 +46,7 @@ export function App() {
             <div className="builder-container">
                 <NodePalette />
                 <FlowCanvas />
+                <NodeEditor />
             </div>
         </StyledApp>
     );
