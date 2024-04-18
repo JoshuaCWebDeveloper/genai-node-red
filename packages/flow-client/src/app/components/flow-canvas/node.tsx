@@ -138,8 +138,10 @@ export const Node: React.FC<NodeProps> = ({ node, engine }) => {
     const entity = node.entity ?? ({} as NodeEntity);
 
     return (
-        <StyledNode className={node.isSelected() ? 'selected' : ''}>
-            <NodeRedNode node={node.entity}>
+        <StyledNode
+            className={node.isSelected() ? 'selected' : ''}
+        >
+            <NodeRedNode entity={entity} instance={node.config}>
                 {/* Render ports */}
 
                 {ports.map((port, index) => (
@@ -162,15 +164,23 @@ export const Node: React.FC<NodeProps> = ({ node, engine }) => {
 
 // Assuming createCustomNodeModel exists, and you're adding to this file
 export class CustomNodeModel extends DefaultNodeModel {
-    constructor(public entity: NodeEntity, options?: Record<string, unknown>) {
+    public entity?: NodeEntity;
+    public config?: FlowNodeEntity;
+
+    constructor(options: {
+        extras: {
+            entity: NodeEntity;
+            config: FlowNodeEntity;
+            [index: string]: unknown;
+        };
+        [index: string]: unknown;
+    }) {
         super({
             ...options,
-            extras: {
-                ...(options?.extras ?? {}),
-                entity: entity,
-            },
             type: 'custom-node',
         });
+        this.entity = options?.extras?.entity;
+        this.config = options?.extras?.config;
     }
 }
 
@@ -190,9 +200,6 @@ export class CustomNodeFactory extends AbstractReactFactory<
     }
 
     generateModel(_event: GenerateModelEvent) {
-        return new CustomNodeModel(
-            _event.initialConfig.extras.entity,
-            _event.initialConfig
-        );
+        return new CustomNodeModel(_event.initialConfig);
     }
 }

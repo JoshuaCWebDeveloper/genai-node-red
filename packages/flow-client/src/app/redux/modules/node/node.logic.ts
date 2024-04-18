@@ -256,4 +256,42 @@ export class NodeLogic {
 
         return { inputs, outputs };
     }
+
+    // Helper method to extract default values from NodeDefaults
+    private extractDefaultNodeValues(
+        defaults: NonNullable<NodeEntity['defaults']>
+    ) {
+        const config: Record<string, unknown> = {};
+        Object.keys(defaults).forEach(key => {
+            const property = defaults[key];
+            if (
+                property &&
+                'value' in property &&
+                property.value !== '_DEFAULT_'
+            ) {
+                config[key] = property.value;
+            }
+        });
+        return config;
+    }
+    // Method to generate a default config for a DiagramNode based on its NodeEntity
+    public applyConfigDefaults(
+        node: FlowNodeEntity,
+        entity: NodeEntity
+    ): FlowNodeEntity {
+        // Generate default config based on the NodeEntity's defaults
+        // Now we need to extract the value from each DefaultProperty
+        const defaultConfig = entity.defaults
+            ? this.extractDefaultNodeValues(entity.defaults)
+            : {};
+
+        // Apply the default config to the existing config without overriding existing values
+        const updatedNode = {
+            name: '',
+            ...defaultConfig,
+            ...node,
+        };
+
+        return updatedNode;
+    }
 }

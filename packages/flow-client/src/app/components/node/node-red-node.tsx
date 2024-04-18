@@ -2,6 +2,7 @@ import styled from 'styled-components';
 
 import { NodeEntity } from '../../redux/modules/node/node.slice';
 import environment from '../../../environment';
+import { FlowNodeEntity } from '../../redux/modules/flow/flow.slice';
 
 // Styled component for the node item
 const StyledNode = styled.div<{ node: NodeEntity }>`
@@ -16,7 +17,7 @@ const StyledNode = styled.div<{ node: NodeEntity }>`
     position: relative;
     height: 35px;
 
-    .type {
+    .name {
         flex: 1;
         text-align: ${props => props.node.align || 'left'};
     }
@@ -29,21 +30,26 @@ const StyledNode = styled.div<{ node: NodeEntity }>`
 `;
 
 export type NodeRedNodeProps = {
-    node: NodeEntity;
+    entity: NodeEntity;
+    instance?: FlowNodeEntity;
     children?: React.ReactNode;
 };
 
-export const NodeRedNode = ({ node, children }: NodeRedNodeProps) => {
+export const NodeRedNode = ({
+    entity,
+    instance,
+    children,
+}: NodeRedNodeProps) => {
     return (
-        <StyledNode node={node} className="node node-red">
-            {node.icon && (
+        <StyledNode node={entity} className="node node-red">
+            {entity.icon && (
                 <img
                     className="icon"
-                    src={`${environment.NODE_RED_API_ROOT}/icons/node-red/${node.icon}`}
+                    src={`${environment.NODE_RED_API_ROOT}/icons/node-red/${entity.icon}`}
                     alt="Node Icon"
                 />
             )}
-            <span className="type">{node.type}</span>
+            <span className="name">{instance?.name || entity.type}</span>
             {children}
         </StyledNode>
     );

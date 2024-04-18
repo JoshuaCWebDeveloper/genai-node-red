@@ -230,9 +230,18 @@ export const FlowCanvas: React.FC<FlowCanvasProps> = ({
                 return;
             }
 
-            const node = new CustomNodeModel(entity, {
+            const config = nodeLogic.applyConfigDefaults(
+                {} as FlowNodeEntity,
+                entity
+            );
+
+            const node = new CustomNodeModel({
                 name: entity.type,
                 color: entity.color,
+                extras: {
+                    entity,
+                    config,
+                },
             });
 
             node.setPosition(nodePosition);
