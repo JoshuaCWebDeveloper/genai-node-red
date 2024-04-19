@@ -33,6 +33,12 @@ export default defineConfig({
     },
 
     test: {
+        alias: [
+            {
+                find: 'monaco-editor',
+                replacement: __dirname + '/vite.config.ts',
+            },
+        ],
         globals: true,
         cache: {
             dir: '../../node_modules/.vitest',

@@ -1,3 +1,4 @@
+import '../../../../../vitest-esbuild-compat';
 import { NodeLogic } from './node.logic';
 import { nodeActions } from './node.slice';
 
@@ -23,7 +24,7 @@ describe('NodeLogic', () => {
             expect(mockDispatch).toHaveBeenCalledWith(
                 nodeActions.updateOne({
                     id: 'test-node',
-                    changes: { category: 'function' },
+                    changes: expect.objectContaining({ category: 'function' }),
                 })
             );
         });
@@ -98,16 +99,16 @@ describe('NodeLogic', () => {
                 id: 'test-node',
                 inputs: 2,
                 outputs: 2,
-                inputLabels: {
-                    type: 'serialized-function' as const,
-                    // eslint-disable-next-line no-template-curly-in-string
-                    value: 'function(index) { return `Custom Input ${index + 1}`; }',
-                },
-                outputLabels: {
-                    type: 'serialized-function' as const,
-                    // eslint-disable-next-line no-template-curly-in-string
-                    value: 'function(index) { return `Custom Output ${index + 1}`; }',
-                },
+                definitionScript: `
+                    RED.nodes.registerType("test-node", {
+                        inputLabels: function(index) { 
+                            return \`Custom Input \${index + 1}\`; 
+                        }, 
+                        outputLabels: function(index) { 
+                            return \`Custom Output \${index + 1}\`; 
+                        }
+                    });
+                `,
             };
 
             const { inputs, outputs } = nodeLogic.getNodeInputsOutputs(node);

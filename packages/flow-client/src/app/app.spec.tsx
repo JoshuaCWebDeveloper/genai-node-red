@@ -1,3 +1,4 @@
+import '../../vitest-esbuild-compat';
 import { render } from '@testing-library/react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
@@ -29,6 +30,16 @@ vi.mock('./redux/modules/api/node.api', async importOriginal => {
             error: null,
             isLoading: false,
         })),
+    };
+});
+
+vi.mock('redux-persist/integration/react', async importOriginal => {
+    const real = await importOriginal<
+        typeof import('redux-persist/integration/react')
+    >();
+    return {
+        ...real,
+        PersistGate: ({ children }: { children: React.ReactNode }) => children,
     };
 });
 
