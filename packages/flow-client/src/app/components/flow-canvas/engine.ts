@@ -1,3 +1,4 @@
+import { Point } from '@projectstorm/geometry';
 import {
     AbstractReactFactory,
     BaseEvent,
@@ -14,9 +15,11 @@ import {
     PathFindingLinkFactory,
     SelectionBoxLayerFactory,
 } from '@projectstorm/react-diagrams';
+import { DropTargetMonitor } from 'react-dnd';
 
-import { CustomNodeFactory } from './node';
 import { CustomDiagramModel } from './model';
+import { CustomNodeFactory } from './node';
+import { SerializedGraph } from '../../redux/modules/flow/flow.logic';
 
 export class CustomEngine extends DiagramEngine {
     constructor(options?: CanvasEngineOptions) {
@@ -48,34 +51,6 @@ export class CustomEngine extends DiagramEngine {
         });
     }
 
-    public increaseZoomLevel(event: WheelEvent): void {
-        const model = this.getModel();
-        if (model) {
-            const zoomFactor = 0.1; // Adjust this value based on your needs
-            const oldZoomLevel = model.getZoomLevel();
-            const newZoomLevel = Math.max(
-                oldZoomLevel + event.deltaY * -zoomFactor,
-                50
-            );
-
-            // Calculate the new offset
-            const boundingRect = (
-                event.currentTarget as Element
-            )?.getBoundingClientRect();
-            const clientX = event.clientX - boundingRect.left;
-            const clientY = event.clientY - boundingRect.top;
-            const deltaX = clientX - model.getOffsetX();
-            const deltaY = clientY - model.getOffsetY();
-            const zoomRatio = newZoomLevel / oldZoomLevel;
-            const newOffsetX = clientX - deltaX * zoomRatio;
-            const newOffsetY = clientY - deltaY * zoomRatio;
-
-            model.setZoomLevel(newZoomLevel);
-            model.setOffset(newOffsetX, newOffsetY);
-            this.repaintCanvas();
-        }
-    }
-
     public override setModel(model: CustomDiagramModel): void {
         const ret = super.setModel(model);
 
@@ -104,6 +79,100 @@ export class CustomEngine extends DiagramEngine {
         });
 
         return ret;
+    }
+
+    public increaseZoomLevel(event: WheelEvent): void {
+        const model = this.getModel();
+        if (model) {
+            const zoomFactor = 0.1; // Adjust this value based on your needs
+            const oldZoomLevel = model.getZoomLevel();
+            const newZoomLevel = Math.max(
+                oldZoomLevel + event.deltaY * -zoomFactor,
+                50
+            );
+
+            // Calculate the new offset
+            const boundingRect = (
+                event.currentTarget as Element
+            )?.getBoundingClientRect();
+            const clientX = event.clientX - boundingRect.left;
+            const clientY = event.clientY - boundingRect.top;
+            const deltaX = clientX - model.getOffsetX();
+            const deltaY = clientY - model.getOffsetY();
+            const zoomRatio = newZoomLevel / oldZoomLevel;
+            const newOffsetX = clientX - deltaX * zoomRatio;
+            const newOffsetY = clientY - deltaY * zoomRatio;
+
+            model.setZoomLevel(newZoomLevel);
+            model.setOffset(newOffsetX, newOffsetY);
+            this.repaintCanvas();
+        }
+    }
+
+    public calculateDropPosition(
+        monitor: DropTargetMonitor,
+        canvas: HTMLCanvasElement
+    ): Point {
+        // Get the monitor's client offset
+        const monitorOffset = monitor.getClientOffset();
+
+        // Get the initial client offset (cursor position at drag start)
+        const initialClientOffset = monitor.getInitialClientOffset();
+
+        // Get the initial source client offset (dragged item's position at drag start)
+        const initialSourceClientOffset =
+            monitor.getInitialSourceClientOffset();
+
+        if (
+            !monitorOffset ||
+            !initialClientOffset ||
+            !initialSourceClientOffset
+        ) {
+            throw new Error(
+                `Unable to get monitor offsets: ${monitorOffset}, ${initialClientOffset}, ${initialSourceClientOffset}`
+            );
+        }
+
+        // Get the current zoom level from the engine's model
+        const zoomLevel = this.getModel().getZoomLevel() / 100; // Convert to decimal
+
+        // Calculate the cursor's offset within the dragged item
+        const cursorOffsetX =
+            initialClientOffset.x - initialSourceClientOffset.x;
+        const cursorOffsetY =
+            initialClientOffset.y - initialSourceClientOffset.y;
+
+        // Get the bounding rectangle of the canvas widget
+        const canvasRect = canvas.getBoundingClientRect();
+
+        // Calculate the correct position by subtracting the canvas's top and left offsets
+        const canvasOffsetX = (monitorOffset.x - canvasRect.left) / zoomLevel;
+        const canvasOffsetY = (monitorOffset.y - canvasRect.top) / zoomLevel;
+
+        const correctedX = canvasOffsetX - cursorOffsetX;
+        const correctedY = canvasOffsetY - cursorOffsetY;
+
+        return new Point(correctedX, correctedY);
+    }
+
+    public applySerializedGraph(serializedGraph: SerializedGraph) {
+        const model = this.getModel();
+
+        // don't overwrite some properties
+        serializedGraph.offsetX = model.getOffsetX() ?? 0;
+        serializedGraph.offsetY = model.getOffsetY() ?? 0;
+        serializedGraph.zoom = model.getZoomLevel() ?? 1;
+        serializedGraph.gridSize = model.getOptions().gridSize ?? 20;
+        // order our layers: links, nodes
+        serializedGraph.layers.sort((a, b) => {
+            if (a.type === 'diagram-links') return -1;
+            if (b.type === 'diagram-links') return 1;
+            return 0;
+        });
+
+        model.deserializeModel(serializedGraph, this);
+
+        return this.repaintCanvas(true);
     }
 }
 

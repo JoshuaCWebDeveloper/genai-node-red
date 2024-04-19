@@ -8,9 +8,12 @@ import {
 import React from 'react';
 import styled from 'styled-components';
 
-import { CustomEngine } from './engine';
-import NodeRedNode from '../node/node-red-node';
+import { useAppDispatch } from '../../redux/hooks';
+import { builderActions } from '../../redux/modules/builder/builder.slice';
 import { NodeEntity } from '../../redux/modules/node/node.slice';
+import NodeRedNode from '../node/node-red-node';
+import { CustomEngine } from './engine';
+import { FlowNodeEntity } from '../../redux/modules/flow/flow.slice';
 
 // Styled components for the node and its elements
 const StyledNode = styled.div<{ borderColor?: string }>`
@@ -131,12 +134,23 @@ export type NodeProps = {
 };
 
 export const Node: React.FC<NodeProps> = ({ node, engine }) => {
+    const dispatch = useAppDispatch();
+
     // Convert the ports model to an array for rendering
     const ports = Object.values(node.getPorts());
 
+    const handleDoubleClick = () => {
+        dispatch(builderActions.setEditing(node.getID()));
+    };
+
+    const entity = node.entity ?? ({} as NodeEntity);
+
     return (
-        <StyledNode className={node.isSelected() ? 'selected' : ''}>
-            <NodeRedNode node={node.entity}>
+        <StyledNode
+            className={node.isSelected() ? 'selected' : ''}
+            onDoubleClick={handleDoubleClick}
+        >
+            <NodeRedNode entity={entity} instance={node.config}>
                 {/* Render ports */}
 
                 {ports.map((port, index) => (
@@ -159,15 +173,23 @@ export const Node: React.FC<NodeProps> = ({ node, engine }) => {
 
 // Assuming createCustomNodeModel exists, and you're adding to this file
 export class CustomNodeModel extends DefaultNodeModel {
-    constructor(public entity: NodeEntity, options?: Record<string, unknown>) {
+    public entity?: NodeEntity;
+    public config?: FlowNodeEntity;
+
+    constructor(options: {
+        extras: {
+            entity: NodeEntity;
+            config: FlowNodeEntity;
+            [index: string]: unknown;
+        };
+        [index: string]: unknown;
+    }) {
         super({
             ...options,
-            extras: {
-                ...(options?.extras ?? {}),
-                entity: entity,
-            },
             type: 'custom-node',
         });
+        this.entity = options?.extras?.entity;
+        this.config = options?.extras?.config;
     }
 }
 
@@ -187,7 +209,6 @@ export class CustomNodeFactory extends AbstractReactFactory<
     }
 
     generateModel(_event: GenerateModelEvent) {
-        throw new Error('Not implemented');
-        return undefined as unknown as CustomNodeModel;
+        return new CustomNodeModel(_event.initialConfig);
     }
 }

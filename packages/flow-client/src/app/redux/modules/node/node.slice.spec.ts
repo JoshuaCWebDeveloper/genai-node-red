@@ -1,4 +1,12 @@
-import { nodeActions, nodeAdapter, nodeReducer } from './node.slice';
+import {
+    NODE_FEATURE_KEY,
+    NodeEntity,
+    NodeState,
+    nodeActions,
+    nodeAdapter,
+    nodeReducer,
+    selectNodeById,
+} from './node.slice';
 
 describe('node reducer', () => {
     it('should handle initial state', () => {
@@ -99,5 +107,83 @@ describe('node reducer', () => {
                 }),
             })
         );
+    });
+
+    describe('selectNodeById selector', () => {
+        it('should return the correct node by id', () => {
+            const nodes = [
+                {
+                    id: 'node1',
+                    editorTemplate: '<div>Node 1 Editor</div>',
+                    helpTemplate: '<p>Node 1 Help</p>',
+                    name: 'Node 1',
+                    type: 'exampleType',
+                    nodeRedId: 'nodeRedId1',
+                    module: 'module1',
+                    version: '1.0.0',
+                },
+                {
+                    id: 'node2',
+                    editorTemplate: '<div>Node 2 Editor</div>',
+                    helpTemplate: '<p>Node 2 Help</p>',
+                    name: 'Node 2',
+                    type: 'exampleType2',
+                    nodeRedId: 'nodeRedId2',
+                    module: 'module2',
+                    version: '2.0.0',
+                },
+            ];
+
+            const initialState: NodeState = {
+                ids: nodes.map(node => node.id),
+                entities: nodes.reduce((acc, node) => {
+                    acc[node.id] = node;
+                    return acc;
+                }, {} as Record<string, NodeEntity>),
+                loadingStatus: 'not loaded',
+                error: null,
+                searchQuery: '',
+            };
+
+            const state = { [NODE_FEATURE_KEY]: initialState };
+
+            const selectedNode1 = selectNodeById(state, 'node1');
+            const selectedNode2 = selectNodeById(state, 'node2');
+
+            expect(selectedNode1).toEqual(nodes[0]);
+            expect(selectedNode2).toEqual(nodes[1]);
+        });
+
+        it('should return undefined for a non-existent node id', () => {
+            const nodes = [
+                {
+                    id: 'node1',
+                    editorTemplate: '<div>Node 1 Editor</div>',
+                    helpTemplate: '<p>Node 1 Help</p>',
+                    name: 'Node 1',
+                    type: 'exampleType',
+                    nodeRedId: 'nodeRedId1',
+                    module: 'module1',
+                    version: '1.0.0',
+                },
+            ];
+
+            const initialState = nodeAdapter.getInitialState({
+                ids: nodes.map(node => node.id),
+                entities: nodes.reduce((acc, node) => {
+                    acc[node.id] = node;
+                    return acc;
+                }, {} as Record<string, NodeEntity>),
+                loadingStatus: 'not loaded',
+                error: null,
+                searchQuery: '',
+            }) as NodeState;
+
+            const state = { [NODE_FEATURE_KEY]: initialState };
+
+            const selectedNode = selectNodeById(state, 'nonExistentNodeId');
+
+            expect(selectedNode).toBeUndefined();
+        });
     });
 });

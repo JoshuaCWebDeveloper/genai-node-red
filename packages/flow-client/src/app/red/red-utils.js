@@ -19,8 +19,8 @@ import DOMPurify from 'dompurify';
  * limitations under the License.
  **/
 
-export const REDUtils = (function () {
-    window._marked = window.marked || marked;
+export const createRedUtils = () => {
+    window._marked = marked;
     window.marked = function (txt) {
         console.warn(
             "Use of 'marked()' is deprecated. Use RED.utils.renderMarkdown() instead"
@@ -2126,4 +2126,4 @@ export const REDUtils = (function () {
         getBrowserInfo: getBrowserInfo,
         validateTypedProperty: validateTypedProperty,
     };
-})();
+};

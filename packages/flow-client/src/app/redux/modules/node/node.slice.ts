@@ -8,7 +8,25 @@ import {
 
 export const NODE_FEATURE_KEY = 'node';
 
-export interface NodeEntity {
+type SerializedFunction = {
+    type: 'serialized-function';
+    value: string;
+};
+
+// Define the structure of a default property
+type DefaultProperty<T> = {
+    value: T;
+    required?: boolean;
+    validate?: SerializedFunction;
+};
+
+// Define the structure of the defaults object more precisely
+type NodeDefaults = {
+    // Add more properties as needed
+    [key: string]: DefaultProperty<unknown>;
+};
+
+export type NodeEntity = {
     // Core properties
     id: string;
     nodeRedId: string;
@@ -17,7 +35,7 @@ export interface NodeEntity {
     category?: string;
     module: string;
     version: string;
-    defaults?: Record<string, unknown>; // Object with editable properties for the node
+    defaults?: NodeDefaults; // Object with editable properties for the node
     inputs?: number;
     outputs?: number;
     icon?: string;
@@ -26,37 +44,33 @@ export interface NodeEntity {
     color?: string;
     align?: string;
     paletteLabel?: string;
-    inputLabels?: {
-        type: 'serialized-function';
-        value: string;
-    };
-    outputLabels?: {
-        type: 'serialized-function';
-        value: string;
-    };
+    inputLabels?: SerializedFunction;
+    outputLabels?: SerializedFunction;
     label?: string;
     labelStyle?: string;
     editorTemplate?: string;
     helpTemplate?: string;
 
     // Event handlers
-    oneditprepare?: string;
-    oneditsave?: string;
-    oneditcancel?: string;
-    oneditdelete?: string;
-    oneditresize?: string;
-    onpaletteadd?: () => void;
-    onpaletteremove?: () => void;
+    oneditprepare?: SerializedFunction;
+    oneditsave?: SerializedFunction;
+    oneditcancel?: SerializedFunction;
+    oneditdelete?: SerializedFunction;
+    oneditresize?: SerializedFunction;
+    onpaletteadd?: SerializedFunction;
+    onpaletteremove?: SerializedFunction;
 
     // Other properties
     enabled?: boolean;
     local?: boolean;
     user?: boolean;
     button?: {
-        onclick?: () => void;
+        onclick?: SerializedFunction;
     };
     credentials?: Record<string, unknown>; // Optional object defining credential fields
-}
+
+    definitionScript?: string;
+};
 
 export interface NodeState extends EntityState<NodeEntity, string> {
     loadingStatus: 'not loaded' | 'loading' | 'loaded' | 'error';
@@ -113,8 +127,7 @@ export const getNodeState = (rootState: {
 }): NodeState => rootState[NODE_FEATURE_KEY];
 export const selectAllNodes = createSelector(getNodeState, selectAll);
 export const selectNodeById = createSelector(
-    getNodeState,
-    (state: NodeState, nodeId: string) => nodeId,
+    [getNodeState, (state, nodeId: string) => nodeId],
     (state, nodeId) => selectById(state, nodeId)
 );
 

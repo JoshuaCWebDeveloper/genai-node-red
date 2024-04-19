@@ -1,16 +1,27 @@
+import { Point } from '@projectstorm/geometry';
 import { CanvasWidget, ListenerHandle } from '@projectstorm/react-canvas-core';
 import {
     DefaultLinkModel,
     DefaultPortModel,
     PortModelAlignment,
 } from '@projectstorm/react-diagrams';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+    useCallback,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
+} from 'react';
 import { useDrop } from 'react-dnd';
 import styled from 'styled-components';
 
 import { useAppDispatch, useAppLogic, useAppSelector } from '../../redux/hooks';
 import { SerializedGraph } from '../../redux/modules/flow/flow.logic';
-import { selectAllEntities } from '../../redux/modules/flow/flow.slice';
+import {
+    FlowNodeEntity,
+    selectAllEntities,
+    selectFlows,
+} from '../../redux/modules/flow/flow.slice';
 import { NodeEntity } from '../../redux/modules/node/node.slice';
 import { ItemTypes } from '../node/draggable-item-types'; // Assuming ItemTypes is defined elsewhere
 import { createEngine } from './engine';
@@ -98,8 +109,15 @@ export const FlowCanvas: React.FC<FlowCanvasProps> = ({
     const dispatch = useAppDispatch();
     const nodeLogic = useAppLogic().node;
     const flowLogic = useAppLogic().flow;
+    const existingFlows = useAppSelector(selectFlows);
 
-    const [model] = useState(new CustomDiagramModel());
+    const [model] = useState(
+        new CustomDiagramModel({ id: existingFlows[0]?.id })
+    );
+
+    const serializedGraph = useAppSelector(state =>
+        flowLogic.selectSerializedGraphByFlowId(state, model.getID())
+    );
 
     // Inside your component
     const listenerHandleRef = useRef<ListenerHandle | null>(null);
@@ -115,7 +133,7 @@ export const FlowCanvas: React.FC<FlowCanvasProps> = ({
         engine.setModel(model);
     }, [initialDiagram.links, initialDiagram.nodes, model]);
 
-    useEffect(() => {
+    const registerModelChangeListener = useCallback(() => {
         // Event listener for any change in the model
         const handleModelChange = debounce(() => {
             // Serialize the current state of the diagram
@@ -131,26 +149,53 @@ export const FlowCanvas: React.FC<FlowCanvasProps> = ({
             'CustomDiagramModel:nodesUpdated': handleModelChange,
             'CustomNodeModel:positionChanged': handleModelChange,
             'DefaultLinkModel:targetPortChanged': handleModelChange,
+            'DefaultLinkModel:sourcePortChanged': handleModelChange,
+            'DefaultLinkModel:pointsUpdated': handleModelChange,
+            'PointModel:positionChanged': handleModelChange,
             // Add more listeners as needed
         });
+    }, [dispatch, flowLogic, model]);
+
+    const deregisterModelChangeListener = useCallback(() => {
+        // Cleanup: use the ref to access the handle for deregistering listeners
+        if (listenerHandleRef.current) {
+            engine.deregisterListener(listenerHandleRef.current);
+            listenerHandleRef.current = null;
+        }
+    }, []);
+
+    useEffect(() => {
+        let isCleanupCalled = false;
+
+        (async () => {
+            // we deserialize our graph in the same effect so that it doesn't trigger event handlers
+            if (serializedGraph) {
+                await engine.applySerializedGraph(serializedGraph);
+            }
+
+            if (!isCleanupCalled) {
+                // apply listeners
+                registerModelChangeListener();
+            }
+        })();
 
         return () => {
-            // Cleanup: use the ref to access the handle for deregistering listeners
-            if (listenerHandleRef.current) {
-                engine.deregisterListener(listenerHandleRef.current);
-                listenerHandleRef.current = null; // Reset the ref after cleanup
-            }
+            // remove listeners
+            deregisterModelChangeListener();
+            isCleanupCalled = true;
         };
     }, [
-        dispatch,
-        flowLogic,
-        initialDiagram.links,
-        initialDiagram.nodes,
-        model,
+        deregisterModelChangeListener,
+        registerModelChangeListener,
+        serializedGraph,
     ]);
 
     useEffect(() => {
         const canvas = document.querySelector('.flow-canvas');
+        const canvasContainer = document.querySelector(
+            '.flow-canvas-container'
+        );
+
         const handleZoom = (event: Event) =>
             engine.increaseZoomLevel(event as WheelEvent);
         const disableContextMenu = (event: Event) => event.preventDefault();
@@ -158,67 +203,71 @@ export const FlowCanvas: React.FC<FlowCanvasProps> = ({
         canvas?.addEventListener('wheel', handleZoom);
         canvas?.addEventListener('contextmenu', disableContextMenu);
 
+        // Disable key events from outside our canvas
+        const actionEventBus = engine.getActionEventBus();
+        const originalFireAction =
+            actionEventBus.fireAction.bind(actionEventBus);
+        actionEventBus.fireAction = actionEvent => {
+            // Check if the event is a key event (keydown or keyup)
+            if (['keydown', 'keyup'].includes(actionEvent.event.type)) {
+                // Check if the event target is not our canvas, then exit
+                if (
+                    !canvasContainer?.contains(actionEvent.event.target as Node)
+                ) {
+                    return;
+                }
+            }
+            // Call the original fireAction method
+            originalFireAction(actionEvent);
+        };
+
         return () => {
             canvas?.removeEventListener('wheel', handleZoom);
             canvas?.removeEventListener('contextmenu', disableContextMenu);
+            actionEventBus.fireAction = originalFireAction;
         };
     }, []);
 
     const [, drop] = useDrop(() => ({
         accept: ItemTypes.NODE,
         drop: (entity: NodeEntity, monitor) => {
-            // Get the monitor's client offset
-            const monitorOffset = monitor.getClientOffset();
-
-            // Get the initial client offset (cursor position at drag start)
-            const initialClientOffset = monitor.getInitialClientOffset();
-
-            // Get the initial source client offset (dragged item's position at drag start)
-            const initialSourceClientOffset =
-                monitor.getInitialSourceClientOffset();
-
-            // Get the current zoom level from the engine's model
-            const zoomLevel = engine.getModel().getZoomLevel() / 100; // Convert to decimal
-
-            if (
-                !monitorOffset ||
-                !initialClientOffset ||
-                !initialSourceClientOffset
-            ) {
-                return;
-            }
-
-            // Calculate the cursor's offset within the dragged item
-            const cursorOffsetX =
-                initialClientOffset.x - initialSourceClientOffset.x;
-            const cursorOffsetY =
-                initialClientOffset.y - initialSourceClientOffset.y;
-
             // Find the canvas widget element
-            const canvasElement = document.querySelector('.flow-canvas > svg');
+            const canvasElement = document.querySelector(
+                '.flow-canvas > svg'
+            ) as HTMLCanvasElement;
 
             if (!canvasElement) {
+                console.error('Error finding canvas element');
                 return;
             }
 
-            // Get the bounding rectangle of the canvas widget
-            const canvasRect = canvasElement.getBoundingClientRect();
+            let nodePosition: Point;
 
-            // Calculate the correct position by subtracting the canvas's top and left offsets
-            const canvasOffsetX =
-                (monitorOffset.x - canvasRect.left) / zoomLevel;
-            const canvasOffsetY =
-                (monitorOffset.y - canvasRect.top) / zoomLevel;
+            try {
+                nodePosition = engine.calculateDropPosition(
+                    monitor,
+                    canvasElement
+                );
+            } catch (error) {
+                console.error('Error calculating drop position:', error);
+                return;
+            }
 
-            const correctedX = canvasOffsetX - cursorOffsetX;
-            const correctedY = canvasOffsetY - cursorOffsetY;
+            const config = nodeLogic.applyConfigDefaults(
+                {} as FlowNodeEntity,
+                entity
+            );
 
-            const node = new CustomNodeModel(entity, {
+            const node = new CustomNodeModel({
                 name: entity.type,
                 color: entity.color,
+                extras: {
+                    entity,
+                    config,
+                },
             });
 
-            node.setPosition(correctedX, correctedY);
+            node.setPosition(nodePosition);
 
             const ports = nodeLogic.getNodeInputsOutputs(entity);
             ports.inputs.forEach(input => {
@@ -250,7 +299,12 @@ export const FlowCanvas: React.FC<FlowCanvasProps> = ({
     // The CanvasWidget component is used to render the flow canvas within the UI.
     // The "canvas-widget" className can be targeted for custom styling.
     return (
-        <div ref={drop} style={{ height: '100%', width: '100%' }}>
+        <div
+            className="flow-canvas-container"
+            ref={drop}
+            style={{ height: '100%', width: '100%' }}
+            tabIndex={0}
+        >
             <LogFlowSlice />
             <StyledCanvasWidget engine={engine} className="flow-canvas" />
         </div>

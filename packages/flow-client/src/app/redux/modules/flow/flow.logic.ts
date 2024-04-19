@@ -1,9 +1,14 @@
+import { createSelector } from '@reduxjs/toolkit';
+
 import { AppDispatch, RootState } from '../../store';
-import { NodeEntity } from '../node/node.slice';
+import { NodeEntity, selectAllNodes } from '../node/node.slice';
 import {
     FlowEntity,
     FlowNodeEntity,
+    LinkModel,
+    PortModel,
     flowActions,
+    selectEntityById,
     selectFlowNodesByFlowId,
 } from './flow.slice';
 
@@ -14,12 +19,16 @@ export type SerializedGraph = {
     zoom: number;
     gridSize: number;
     layers: Layer[];
+    locked: boolean;
 };
 
 type BaseLayer = {
     id: string;
     isSvg: boolean;
     transformed: boolean;
+    selected: boolean;
+    extras: Record<string, unknown>;
+    locked: boolean;
 };
 
 export type NodeLayer = BaseLayer & {
@@ -44,53 +53,12 @@ export type NodeModel = {
     color: string;
     portsInOrder?: string[];
     portsOutOrder?: string[];
+    locked: boolean;
+    selected: boolean;
     extras: {
         entity: NodeEntity;
         [key: string]: unknown;
     };
-};
-
-export type LinkModel = {
-    id: string;
-    type: string;
-    source: string;
-    sourcePort: string;
-    target: string;
-    targetPort: string;
-    points: PointModel[];
-    labels: LabelModel[];
-    width: number;
-    color: string;
-    curvyness: number;
-    selectedColor: string;
-};
-
-export type PortModel = {
-    id: string;
-    type: string;
-    x: number;
-    y: number;
-    name: string;
-    alignment: string;
-    parentNode: string;
-    links: string[];
-    in: boolean;
-    label: string;
-};
-
-export type PointModel = {
-    id: string;
-    type: string;
-    x: number;
-    y: number;
-};
-
-export type LabelModel = {
-    id: string;
-    type: string;
-    offsetX: number;
-    offsetY: number;
-    label: string;
 };
 
 export class FlowLogic {
@@ -145,35 +113,53 @@ export class FlowLogic {
                 flowActions.removeEntities(nodesToRemove.map(it => it.id))
             );
 
-            // First, map all links by their sourcePort to easily find connections later
-            const linksBySourcePort = Object.values(linkModels)
-                .filter(it => it.targetPort in portModels)
+            // Map all links by their out port to organize connections from out -> in
+            const linksByOutPort = Object.values(linkModels)
+                .filter(
+                    link =>
+                        link.sourcePort in portModels &&
+                        link.targetPort in portModels
+                )
                 .reduce<Record<string, string[]>>((acc, link) => {
-                    (acc[link.sourcePort] = acc[link.sourcePort] || []).push(
-                        portModels[link.targetPort].parentNode
-                    );
+                    const outPortId = portModels[link.sourcePort].in
+                        ? link.targetPort
+                        : link.sourcePort;
+                    const inPortId = portModels[link.sourcePort].in
+                        ? link.sourcePort
+                        : link.targetPort;
+                    const inPortNode = portModels[inPortId].parentNode;
+                    (acc[outPortId] = acc[outPortId] || []).push(inPortNode);
                     return acc;
                 }, {});
 
-            // Transform nodes, incorporating links data into the wires property
+            // Transform nodes, incorporating links data into the wires property based on out ports
             const nodes = Object.values(nodeModels).map(
                 (node): FlowNodeEntity => {
-                    // For each port of the node
-                    const wires = node.ports
-                        // only look at out ports
-                        .filter(it => !it.in)
-                        //find connected target ports and map them to target node IDs
-                        .map(port => linksBySourcePort[port.id] || []);
+                    // For each out port of the node
+                    const wires: string[][] = [];
+                    const outLinks: Record<string, LinkModel> = {};
+                    node.ports
+                        .filter(port => !port.in) // only look at out ports
+                        .forEach(port => {
+                            wires.push(linksByOutPort[port.id] || []);
+                            port.links.forEach(linkId => {
+                                outLinks[linkId] = linkModels[linkId];
+                            });
+                        });
 
                     return {
+                        ...(node.extras.config as FlowNodeEntity),
                         id: node.id,
                         type: node.extras.entity.type,
                         x: node.x,
                         y: node.y,
                         z: graph.id, // Assuming all nodes belong to the same flow
                         name: node.name,
-                        wires: wires.length > 0 ? wires : [], // Adjust based on your wires structure needs
-                        // Add other properties as needed
+                        wires,
+                        ports: node.ports,
+                        links: outLinks,
+                        selected: node.selected,
+                        locked: node.locked,
                     };
                 }
             );
@@ -182,4 +168,120 @@ export class FlowLogic {
             dispatch(flowActions.upsertEntities(nodes));
         };
     }
+
+    selectSerializedGraphByFlowId = createSelector(
+        [state => state, selectEntityById, selectFlowNodesByFlowId],
+        (state, flow, flowNodes) => {
+            if (!flow) {
+                return null;
+            }
+
+            const nodeEntities = Object.fromEntries(
+                selectAllNodes(state).map(it => [it.id, it])
+            );
+
+            // Construct NodeModels from flow nodes
+            const nodeModels: { [key: string]: NodeModel } = {};
+            // Infer LinkModels from node wires
+            const linkModels: { [key: string]: LinkModel } = {};
+
+            flowNodes.forEach(node => {
+                const outPorts = node.ports?.filter(it => !it.in) ?? [];
+
+                node.wires?.forEach((portWires, index) => {
+                    const port = outPorts[index];
+
+                    // if (!port) {
+                    //     port = {
+                    //         id: `${node.id}-out-${index}`,
+                    //         type: 'default',
+                    //         x: 0,
+                    //         y: 0,
+                    //         name: '',
+                    //         alignment: 'right',
+                    //         parentNode: node.id,
+                    //         links: [],
+                    //         in: false,
+                    //         label: `Output ${index + 1}`,
+                    //     };
+                    //     outPorts.push(port);
+                    // }
+
+                    portWires.forEach((targetNodeId, targetIndex) => {
+                        const linkId = port.links[targetIndex];
+                        const nodeLink = node.links?.[linkId];
+                        if (nodeLink) {
+                            linkModels[linkId] = nodeLink;
+                        }
+
+                        // linkModels[linkId] = {
+                        //     id: linkId,
+                        //     type: 'default', // Placeholder value
+                        //     source: node.id,
+                        //     sourcePort: port.id, // Assuming a port naming convention
+                        //     target: targetNodeId,
+                        //     targetPort: `${targetNodeId}-in-${targetIndex}`, // This assumes you can determine the target port index
+                        //     points: [], // Points would need to be constructed if they are used
+                        //     labels: [], // Labels would need to be constructed if they are used
+                        //     width: 1, // Placeholder value
+                        //     color: 'defaultColor', // Placeholder value
+                        //     curvyness: 0, // Placeholder value
+                        //     selectedColor: 'defaultSelectedColor', // Placeholder value
+                        //     locked: false,
+                        //     selected: false,
+                        //     extras: {},
+                        // };
+                    });
+                });
+
+                nodeModels[node.id] = {
+                    locked: false,
+                    selected: false,
+                    ports: [],
+                    name: '',
+                    color: 'defaultColor',
+                    ...node,
+                    type: 'custom-node',
+                    extras: {
+                        entity: nodeEntities[node.type],
+                        config: node,
+                    },
+                };
+            });
+
+            // Assemble the SerializedGraph
+            const serializedGraph: SerializedGraph = {
+                id: flow.id,
+                offsetX: 0, // Placeholder value
+                offsetY: 0, // Placeholder value
+                zoom: 1, // Placeholder value
+                gridSize: 20, // Placeholder value
+                locked: false,
+                layers: [
+                    {
+                        id: 'nodeLayer',
+                        isSvg: false,
+                        transformed: true,
+                        type: 'diagram-nodes',
+                        models: nodeModels,
+                        locked: false,
+                        selected: false,
+                        extras: {},
+                    },
+                    {
+                        id: 'linkLayer',
+                        isSvg: true,
+                        transformed: true,
+                        type: 'diagram-links',
+                        models: linkModels,
+                        locked: false,
+                        selected: false,
+                        extras: {},
+                    },
+                ],
+            };
+
+            return serializedGraph;
+        }
+    );
 }

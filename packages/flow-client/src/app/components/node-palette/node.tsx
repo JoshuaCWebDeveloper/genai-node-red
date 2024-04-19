@@ -17,7 +17,7 @@ const StyledNodeItem = styled.li<{ node: NodeEntity }>`
 export const Node: React.FC<NodeProps> = ({ node }) => {
     return (
         <StyledNodeItem node={node} className="node-item">
-            <NodeRedNode node={node} />
+            <NodeRedNode entity={node} />
         </StyledNodeItem>
     );
 };
