@@ -1,6 +1,7 @@
 import '../../../../../vitest-esbuild-compat';
+import { FlowNodeEntity } from '../flow/flow.slice';
 import { NodeLogic } from './node.logic';
-import { nodeActions } from './node.slice';
+import { NodeEntity, nodeActions } from './node.slice';
 
 describe('NodeLogic', () => {
     // Mock dispatch function using Vitest's built-in mocking functions
@@ -127,6 +128,115 @@ describe('NodeLogic', () => {
 
             expect(inputs).toEqual([]);
             expect(outputs).toEqual([]);
+        });
+    });
+
+    describe('applyConfigDefaults', () => {
+        let nodeLogic: NodeLogic;
+
+        beforeEach(() => {
+            nodeLogic = new NodeLogic();
+        });
+
+        it('should apply default config values to a node', () => {
+            const node = {
+                id: 'node1',
+                type: 'exampleType',
+                name: 'Example Node',
+                // Other properties as required by your NodeEntity type
+            } as FlowNodeEntity;
+
+            const entity = {
+                id: 'node1',
+                nodeRedId: 'node1',
+                name: 'Example Node',
+                type: 'exampleType',
+                module: 'node-module',
+                version: '1.0.0',
+                defaults: {
+                    property1: { value: 'default1' },
+                    property2: { value: 42 },
+                },
+                // Other properties as required by your NodeEntity type
+            } as NodeEntity;
+
+            const result = nodeLogic.applyConfigDefaults(node, entity);
+
+            expect(result).toEqual(
+                expect.objectContaining({
+                    property1: 'default1',
+                    property2: 42,
+                    // Ensure all other node properties are preserved
+                    id: 'node1',
+                    type: 'exampleType',
+                    name: 'Example Node',
+                })
+            );
+        });
+
+        it('should not override existing node config values with defaults', () => {
+            const node = {
+                id: 'node1',
+                type: 'exampleType',
+                name: 'Example Node',
+                property1: 'existingValue',
+                x: 10,
+                y: 20,
+                // Other properties as required by your NodeEntity type
+            } as FlowNodeEntity;
+
+            const entity = {
+                id: 'node1',
+                nodeRedId: 'node1',
+                name: 'Example Node',
+                type: 'exampleType',
+                module: 'node-module',
+                version: '1.0.0',
+                defaults: {
+                    property1: { value: 'default1' },
+                    property2: { value: 42 },
+                },
+                // Other properties as required by your NodeEntity type
+            } as NodeEntity;
+
+            const result = nodeLogic.applyConfigDefaults(node, entity);
+
+            expect(result).toEqual(
+                expect.objectContaining({
+                    property1: 'existingValue', // Existing value is preserved
+                    property2: 42, // Default value is applied
+                    // Ensure all other node properties are preserved
+                    id: 'node1',
+                    type: 'exampleType',
+                    name: 'Example Node',
+                })
+            );
+        });
+
+        it('should handle nodes with no defaults defined', () => {
+            const node = {
+                id: 'node1',
+                type: 'exampleType',
+                name: 'Example Node',
+                // Other properties as required by your NodeEntity type
+            } as FlowNodeEntity;
+
+            const entity = {
+                id: 'node1',
+                // No defaults defined
+                // Other properties as required by your NodeEntity type
+            } as NodeEntity;
+
+            const result = nodeLogic.applyConfigDefaults(node, entity);
+
+            expect(result).toEqual(
+                expect.objectContaining({
+                    // Ensure all node properties are preserved
+                    id: 'node1',
+                    type: 'exampleType',
+                    name: 'Example Node',
+                })
+            );
         });
     });
 });
