@@ -1,7 +1,8 @@
 import { createSelector } from '@reduxjs/toolkit';
+import { v4 as uuidv4 } from 'uuid';
 
 import { AppDispatch, RootState } from '../../store';
-import { NodeEntity, selectAllNodes } from '../node/node.slice';
+import { NodeEntity, selectAllNodes, selectNodeById } from '../node/node.slice';
 import {
     FlowEntity,
     FlowNodeEntity,
@@ -12,6 +13,7 @@ import {
     selectFlowNodesByFlowId,
 } from './flow.slice';
 import { executeNodeFn } from '../../../red/execute-script';
+import { PortModelAlignment } from '@projectstorm/react-diagrams';
 
 export type SerializedGraph = {
     id: string;
@@ -61,6 +63,14 @@ export type NodeModel = {
         [key: string]: unknown;
     };
 };
+
+type DirtyNodeChanges = Partial<
+    Omit<FlowNodeEntity, 'outputs'> & {
+        inputs: number | string;
+        outputs: number | string | null;
+        __outputs: number | null;
+    }
+>;
 
 export class FlowLogic {
     // Method to extract inputs and outputs from a NodeEntity, including deserializing inputLabels and outputLabels
@@ -196,7 +206,8 @@ export class FlowLogic {
                         z: graph.id, // Assuming all nodes belong to the same flow
                         name: node.name,
                         wires,
-                        ports: node.ports,
+                        inPorts: node.ports.filter(it => it.in),
+                        outPorts: node.ports.filter(it => !it.in),
                         links: outLinks,
                         selected: node.selected,
                         locked: node.locked,
@@ -208,6 +219,236 @@ export class FlowLogic {
             dispatch(flowActions.upsertEntities(nodes));
         };
     }
+
+    private parseNodeOutputs(changes: DirtyNodeChanges): {
+        outputs?: number;
+        outputMap?: Record<string, string>;
+    } {
+        const parseNumber = (value: string | number) => {
+            try {
+                const number = parseInt(value.toString());
+                return isNaN(number) ? null : number;
+            } catch (e) {
+                return null;
+            }
+        };
+
+        // if no outputs, return nothing
+        if (
+            typeof changes.outputs == 'undefined' ||
+            changes.outputs === null ||
+            changes.outputs?.toString().trim() === ''
+        ) {
+            return {};
+        }
+
+        // if it's already a number, just return it
+        const outputs = parseNumber(changes.outputs);
+        if (outputs !== null) {
+            return {
+                outputs,
+            };
+        }
+
+        // else, it's a map, parse it
+        const outputMap = JSON.parse(changes.outputs as string) as Record<
+            string,
+            string
+        >;
+        // count our outputs
+        let outputCount = 0;
+        // filter our output map
+        for (const [oldPort, newPort] of Object.entries(outputMap)) {
+            // ensure our value is a string
+            outputMap[oldPort] = `${newPort}`;
+
+            // if our old port is not a number, that indicates a new output
+            if (parseNumber(oldPort) === null) {
+                outputCount++;
+                delete outputMap[oldPort];
+                continue;
+            }
+
+            // a value of -1 indicates the port will be removed
+            if (newPort === '-1') {
+                continue;
+            }
+
+            // this definitely counts as an output
+            outputCount++;
+
+            // if our port has not changed, then no updates are needed
+            if (oldPort === newPort) {
+                delete outputMap[oldPort];
+                continue;
+            }
+        }
+
+        return {
+            outputs: outputCount,
+            outputMap,
+        };
+    }
+
+    private updateNodeInputsOutputs(
+        nodeInstance: FlowNodeEntity,
+        nodeEntity: NodeEntity,
+        changes: DirtyNodeChanges
+    ): Partial<FlowNodeEntity> {
+        // build new changes
+        const newChanges = {
+            inputs: nodeInstance.inputs,
+            outputs: nodeInstance.outputs,
+            inPorts: nodeInstance.inPorts.map(it => ({
+                ...it,
+                extras: { ...it.extras },
+            })),
+            outPorts: nodeInstance.outPorts.map(it => ({
+                ...it,
+                extras: { ...it.extras },
+            })),
+            wires: [...(nodeInstance.wires ?? [])],
+        };
+
+        // parse node outputs property
+        const { outputs, outputMap } = this.parseNodeOutputs(changes);
+        newChanges.outputs = outputs ?? 0;
+
+        // handle the output map, if returned
+        if (outputMap) {
+            // build new ports and wires collection
+            const outPorts: PortModel[] = [];
+            const wires: string[][] = [];
+            // first, iterate over current wires (no-changes, removals, and movers)
+            newChanges.wires?.forEach((portWires, index) => {
+                const oldPort = index;
+
+                // if we don't have this port in our map
+                if (!Object.prototype.hasOwnProperty.call(outputMap, oldPort)) {
+                    // then it has not changed
+                    wires[oldPort] = portWires;
+                    outPorts[oldPort] = newChanges.outPorts[oldPort];
+                    return;
+                }
+
+                // else, this is in our output map
+                const newPort = parseInt(outputMap[oldPort]);
+
+                // if this port is being removed
+                if (newPort === -1) {
+                    // simply don't add it
+                    return;
+                }
+
+                // else, it must be being moved
+                wires[newPort] = portWires;
+                outPorts[newPort] = newChanges.outPorts[oldPort];
+            });
+            // now, iterate over our output map and add new wires
+            for (const [oldPort, newPort] of Object.entries(outputMap)) {
+                // if this port already exists, skip it
+                if (newChanges.wires?.[parseInt(oldPort)]) {
+                    continue;
+                }
+                // else, it is new
+                wires[parseInt(newPort)] = [];
+                outPorts[parseInt(newPort)] = {
+                    id: uuidv4(),
+                    type: 'default',
+                    x: 0,
+                    y: 0,
+                    name: uuidv4(),
+                    alignment: PortModelAlignment.RIGHT,
+                    parentNode: nodeInstance.id,
+                    links: [],
+                    in: false,
+                    extras: {
+                        label: `Output ${parseInt(newPort) + 1}`,
+                    },
+                };
+            }
+            // update changes, replace out ports and wires
+            newChanges.outPorts = outPorts.filter(it => it);
+            newChanges.wires = wires.filter(it => it);
+        }
+
+        // handle the __outputs property, if given
+        if (Object.prototype.hasOwnProperty.call(changes, '__outputs')) {
+            if (newChanges.outputs < (changes.__outputs ?? 0)) {
+                // truncate output ports
+                newChanges.outPorts = newChanges.outPorts.slice(
+                    0,
+                    newChanges.outputs
+                );
+                // truncate output wires
+                newChanges.wires = newChanges.wires.slice(
+                    0,
+                    newChanges.outputs
+                );
+            }
+        }
+
+        let inputs = newChanges.inputs;
+        // parse new inputs
+        if (Object.prototype.hasOwnProperty.call(changes, 'inputs')) {
+            inputs =
+                typeof changes.inputs === 'string'
+                    ? parseInt(changes.inputs)
+                    : (changes.inputs as number);
+        }
+        // normalize inputs
+        inputs = Math.min(1, Math.max(0, inputs ?? 0));
+        if (isNaN(inputs)) {
+            inputs = 0;
+        }
+        if (inputs === 0) {
+            // remove all input nodes
+            newChanges.inPorts = [];
+        }
+
+        // update port labels
+        const portLabels = this.getNodeInputsOutputs(
+            { ...nodeInstance, ...changes, ...newChanges },
+            nodeEntity
+        );
+        newChanges.inPorts.forEach((port, index) => {
+            const label = portLabels.inputs[index];
+            port.extras.label = label;
+        });
+        newChanges.outPorts.forEach((port, index) => {
+            const label = portLabels.outputs[index];
+            port.extras.label = label;
+        });
+
+        return newChanges;
+    }
+
+    updateFlowNode = (nodeId: string, changes: DirtyNodeChanges) => {
+        return async (dispatch: AppDispatch, getState: () => RootState) => {
+            // update node inputs and outputs
+            const nodeInstance = selectEntityById(
+                getState(),
+                nodeId
+            ) as FlowNodeEntity;
+            const nodeEntity = selectNodeById(
+                getState(),
+                nodeInstance.type
+            ) as NodeEntity;
+
+            const newChanges = {
+                ...changes,
+                ...this.updateNodeInputsOutputs(
+                    nodeInstance,
+                    nodeEntity,
+                    changes
+                ),
+            } as Partial<FlowNodeEntity>;
+
+            dispatch(
+                flowActions.updateEntity({ id: nodeId, changes: newChanges })
+            );
+        };
+    };
 
     selectSerializedGraphByFlowId = createSelector(
         [state => state, selectEntityById, selectFlowNodesByFlowId],
@@ -226,13 +467,13 @@ export class FlowLogic {
             const linkModels: { [key: string]: LinkModel } = {};
 
             flowNodes.forEach(node => {
-                const outPorts = node.ports?.filter(it => !it.in) ?? [];
-
                 node.wires?.forEach((portWires, index) => {
-                    const port = outPorts[index];
+                    const port = node.outPorts[index];
 
-                    // if (!port) {
-                    //     port = {
+                    // let portLinks = outPort.links;
+
+                    // if (outPort.id === null) {
+                    //     outPort = {
                     //         id: `${node.id}-out-${index}`,
                     //         type: 'default',
                     //         x: 0,
@@ -244,8 +485,10 @@ export class FlowLogic {
                     //         in: false,
                     //         label: `Output ${index + 1}`,
                     //     };
-                    //     outPorts.push(port);
+                    //     node.ports?.splice(index, 1, outPort);
                     // }
+
+                    // const port = outPort as PortModel;
 
                     portWires.forEach((targetNodeId, targetIndex) => {
                         const linkId = port.links[targetIndex];
@@ -272,15 +515,19 @@ export class FlowLogic {
                         //     extras: {},
                         // };
                     });
+
+                    // port.links = portLinks;
                 });
 
                 nodeModels[node.id] = {
+                    // default values
                     locked: false,
                     selected: false,
-                    ports: [],
-                    name: '',
                     color: 'defaultColor',
+                    // flow node values
                     ...node,
+                    // node model values
+                    ports: [...node.inPorts, ...node.outPorts],
                     type: 'custom-node',
                     extras: {
                         entity: nodeEntities[node.type],
