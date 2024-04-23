@@ -254,7 +254,20 @@ export const FlowCanvas: React.FC<FlowCanvasProps> = ({
             }
 
             const config = nodeLogic.applyConfigDefaults(
-                {} as FlowNodeEntity,
+                {
+                    id: uuidv4(),
+                    type: entity.type,
+                    x: 0,
+                    y: 0,
+                    z: '',
+                    name: '',
+                    inputs: 1,
+                    outputs: 1,
+                    wires: [],
+                    inPorts: [],
+                    outPorts: [],
+                    links: {},
+                },
                 entity
             );
 
@@ -269,14 +282,16 @@ export const FlowCanvas: React.FC<FlowCanvasProps> = ({
 
             node.setPosition(nodePosition);
 
-            const ports = nodeLogic.getNodeInputsOutputs(entity);
+            const ports = flowLogic.getNodeInputsOutputs(config, entity);
             ports.inputs.forEach(input => {
                 node.addPort(
                     new DefaultPortModel({
                         in: true,
-                        name: input,
-                        label: input,
+                        name: uuidv4(),
                         alignment: PortModelAlignment.LEFT,
+                        extras: {
+                            label: input,
+                        },
                     })
                 );
             });
@@ -284,9 +299,11 @@ export const FlowCanvas: React.FC<FlowCanvasProps> = ({
                 node.addPort(
                     new DefaultPortModel({
                         in: false,
-                        name: output,
-                        label: output,
+                        name: uuidv4(),
                         alignment: PortModelAlignment.RIGHT,
+                        extras: {
+                            label: output,
+                        },
                     })
                 );
             });
