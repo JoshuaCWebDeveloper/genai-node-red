@@ -128,6 +128,7 @@ export class NodeLogic {
         });
         return config;
     }
+
     // Method to generate a default config for a DiagramNode based on its NodeEntity
     public applyConfigDefaults(
         node: FlowNodeEntity,
@@ -141,7 +142,6 @@ export class NodeLogic {
 
         // Apply the default config to the existing config without overriding existing values
         const updatedNode = {
-            name: '',
             ...defaultConfig,
             ...node,
         };

@@ -26,7 +26,7 @@ export type PortModel = {
     parentNode: string;
     links: string[];
     in: boolean;
-    label: string;
+    extras: { label: string } & Record<string, unknown>;
 };
 
 export type LinkModel = {
@@ -61,15 +61,18 @@ export interface FlowNodeEntity {
     type: string;
     x: number;
     y: number;
-    z?: string; // Flow ID for nodes that belong to a flow or subflow
-    name?: string;
-    wires?: string[][]; // For nodes, to represent connections
+    z: string; // Flow ID for nodes that belong to a flow or subflow
+    name: string;
+    inputs: number;
+    outputs: number;
+    wires: string[][]; // For nodes, to represent connections
     [key: string]: unknown; // To allow for other properties dynamically
     // React Diagrams
     selected?: boolean;
     locked?: boolean;
-    ports?: PortModel[];
-    links?: Record<string, LinkModel>;
+    inPorts: PortModel[];
+    outPorts: PortModel[];
+    links: Record<string, LinkModel>;
 }
 
 export interface FlowEntity {
