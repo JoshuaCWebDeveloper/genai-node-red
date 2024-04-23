@@ -507,6 +507,17 @@ export const applyTypedInput = (RED, jQuery) => {
 
         $.widget('nodered.typedInput', {
             _create: function () {
+                const rootNode = this.element[0].getRootNode();
+                if (rootNode === document) {
+                    this.rootNode = document;
+                    this.rootContainer = document.body;
+                    this.rootHost = document.body;
+                } else {
+                    this.rootNode = rootNode;
+                    this.rootContainer = rootNode;
+                    this.rootHost = rootNode.host;
+                }
+
                 try {
                     if (!nlsd && RED && RED._) {
                         for (var i in allOptions) {
@@ -772,9 +783,13 @@ export const applyTypedInput = (RED, jQuery) => {
                 }
             },
             _hideMenu: function (menu) {
-                $(document).off(
-                    'mousedown.red-ui-typedInput-close-property-select'
-                );
+                if (this.closeHandler) {
+                    this.rootNode.removeEventListener(
+                        'mousedown',
+                        this.closeHandler
+                    );
+                    this.closeHandler = null;
+                }
                 menu.hide();
                 menu.css({
                     height: 'auto',
@@ -862,7 +877,7 @@ export const applyTypedInput = (RED, jQuery) => {
                 menu.css({
                     display: 'none',
                 });
-                menu.appendTo(document.body);
+                menu.appendTo(this.rootContainer);
 
                 menu.on('keydown', function (evt) {
                     if (evt.keyCode === 40) {
@@ -903,12 +918,18 @@ export const applyTypedInput = (RED, jQuery) => {
                 }
 
                 var that = this;
-                var pos = relativeTo.offset();
-                var height = relativeTo.height();
+                const relativeToPosition =
+                    relativeTo[0].getBoundingClientRect();
+                const rootPosition = this.rootHost.getBoundingClientRect();
+                const pos = {
+                    top: relativeToPosition.top - rootPosition.top,
+                    left: relativeToPosition.left - rootPosition.left,
+                };
+                var height = relativeToPosition.height;
                 var menuHeight = menu.height();
                 var top = height + pos.top;
                 if (
-                    top + menuHeight - $(document).scrollTop() >
+                    top + menuHeight - $(this.rootNode).scrollTop() >
                     $(window).height()
                 ) {
                     top -= top + menuHeight - $(window).height() + 5;
@@ -924,17 +945,19 @@ export const applyTypedInput = (RED, jQuery) => {
                 menu.slideDown(100);
                 this._delay(function () {
                     that.uiSelect.addClass('red-ui-typedInput-focus');
-                    $(document).on(
-                        'mousedown.red-ui-typedInput-close-property-select',
-                        function (event) {
-                            if (!$(event.target).closest(menu).length) {
-                                that._hideMenu(menu);
-                            }
-                            if ($(event.target).closest(relativeTo).length) {
-                                that.disarmClick = true;
-                                event.preventDefault();
-                            }
+                    // jQuery doesn't allow events on document fragments
+                    this.closeHandler = function (event) {
+                        if (!$(event.target).closest(menu).length) {
+                            that._hideMenu(menu);
                         }
+                        if ($(event.target).closest(relativeTo).length) {
+                            that.disarmClick = true;
+                            event.preventDefault();
+                        }
+                    };
+                    this.rootNode.addEventListener(
+                        'mousedown',
+                        this.closeHandler
                     );
                 });
             },
@@ -947,7 +970,7 @@ export const applyTypedInput = (RED, jQuery) => {
                             'white-space': 'nowrap',
                             top: -2000,
                         })
-                        .appendTo(document.body);
+                        .appendTo(this.rootContainer);
                     var container = $(
                         '<div class="red-ui-typedInput-container"></div>'
                     ).appendTo(wrapper);
