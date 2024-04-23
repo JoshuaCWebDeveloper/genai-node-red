@@ -7,7 +7,7 @@ import {
     executeNodeFn,
     finalizeNodeEditor,
 } from '../red/execute-script';
-import { useAppDispatch, useAppSelector } from '../redux/hooks';
+import { useAppDispatch, useAppLogic, useAppSelector } from '../redux/hooks';
 import {
     builderActions,
     selectEditing,
@@ -115,7 +115,9 @@ const selectNodeFormFields = (form: HTMLFormElement) => {
 
 export const NodeEditor = () => {
     const dispatch = useAppDispatch();
-    const [propertiesForm, setpropertiesForm] =
+    const flowLogic = useAppLogic().flow;
+
+    const [propertiesForm, setPropertiesForm] =
         useState<HTMLFormElement | null>(null);
     const [loadedCss, setLoadedCss] = useState<{
         'red-style.css': boolean;
@@ -191,20 +193,28 @@ export const NodeEditor = () => {
                 field.value,
             ])
         );
+        // collect node updates
+        const nodeUpdates: Partial<FlowNodeEntity> = {};
+        Object.keys(editingNodeEntity.defaults ?? {}).forEach(key => {
+            if (Object.prototype.hasOwnProperty.call(nodeInstance, key)) {
+                nodeUpdates[key] =
+                    nodeInstance[key as keyof typeof nodeInstance];
+            }
+            if (Object.prototype.hasOwnProperty.call(formData, key)) {
+                nodeUpdates[key] = formData[key];
+            }
+        });
         // update node
-        dispatch(
-            flowActions.updateEntity({
-                id: editingNode.id,
-                changes: formData,
-            })
-        );
+        console.log(nodeUpdates.outputs);
+        dispatch(flowLogic.updateFlowNode(editingNode.id, nodeUpdates));
         // close editor
         closeEditor();
     }, [
         closeEditor,
         dispatch,
         editingNode?.id,
-        executeNodeFn,
+        editingNodeEntity,
+        flowLogic,
         nodeInstance,
         propertiesForm,
     ]);
@@ -221,7 +231,7 @@ export const NodeEditor = () => {
         // apply node values to form fields
         const formFields = selectNodeFormFields(propertiesForm);
         Object.entries(editingNode).forEach(([key, value]) => {
-            if (formFields[key]) {
+            if (Object.prototype.hasOwnProperty.call(formFields, key)) {
                 formFields[key].value = value as string;
             }
         });
