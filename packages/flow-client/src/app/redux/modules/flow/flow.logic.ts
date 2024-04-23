@@ -11,6 +11,7 @@ import {
     selectEntityById,
     selectFlowNodesByFlowId,
 } from './flow.slice';
+import { executeNodeFn } from '../../../red/execute-script';
 
 export type SerializedGraph = {
     id: string;
@@ -62,6 +63,45 @@ export type NodeModel = {
 };
 
 export class FlowLogic {
+    // Method to extract inputs and outputs from a NodeEntity, including deserializing inputLabels and outputLabels
+    getNodeInputsOutputs(
+        nodeInstance: FlowNodeEntity,
+        nodeEntity: NodeEntity
+    ): {
+        inputs: string[];
+        outputs: string[];
+    } {
+        const inputs: string[] = [];
+        const outputs: string[] = [];
+
+        // Handle optional properties with defaults
+        const inputsCount = nodeInstance.inputs ?? 0;
+        const outputsCount = nodeInstance.outputs ?? 0;
+
+        // Generate input and output labels using the deserialized functions
+        for (let i = 0; i < inputsCount; i++) {
+            inputs.push(
+                executeNodeFn<(index: number) => string>(
+                    ['inputLabels', i],
+                    nodeEntity,
+                    nodeInstance
+                ) ?? `Input ${i + 1}`
+            );
+        }
+
+        for (let i = 0; i < outputsCount; i++) {
+            outputs.push(
+                executeNodeFn<(index: number) => string>(
+                    ['outputLabels', i],
+                    nodeEntity,
+                    nodeInstance
+                ) ?? `Output ${i + 1}`
+            );
+        }
+
+        return { inputs, outputs };
+    }
+
     // Method to convert and update the flow based on the serialized graph from react-diagrams
     updateFlowFromSerializedGraph(graph: SerializedGraph) {
         return async (dispatch: AppDispatch, getState: () => RootState) => {

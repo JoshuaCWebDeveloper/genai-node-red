@@ -1,7 +1,4 @@
-import {
-    executeRegisterType,
-    extractNodePropertyFn,
-} from '../../../red/execute-script';
+import { executeRegisterType } from '../../../red/execute-script';
 import { AppDispatch } from '../../store';
 import { FlowNodeEntity } from '../flow/flow.slice';
 import { NodeEntity, nodeActions } from './node.slice';
@@ -68,47 +65,6 @@ export class NodeLogic {
                 );
             });
         };
-    }
-
-    // Method to extract inputs and outputs from a NodeEntity, including deserializing inputLabels and outputLabels
-    public getNodeInputsOutputs(node: NodeEntity): {
-        inputs: string[];
-        outputs: string[];
-    } {
-        const inputs: string[] = [];
-        const outputs: string[] = [];
-
-        // Handle optional properties with defaults
-        const inputsCount = node.inputs ?? 0;
-        const outputsCount = node.outputs ?? 0;
-
-        // Deserialize inputLabels and outputLabels functions
-        const inputLabelsFunc =
-            (node.definitionScript
-                ? extractNodePropertyFn<(index: number) => string>(
-                      node.definitionScript,
-                      'inputLabels'
-                  )
-                : null) ?? ((index: number) => `Input ${index + 1}`);
-
-        const outputLabelsFunc =
-            (node.definitionScript
-                ? extractNodePropertyFn<(index: number) => string>(
-                      node.definitionScript,
-                      'outputLabels'
-                  )
-                : null) ?? ((index: number) => `Output ${index + 1}`);
-
-        // Generate input and output labels using the deserialized functions
-        for (let i = 0; i < inputsCount; i++) {
-            inputs.push(inputLabelsFunc(i));
-        }
-
-        for (let i = 0; i < outputsCount; i++) {
-            outputs.push(outputLabelsFunc(i));
-        }
-
-        return { inputs, outputs };
     }
 
     // Helper method to extract default values from NodeDefaults
