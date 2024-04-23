@@ -89,8 +89,6 @@ const StyledRedUi = styled.div`
     }
 
     .red-ui-tray {
-        display: flex;
-        flex-direction: column;
         right: 0px;
         transition: right 0.25s ease 0s;
         z-index: auto;
@@ -107,26 +105,32 @@ const StyledRedUi = styled.div`
     }
 
     .red-ui-tray-body-wrapper {
-        flex: 1;
-        overflow: hidden;
+        overflow: visible !important;
+        height: calc(100% - 208px);
     }
 
     .red-ui-tray-body {
         display: flex;
         flex-direction: column;
         height: 100%;
-    }
 
-    .tray-content-wrapper {
-        flex: 1;
+        & > .red-ui-tabs {
+            flex: 0 0 35px;
+            height: initial;
+        }
+
+        .tray-content-wrapper {
+            flex: 1;
+        }
     }
 
     .red-ui-tray-content {
-        overflow: hidden;
+        overflow: visible;
         height: 100%;
     }
 
     .red-ui-tray-footer {
+        margin-top: 90px;
         position: static;
     }
 `;
