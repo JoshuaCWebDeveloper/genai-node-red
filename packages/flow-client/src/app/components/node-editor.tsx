@@ -46,11 +46,14 @@ const StyledEditor = styled.div`
         background-color: white;
         box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
         overflow-y: auto;
+        min-width: 505px;
     }
 `;
 
 const StyledRedUi = styled.div`
     .red-ui-tray {
+        display: flex;
+        flex-direction: column;
         right: 0px;
         transition: right 0.25s ease 0s;
         z-index: auto;
@@ -64,6 +67,30 @@ const StyledRedUi = styled.div`
 
     .red-ui-tabs li {
         width: 23.5%;
+    }
+
+    .red-ui-tray-body-wrapper {
+        flex: 1;
+        overflow: hidden;
+    }
+
+    .red-ui-tray-body {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .tray-content-wrapper {
+        flex: 1;
+    }
+
+    .red-ui-tray-content {
+        overflow: hidden;
+        height: 100%;
+    }
+
+    .red-ui-tray-footer {
+        position: static;
     }
 `;
 
@@ -245,7 +272,9 @@ export const NodeEditor = () => {
                             <div className="red-ui-tray-header editor-tray-header">
                                 <div className="red-ui-tray-titlebar">
                                     <ul className="red-ui-tray-breadcrumbs">
-                                        <li>Edit function node</li>
+                                        <li>
+                                            Edit {editingNodeEntity.type} node
+                                        </li>
                                     </ul>
                                 </div>
                                 <div className="red-ui-tray-toolbar">
@@ -362,20 +391,18 @@ export const NodeEditor = () => {
                                             </a>
                                         </div>
                                     </div>
-                                    <div>
+                                    <div className="tray-content-wrapper">
                                         <div className="red-ui-tray-content">
                                             <form
+                                                id="dialog-form"
                                                 className="dialog-form form-horizontal"
                                                 ref={propertiesFormRefCallback}
-                                            >
-                                                <div
-                                                    dangerouslySetInnerHTML={{
-                                                        __html:
-                                                            editingNodeEntity.editorTemplate ??
-                                                            '',
-                                                    }}
-                                                ></div>
-                                            </form>
+                                                dangerouslySetInnerHTML={{
+                                                    __html:
+                                                        editingNodeEntity.editorTemplate ??
+                                                        '',
+                                                }}
+                                            ></form>
                                         </div>
 
                                         <div
