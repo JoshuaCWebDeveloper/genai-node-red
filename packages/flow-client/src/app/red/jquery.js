@@ -2952,8 +2952,6 @@ export const createJquery = (window, noGlobal) => {
         find.selectors = jQuery.expr;
         find.support = jQuery.support;
         find.uniqueSort = jQuery.uniqueSort;
-
-        /* eslint-enable */
     })();
 
     var dir = function (elem, dir, until) {
