@@ -14,6 +14,7 @@ import {
 } from '../redux/modules/builder/builder.slice';
 
 import faCssUrl from '@fortawesome/fontawesome-free/css/all.css?url';
+import jqueryUiCssUrl from '../red/jquery-ui.css?url';
 import redCssUrl from '../red/red-style.css?url';
 import redTypedInputCssUrl from '../red/red-typed-input.css?url';
 import {
@@ -21,6 +22,7 @@ import {
     selectEntityById,
 } from '../redux/modules/flow/flow.slice';
 import { selectNodeById } from '../redux/modules/node/node.slice';
+import environment from '../../environment';
 
 const StyledEditor = styled.div`
     position: absolute;
@@ -51,6 +53,41 @@ const StyledEditor = styled.div`
 `;
 
 const StyledRedUi = styled.div`
+    .ui-icon,
+    .ui-widget-content .ui-icon {
+        background-image: url('${environment.NODE_RED_API_ROOT}/vendor/jquery/css/base/images/ui-icons_444444_256x240.png');
+    }
+
+    .ui-widget-header .ui-icon {
+        background-image: url('${environment.NODE_RED_API_ROOT}/vendor/jquery/css/base/images/ui-icons_444444_256x240.png');
+    }
+
+    .ui-state-hover .ui-icon,
+    .ui-state-focus .ui-icon,
+    .ui-button:hover .ui-icon,
+    .ui-button:focus .ui-icon {
+        background-image: url('${environment.NODE_RED_API_ROOT}/vendor/jquery/css/base/images/ui-icons_555555_256x240.png');
+    }
+
+    .ui-state-active .ui-icon,
+    .ui-button:active .ui-icon {
+        background-image: url('${environment.NODE_RED_API_ROOT}/vendor/jquery/css/base/images/ui-icons_ffffff_256x240.png');
+    }
+
+    .ui-state-highlight .ui-icon,
+    .ui-button .ui-state-highlight.ui-icon {
+        background-image: url('${environment.NODE_RED_API_ROOT}/vendor/jquery/css/base/images/ui-icons_777620_256x240.png');
+    }
+
+    .ui-state-error .ui-icon,
+    .ui-state-error-text .ui-icon {
+        background-image: url('${environment.NODE_RED_API_ROOT}/vendor/jquery/css/base/images/ui-icons_cc0000_256x240.png');
+    }
+
+    .ui-button .ui-icon {
+        background-image: url('${environment.NODE_RED_API_ROOT}/vendor/jquery/css/base/images/ui-icons_777777_256x240.png');
+    }
+
     .red-ui-tray {
         display: flex;
         flex-direction: column;
@@ -120,9 +157,14 @@ export const NodeEditor = () => {
     const [propertiesForm, setPropertiesForm] =
         useState<HTMLFormElement | null>(null);
     const [loadedCss, setLoadedCss] = useState<{
+        'jquery-ui.css': boolean;
         'red-style.css': boolean;
         'red-typed-input.css': boolean;
-    }>({ 'red-style.css': false, 'red-typed-input.css': false });
+    }>({
+        'jquery-ui.css': false,
+        'red-style.css': false,
+        'red-typed-input.css': false,
+    });
     const loaded = useRef(false);
     const [nodeInstance, setNodeInstance] = useState(
         createNodeInstance({} as FlowNodeEntity)
@@ -156,7 +198,11 @@ export const NodeEditor = () => {
         setNodeInstance(createNodeInstance({} as FlowNodeEntity));
         dispatch(builderActions.clearEditing());
         loaded.current = false;
-        setLoadedCss({ 'red-style.css': false, 'red-typed-input.css': false });
+        setLoadedCss({
+            'jquery-ui.css': false,
+            'red-style.css': false,
+            'red-typed-input.css': false,
+        });
         setPropertiesForm(null);
     }, [dispatch]);
 
@@ -223,6 +269,7 @@ export const NodeEditor = () => {
         if (
             !propertiesForm ||
             loaded.current ||
+            !loadedCss['jquery-ui.css'] ||
             !loadedCss['red-style.css'] ||
             !loadedCss['red-typed-input.css']
         ) {
@@ -265,12 +312,17 @@ export const NodeEditor = () => {
             <div className="overlay" onClick={handleSave}></div>
             <div className="editor-pane">
                 <root.div className="editor-template">
+                    <link rel="stylesheet" href={faCssUrl} />
+                    <link
+                        rel="stylesheet"
+                        href={jqueryUiCssUrl}
+                        onLoad={handleCssOnLoad}
+                    />
                     <link
                         rel="stylesheet"
                         href={redCssUrl}
                         onLoad={handleCssOnLoad}
                     />
-                    <link rel="stylesheet" href={faCssUrl} />
                     <link
                         rel="stylesheet"
                         href={redTypedInputCssUrl}
