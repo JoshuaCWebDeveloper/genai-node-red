@@ -27,7 +27,6 @@ const StyledCategory = styled.div`
     }
 
     li {
-        background-color: #fff;
         cursor: pointer;
         transition: background-color 0.3s ease;
     }
