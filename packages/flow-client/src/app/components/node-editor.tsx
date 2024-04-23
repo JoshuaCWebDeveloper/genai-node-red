@@ -15,6 +15,7 @@ import {
 
 import faCssUrl from '@fortawesome/fontawesome-free/css/all.css?url';
 import redCssUrl from '../red/red-style.css?url';
+import redTypedInputCssUrl from '../red/red-typed-input.css?url';
 import {
     FlowNodeEntity,
     selectEntityById,
@@ -89,6 +90,10 @@ export const NodeEditor = () => {
     const dispatch = useAppDispatch();
     const [propertiesForm, setpropertiesForm] =
         useState<HTMLFormElement | null>(null);
+    const [loadedCss, setLoadedCss] = useState<{
+        'red-style.css': boolean;
+        'red-typed-input.css': boolean;
+    }>({ 'red-style.css': false, 'red-typed-input.css': false });
     const loaded = useRef(false);
     const [nodeInstance, setNodeInstance] = useState(
         createNodeInstance({} as FlowNodeEntity)
@@ -108,6 +113,12 @@ export const NodeEditor = () => {
         []
     );
 
+    const handleCssOnLoad = useCallback(
+        (e: React.SyntheticEvent<HTMLLinkElement>) => {
+            const cssFile = new URL(e.currentTarget.href).pathname
+                .split('/')
+                .pop() as keyof typeof loadedCss;
+            setLoadedCss(prev => ({ ...prev, [cssFile]: true }));
         },
         []
     );
@@ -116,6 +127,7 @@ export const NodeEditor = () => {
         setNodeInstance(createNodeInstance({} as FlowNodeEntity));
         dispatch(builderActions.clearEditing());
         loaded.current = false;
+        setLoadedCss({ 'red-style.css': false, 'red-typed-input.css': false });
         setPropertiesForm(null);
     }, [dispatch]);
 
@@ -171,7 +183,12 @@ export const NodeEditor = () => {
     ]);
 
     useEffect(() => {
-        if (!propertiesForm || loaded.current) {
+        if (
+            !propertiesForm ||
+            loaded.current ||
+            !loadedCss['red-style.css'] ||
+            !loadedCss['red-typed-input.css']
+        ) {
             return;
         }
         // apply node values to form fields
@@ -211,8 +228,17 @@ export const NodeEditor = () => {
             <div className="overlay" onClick={handleSave}></div>
             <div className="editor-pane">
                 <root.div className="editor-template">
-                    <link rel="stylesheet" href={redCssUrl} />
+                    <link
+                        rel="stylesheet"
+                        href={redCssUrl}
+                        onLoad={handleCssOnLoad}
+                    />
                     <link rel="stylesheet" href={faCssUrl} />
+                    <link
+                        rel="stylesheet"
+                        href={redTypedInputCssUrl}
+                        onLoad={handleCssOnLoad}
+                    />
 
                     <StyledRedUi className="red-ui-editor ">
                         <div className="red-ui-tray ui-draggable">
