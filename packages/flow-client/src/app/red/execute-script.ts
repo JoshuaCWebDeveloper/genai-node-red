@@ -1,4 +1,5 @@
 import environment from '../../environment';
+import { FlowNodeEntity } from '../redux/modules/flow/flow.slice';
 import { NodeEntity } from '../redux/modules/node/node.slice';
 import { JqueryContext } from './mock-jquery';
 import { createMockRed } from './mock-red';
@@ -18,7 +19,7 @@ const executeDefinitionScript = (
     }
 };
 
-export const createNodeInstance = (nodeConfig: Record<string, unknown>) => {
+export const createNodeInstance = (nodeConfig: FlowNodeEntity) => {
     const RED = createMockRed();
     const nodeInstance = new Proxy(
         {
@@ -50,7 +51,7 @@ export const createNodeInstance = (nodeConfig: Record<string, unknown>) => {
 // Utility function to deserialize a function from its serialized string representation
 export const deserializeFunction = <T = (...args: unknown[]) => unknown>(
     serializedFunction: string,
-    nodeConfig: Record<string, unknown>,
+    nodeConfig: FlowNodeEntity,
     context = createNodeInstance(nodeConfig)
 ): T => {
     const nodeInstance = context;
@@ -107,17 +108,25 @@ export const executeRegisterType = (definitionScript: string) => {
     } | null;
 };
 
-export const extractNodePropertyFn = <T = (...args: unknown[]) => unknown>(
-    definitionScript: string,
+type NodeConfigOrInstance =
+    | FlowNodeEntity
+    | ReturnType<typeof createNodeInstance>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type UnknownFn = (...args: any[]) => unknown;
+
+export const extractNodePropertyFn = <T = UnknownFn>(
     propertyPath: string,
-    rootContext: Context = window.document,
-    nodeConfig: Record<string, unknown> = {},
-    context = createNodeInstance(nodeConfig)
+    nodeEntity: NodeEntity,
+    nodeInstance: NodeConfigOrInstance = createNodeInstance(
+        {} as FlowNodeEntity
+    ),
+    rootDomNode: JqueryContext = window.document
 ) => {
     let propertyFn = null;
 
-    const RED = createMockRed(rootContext);
-    const nodeInstance = context;
+    const RED = createMockRed(rootDomNode);
+    const fnContext =
+        '_' in nodeInstance ? nodeInstance : createNodeInstance(nodeInstance);
 
     RED.nodes.registerType = (
         type: string,
@@ -140,18 +149,41 @@ export const extractNodePropertyFn = <T = (...args: unknown[]) => unknown>(
         if (typeof propertyFunction === 'function') {
             propertyFn = (
                 propertyFunction as (...args: unknown[]) => unknown
-            ).bind(nodeInstance) as unknown as T;
+            ).bind(fnContext) as unknown as T;
         }
     };
 
-    executeDefinitionScript(definitionScript, RED);
+    executeDefinitionScript(nodeEntity.definitionScript ?? '', RED);
 
     return propertyFn as T | null;
 };
 
-export const finalizeNodeExecution = (
+export const executeNodeFn = <T extends UnknownFn = UnknownFn>(
+    fnCallSpec: [string, ...Parameters<T>],
+    nodeEntity: NodeEntity,
+    nodeInstance?: NodeConfigOrInstance,
+    rootDomNode?: JqueryContext
+): ReturnType<T> | void => {
+    const propertyPath = fnCallSpec[0];
+    const nodeFn = extractNodePropertyFn(
+        propertyPath,
+        nodeEntity,
+        nodeInstance,
+        rootDomNode
+    );
+    try {
+        return nodeFn?.(...fnCallSpec.slice(1)) as unknown as ReturnType<T>;
+    } catch (error) {
+        console.error(
+            `Error executing node function - ${propertyPath}: `,
+            error
+        );
+    }
+};
+
+export const finalizeNodeEditor = (
     dialogForm: HTMLElement,
-    rootContext: Context = window.document
+    rootContext: JqueryContext = window.document
 ) => {
     // apply monaco styles to shadow dom
     const linkElement = document.createElement('link');

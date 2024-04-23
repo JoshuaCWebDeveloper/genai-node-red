@@ -4,8 +4,8 @@ import styled from 'styled-components';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
     createNodeInstance,
-    extractNodePropertyFn,
-    finalizeNodeExecution,
+    executeNodeFn,
+    finalizeNodeEditor,
 } from '../red/execute-script';
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
 import {
@@ -16,7 +16,7 @@ import {
 import faCssUrl from '@fortawesome/fontawesome-free/css/all.css?url';
 import redCssUrl from '../red/red-style.css?url';
 import {
-    flowActions,
+    FlowNodeEntity,
     selectEntityById,
 } from '../redux/modules/flow/flow.slice';
 import { selectNodeById } from '../redux/modules/node/node.slice';
@@ -90,65 +90,47 @@ export const NodeEditor = () => {
     const [propertiesForm, setpropertiesForm] =
         useState<HTMLFormElement | null>(null);
     const loaded = useRef(false);
-    const [nodeInstance, setNodeInstance] = useState(createNodeInstance({}));
+    const [nodeInstance, setNodeInstance] = useState(
+        createNodeInstance({} as FlowNodeEntity)
+    );
     const editing = useAppSelector(selectEditing);
     const editingNode = useAppSelector(state =>
         selectEntityById(state, editing ?? '')
-    );
+    ) as FlowNodeEntity;
     const editingNodeEntity = useAppSelector(state =>
         selectNodeById(state, editingNode?.type)
     );
 
-    const executeNodeFn = useCallback(
-        (
-            fnName: string,
-            shadowRoot: ShadowRoot | undefined,
-            context: ReturnType<typeof createNodeInstance>
-        ) => {
-            const nodeFn = extractNodePropertyFn(
-                editingNodeEntity?.definitionScript ?? '',
-                fnName,
-                shadowRoot,
-                {},
-                context
-            );
-            try {
-                nodeFn?.();
-            } catch (error) {
-                console.error(
-                    `Error executing node function - ${fnName}: `,
-                    error
-                );
-            }
-        },
-        [editingNodeEntity]
-    );
-
     const propertiesFormRefCallback = useCallback(
         (formElement: HTMLFormElement | null) => {
-            setpropertiesForm(formElement);
+            setPropertiesForm(formElement);
+        },
+        []
+    );
+
         },
         []
     );
 
     const closeEditor = useCallback(() => {
-        setNodeInstance(createNodeInstance({}));
+        setNodeInstance(createNodeInstance({} as FlowNodeEntity));
         dispatch(builderActions.clearEditing());
         loaded.current = false;
-        setpropertiesForm(null);
+        setPropertiesForm(null);
     }, [dispatch]);
 
     const handleCancel = useCallback(
         (e: React.MouseEvent) => {
             e.stopPropagation();
             executeNodeFn(
-                'oneditcancel',
-                (propertiesForm?.getRootNode() as ShadowRoot) ?? undefined,
-                nodeInstance
+                ['oneditcancel'],
+                editingNodeEntity,
+                nodeInstance,
+                (propertiesForm?.getRootNode() as ShadowRoot) ?? undefined
             );
             closeEditor();
         },
-        [closeEditor, executeNodeFn, nodeInstance, propertiesForm]
+        [closeEditor, editingNodeEntity, nodeInstance, propertiesForm]
     );
 
     const handleSave = useCallback(() => {
@@ -158,9 +140,10 @@ export const NodeEditor = () => {
         }
         // exec oneditsave
         executeNodeFn(
-            'oneditsave',
-            (propertiesForm?.getRootNode() as ShadowRoot) ?? undefined,
-            nodeInstance
+            ['oneditsave'],
+            editingNodeEntity,
+            nodeInstance,
+            (propertiesForm?.getRootNode() as ShadowRoot) ?? undefined
         );
         // get our form data
         const formData = Object.fromEntries(
@@ -202,12 +185,24 @@ export const NodeEditor = () => {
         const nodeInstance = createNodeInstance(editingNode);
         const context =
             (propertiesForm.getRootNode() as ShadowRoot) ?? undefined;
-        executeNodeFn('oneditprepare', context, nodeInstance);
-        finalizeNodeExecution(propertiesForm, context);
+        executeNodeFn(
+            ['oneditprepare'],
+            editingNodeEntity,
+            nodeInstance,
+            context
+        );
+        finalizeNodeEditor(propertiesForm, context);
+        const formSize = propertiesForm.getBoundingClientRect();
+        executeNodeFn(
+            ['oneditresize', formSize],
+            editingNodeEntity,
+            nodeInstance,
+            context
+        );
         setNodeInstance(nodeInstance);
         // set loaded
         loaded.current = true;
-    }, [editingNode, executeNodeFn, propertiesForm]);
+    }, [editingNode, editingNodeEntity, loadedCss, propertiesForm]);
 
     if (!editingNode) return null;
 
