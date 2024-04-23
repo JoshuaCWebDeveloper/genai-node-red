@@ -1,5 +1,11 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import jQuery from './jquery';
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import { applyJqueryUi } from './jquery-ui';
 import { RedEditorType, createMockEditor } from './mock-editor';
-import { Context, createMockJquery } from './mock-jquery';
+import { JqueryContext, createMockJquery } from './mock-jquery';
 import { createMockPopover } from './mock-popover';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
@@ -10,6 +16,12 @@ import { createRedUtils } from './red-utils';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import { createRedI18n } from './red-i18n';
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import { applyTypedInput } from './red-typed-input';
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import { applyEditableList } from './red-editable-list';
 
 export type RedType = {
     nodes: {
@@ -42,7 +54,9 @@ export type RedType = {
     };
 };
 
-export const createMockRed = (jQueryContext: Context = window.document) => {
+export const createMockRed = (
+    jQueryContext: JqueryContext = window.document
+) => {
     const initialized = {
         editor: false,
     };
@@ -228,11 +242,21 @@ export const createMockRed = (jQueryContext: Context = window.document) => {
         }
     );
 
-    const jQuery = createMockJquery(RED);
-    RED.$ = ((selector: string, context: Context = jQueryContext) =>
+    // Mock jQuery
+    RED.$ = ((selector: string, context: JqueryContext = jQueryContext) =>
         jQuery(selector, context)) as typeof jQuery;
     Object.assign(RED.$, jQuery);
+    // jQuery plugins
+    applyJqueryUi(RED.$);
+    const jQueryUi = RED.$ as typeof jQuery & {
+        widget: (name: string, widget: Record<string, unknown>) => void;
+    };
+    applyTypedInput(RED, RED.$);
+    applyEditableList(RED, RED.$);
+    // Mock Plugins
+    jQueryUi.widget('mocked.autoComplete', {});
 
+    // i18n
     const i18n = createRedI18n(RED, RED.$);
     i18n.init();
     RED._ = i18n._;

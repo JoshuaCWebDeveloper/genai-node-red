@@ -1,5 +1,5 @@
 import { NodeEntity } from '../redux/modules/node/node.slice';
-import { Context } from './mock-jquery';
+import { JqueryContext } from './mock-jquery';
 import { createMockRed } from './mock-red';
 
 const executeDefinitionScript = (

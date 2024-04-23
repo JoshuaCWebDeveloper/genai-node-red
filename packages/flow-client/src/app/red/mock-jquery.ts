@@ -1,35 +1,25 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-import { applyTypedInput } from './red-typed-input';
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-import { applyEditableList } from './red-editable-list';
+export type JqueryContext = Element | Document | ShadowRoot;
 
-export type Context = Element | Document | ShadowRoot;
+export const createMockJquery = () => {
+    type InnerContext = JqueryContext | Record<string, unknown> | jQuery;
 
-export const createMockJquery = (RED: unknown) => {
     class jQuery {
         private elements: Element[];
         private previousContext?: jQuery;
 
-        constructor(
-            selector: string,
-            context?: Context | Record<string, unknown>
-        );
+        constructor(selector: string, context?: InnerContext);
         constructor(selector: Element);
         constructor(selector: Element[]);
         constructor(selector: jQuery);
         constructor(
             selector: string | Element | Element[] | jQuery,
-            context?: Context | Record<string, unknown>
+            context?: InnerContext
         );
         constructor(
             selector: string | Element | Element[] | jQuery,
-            context?: Context | Record<string, unknown>
+            context?: InnerContext
         ) {
-            if (selector instanceof jQuery) {
-                this.elements = selector.elements;
-            } else if (typeof selector === 'string') {
+            if (typeof selector === 'string') {
                 // Check if selector is HTML string
                 if (
                     selector.trim().startsWith('<') &&
@@ -60,7 +50,7 @@ export const createMockJquery = (RED: unknown) => {
                     }
                 } else if (!context) {
                     this.elements = Array.from(
-                        document.querySelectorAll(selector)
+                        this.querySelectorAll(document, selector)
                     );
                 } else if (
                     context instanceof Element ||
@@ -68,27 +58,42 @@ export const createMockJquery = (RED: unknown) => {
                     context instanceof ShadowRoot
                 ) {
                     this.elements = Array.from(
-                        context.querySelectorAll(selector)
+                        this.querySelectorAll(context, selector)
                     );
+                } else if (context instanceof jQuery) {
+                    this.elements = (context as jQuery)
+                        .find(selector)
+                        .get() as Element[];
                 } else if (
                     context &&
                     typeof context === 'object' &&
+                    !(context instanceof jQuery) &&
                     !(
                         context instanceof Element ||
                         context instanceof Document ||
                         context instanceof ShadowRoot
                     )
                 ) {
-                    console.error(`Could not handle given object context`);
+                    console.error(`Could not handle given context: `, context);
                     this.elements = []; // No elements in arbitrary object context
                 } else if (Array.isArray(context)) {
                     this.elements = context.filter(el => el.matches(selector));
                 } else {
-                    console.error(`Could not handle given context`);
+                    console.error(`Could not handle given context: `, context);
                     this.elements = [];
                 }
+            } else if (selector instanceof jQuery) {
+                this.elements = selector.elements;
             } else if (selector instanceof Element) {
                 this.elements = [selector];
+            } else if (
+                selector instanceof Document ||
+                selector instanceof ShadowRoot
+            ) {
+                // this will cause various methods to error,
+                // hopefully whoever is giving us a document
+                // object knows what they're doing
+                this.elements = [selector as unknown as Element];
             } else if (Array.isArray(selector)) {
                 this.elements = selector;
             } else {
@@ -102,12 +107,71 @@ export const createMockJquery = (RED: unknown) => {
             return newContext;
         }
 
-        addClass(className: string): jQuery {
+        private querySelectorAll(node: JqueryContext, selector: string) {
+            if (selector.startsWith('>')) {
+                selector = ':scope ' + selector;
+            }
+            if (selector.includes(':selected')) {
+                const selectors = selector.split(',').map(s => s.trim()); // Splitting in case of multiple selectors
+                const results = selectors.flatMap(sel => {
+                    if (sel.includes(':selected')) {
+                        const cleanedSelector = sel.split(':selected')[0]; // Getting the part before :selected
+                        const options = node.querySelectorAll(cleanedSelector);
+                        return Array.from(options).filter(
+                            option =>
+                                option instanceof HTMLOptionElement &&
+                                option.selected
+                        );
+                    }
+                    return Array.from(node.querySelectorAll(sel));
+                });
+                return results;
+            }
+            return node.querySelectorAll(selector);
+        }
+
+        private querySelector(node: JqueryContext, selector: string) {
+            return this.querySelectorAll(node, selector)[0] ?? null;
+        }
+
+        add(selector: string | Element | jQuery): jQuery {
+            if (typeof selector === 'string') {
+                const newElements = Array.from(
+                    this.querySelectorAll(document, selector)
+                );
+                this.elements = this.elements.concat(newElements);
+            } else if (selector instanceof Element) {
+                this.elements.push(selector);
+            } else if (selector instanceof jQuery) {
+                this.elements = this.elements.concat(selector.elements);
+            }
+            return this;
+        }
+
+        addClass(classNames: string): jQuery {
+            const classes = classNames.split(' ');
             this.elements
                 .filter(el => el instanceof HTMLElement)
                 .forEach(element => {
-                    (element as HTMLElement).classList.add(className);
+                    classes.forEach(className => {
+                        (element as HTMLElement).classList.add(className);
+                    });
                 });
+            return this;
+        }
+
+        after(content: string | Element | jQuery): jQuery {
+            this.elements.forEach(el => {
+                if (typeof content === 'string') {
+                    el.insertAdjacentHTML('afterend', content);
+                } else if (content instanceof Element) {
+                    el.parentNode?.insertBefore(content, el.nextSibling);
+                } else if (content instanceof jQuery) {
+                    content.elements.forEach(contentEl => {
+                        el.parentNode?.insertBefore(contentEl, el.nextSibling);
+                    });
+                }
+            });
             return this;
         }
 
@@ -145,9 +209,9 @@ export const createMockJquery = (RED: unknown) => {
             return this;
         }
 
-        appendTo(target: string | Element | jQuery): jQuery {
+        appendTo(target: string | Node | jQuery): jQuery {
             if (typeof target === 'string') {
-                const targets = document.querySelectorAll(target);
+                const targets = this.querySelectorAll(document, target);
                 targets.forEach((t, targetIndex) => {
                     this.elements.forEach((el, elIndex) => {
                         if (el instanceof Node) {
@@ -164,7 +228,7 @@ export const createMockJquery = (RED: unknown) => {
                         }
                     });
                 });
-            } else if (target instanceof Element) {
+            } else if (target instanceof Node) {
                 this.elements.forEach((el, index) => {
                     if (el instanceof Node) {
                         if (index === this.elements.length - 1) {
@@ -237,7 +301,7 @@ export const createMockJquery = (RED: unknown) => {
         children(selector?: string): jQuery {
             const filteredChildren = this.elements.flatMap(el =>
                 Array.from(
-                    selector ? el.querySelectorAll(selector) : el.children
+                    selector ? this.querySelectorAll(el, selector) : el.children
                 )
             );
             return this.newContext(filteredChildren);
@@ -260,11 +324,46 @@ export const createMockJquery = (RED: unknown) => {
             ) as Element[];
             return this.newContext(clonedElements);
         }
+        closest(selector: string | Element | jQuery | string[]): jQuery {
+            let elementsToSearch: Element[] = [];
+            const searchContext = this.elements[0]?.getRootNode() ?? document;
+            if (typeof selector === 'string') {
+                elementsToSearch = Array.from(
+                    this.querySelectorAll(
+                        searchContext as JqueryContext,
+                        selector
+                    )
+                );
+            } else if (selector instanceof Element) {
+                elementsToSearch = [selector];
+            } else if (selector instanceof jQuery) {
+                elementsToSearch = selector.elements;
+            } else if (Array.isArray(selector)) {
+                elementsToSearch = selector.flatMap(sel =>
+                    typeof sel === 'string'
+                        ? Array.from(
+                              this.querySelectorAll(
+                                  searchContext as JqueryContext,
+                                  sel
+                              )
+                          )
+                        : [sel]
+                );
+            }
 
-        closest(selector: string): jQuery {
             const closestElements = this.elements
-                .map(el => el.closest(selector))
+                .map(el => {
+                    let parent = el.parentElement;
+                    while (parent) {
+                        if (elementsToSearch.includes(parent)) {
+                            return parent;
+                        }
+                        parent = parent.parentElement;
+                    }
+                    return null;
+                })
                 .filter(el => el !== null) as Element[];
+
             return this.newContext(closestElements);
         }
 
@@ -397,7 +496,7 @@ export const createMockJquery = (RED: unknown) => {
 
         find(selector: string): jQuery {
             const newElements = this.elements.flatMap(el =>
-                Array.from(el.querySelectorAll(selector))
+                Array.from(this.querySelectorAll(el, selector))
             );
             return this.newContext(newElements);
         }
@@ -447,11 +546,11 @@ export const createMockJquery = (RED: unknown) => {
             return this;
         }
 
-        get(index?: number): jQuery | Element | undefined {
+        get(index?: number): Element[] | Element | undefined {
             if (index !== undefined) {
                 return this.elements[index];
             }
-            return this;
+            return [...this.elements];
         }
 
         hasClass(className: string): boolean {
@@ -523,14 +622,14 @@ export const createMockJquery = (RED: unknown) => {
                       )
                     : -1;
             } else {
-                const elements = document.querySelectorAll(selector);
+                const elements = this.querySelectorAll(document, selector);
                 return Array.from(elements).indexOf(this.elements[0]);
             }
         }
 
         insertAfter(target: string | Element | jQuery): jQuery {
             if (typeof target === 'string') {
-                document.querySelectorAll(target).forEach(t => {
+                this.querySelectorAll(document, target).forEach(t => {
                     this.elements.forEach(el => {
                         t.parentNode?.insertBefore(el, t.nextSibling);
                     });
@@ -603,8 +702,11 @@ export const createMockJquery = (RED: unknown) => {
             eventType: string,
             handler: (this: Element, ev: Event) => unknown
         ): jQuery {
+            // ignore namespace
+            const eventTypes = eventType.split('.');
+            const eventName = eventTypes[0];
             this.elements.forEach(element => {
-                element.removeEventListener(eventType, handler);
+                element.removeEventListener(eventName, handler);
             });
             return this;
         }
@@ -627,8 +729,11 @@ export const createMockJquery = (RED: unknown) => {
             eventType: string,
             handler: (this: Element, ev: Event) => unknown
         ): jQuery {
+            // ignore namespace
+            const eventTypes = eventType.split('.');
+            const eventName = eventTypes[0];
             this.elements.forEach(element => {
-                element.addEventListener(eventType, function (ev) {
+                element.addEventListener(eventName, function (ev) {
                     handler.call(element, ev);
                 });
             });
@@ -683,9 +788,15 @@ export const createMockJquery = (RED: unknown) => {
             return undefined;
         }
 
-        map(callback: (element: Element, index: number) => Element): jQuery {
+        map(
+            callback: (
+                this: Element,
+                index: number,
+                element: Element
+            ) => Element
+        ): jQuery {
             const mappedElements = this.elements
-                .map((el, index) => callback(el, index))
+                .map((el, index) => callback.call(el, index, el))
                 .filter(el => el != null);
             return this.newContext(mappedElements);
         }
@@ -777,6 +888,13 @@ export const createMockJquery = (RED: unknown) => {
             return this.newContext(nextElements);
         }
 
+        not(selector: string): jQuery {
+            const filteredElements = this.elements.filter(
+                el => !el.matches(selector)
+            );
+            return this.newContext(filteredElements);
+        }
+
         parent(): jQuery {
             const parentElements = this.elements
                 .map(element => element.parentElement)
@@ -828,7 +946,7 @@ export const createMockJquery = (RED: unknown) => {
 
         prependTo(target: string | Element | jQuery): jQuery {
             if (typeof target === 'string') {
-                const targets = document.querySelectorAll(target);
+                const targets = this.querySelectorAll(document, target);
                 targets.forEach((t, targetIndex) => {
                     this.elements.forEach((el, elIndex) => {
                         if (
@@ -923,6 +1041,13 @@ export const createMockJquery = (RED: unknown) => {
                 if (el instanceof HTMLElement) {
                     el.classList.remove(className);
                 }
+            });
+            return this;
+        }
+
+        removeData(key: string): jQuery {
+            this.elements.forEach(el => {
+                jQueryFn.removeData(el, key);
             });
             return this;
         }
@@ -1055,7 +1180,14 @@ export const createMockJquery = (RED: unknown) => {
             this.elements
                 .filter(el => el instanceof HTMLElement)
                 .forEach(element => {
-                    (element as HTMLElement).style.display = 'initial';
+                    if (
+                        window.getComputedStyle(element).display === 'none' &&
+                        (element as HTMLElement).style.display !== 'none'
+                    ) {
+                        (element as HTMLElement).style.display = 'initial';
+                    } else {
+                        (element as HTMLElement).style.display = '';
+                    }
                 });
             return this;
         }
@@ -1128,11 +1260,42 @@ export const createMockJquery = (RED: unknown) => {
             return this;
         }
 
-        trigger(eventType: string): jQuery {
+        toggleClass(classNames: string): jQuery {
+            const classes = classNames.split(' ');
             this.elements.forEach(el => {
-                const event = new Event(eventType);
-                el.dispatchEvent(event);
+                if (el instanceof HTMLElement) {
+                    classes.forEach(className => {
+                        if (el.classList.contains(className)) {
+                            el.classList.remove(className);
+                        } else {
+                            el.classList.add(className);
+                        }
+                    });
+                }
             });
+            return this;
+        }
+
+        trigger(eventType: string | Event): jQuery {
+            if (typeof eventType === 'string') {
+                // ignore namespace for string type
+                const eventTypes = eventType.split('.');
+                const eventName = eventTypes[0];
+                this.elements.forEach(el => {
+                    const event = new Event(eventName);
+                    el.dispatchEvent(event);
+                });
+            } else if (
+                (eventType as Event & { originEvent: Event }).originEvent
+            ) {
+                // Directly dispatch the Event object
+                this.elements.forEach(el => {
+                    el.dispatchEvent(
+                        (eventType as Event & { originEvent: Event })
+                            .originEvent
+                    );
+                });
+            }
             return this;
         }
 
@@ -1181,16 +1344,16 @@ export const createMockJquery = (RED: unknown) => {
         }
     }
 
-    function jQueryFn(selector: string, context?: Context): jQuery;
+    function jQueryFn(selector: string, context?: JqueryContext): jQuery;
     function jQueryFn(selector: Element): jQuery;
     function jQueryFn(selector: Element[]): jQuery;
     function jQueryFn(
         selector: string | Element | Element[],
-        context?: Context
+        context?: JqueryContext
     ): jQuery;
     function jQueryFn(
         selector: string | Element | Element[],
-        context?: Context
+        context?: JqueryContext
     ): jQuery {
         return new Proxy(
             new jQuery(selector, context),
@@ -1199,15 +1362,27 @@ export const createMockJquery = (RED: unknown) => {
                 get: function (target, prop) {
                     if (prop in target) {
                         return target[prop as keyof typeof target];
-                    } else if (!isNaN(Number(prop))) {
-                        return target.get(Number(prop));
                     } else {
-                        console.error(
-                            `Attempted to access jQuery property: \`${String(
-                                prop
-                            )}\` but it was not emulated.`
-                        );
-                        return undefined;
+                        let propAsNumber = NaN;
+                        try {
+                            propAsNumber = Number(prop);
+                        } catch (e) {
+                            // ignore errors
+                        }
+                        if (!isNaN(propAsNumber)) {
+                            return target.get(propAsNumber);
+                        } else if (prop === 'jquery') {
+                            // jquery-ui widget will interrogate this property
+                            // just ignore it
+                            return undefined;
+                        } else {
+                            console.error(
+                                `Attempted to access jQuery property: \`${String(
+                                    prop
+                                )}\` but it was not emulated.`
+                            );
+                            return undefined;
+                        }
                     }
                 },
             }
@@ -1277,6 +1452,110 @@ export const createMockJquery = (RED: unknown) => {
                 callback.call(objectOrArray[key], key, objectOrArray[key]);
             });
         }
+    };
+
+    type EventThis = {
+        originalEvent: Event;
+        type: string;
+        isDefaultPrevented: boolean;
+        target: EventTarget;
+        currentTarget: EventTarget | null;
+        relatedTarget: EventTarget | null;
+        timeStamp: number;
+    };
+    jQueryFn.Event = function (
+        this: EventThis,
+        src?: Event,
+        props?: Record<string, unknown>
+    ) {
+        if (!(this instanceof jQueryFn.Event)) {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-expect-error
+            return new jQueryFn.Event(src, props);
+        }
+
+        if (src && src.type) {
+            this.originalEvent = src;
+            this.type = src.type;
+
+            // The event may have been prevented by a handler
+            this.isDefaultPrevented =
+                src.defaultPrevented ||
+                (src.defaultPrevented === undefined &&
+                    // Support: Android <=2.3 only
+                    src.returnValue === false)
+                    ? true
+                    : false;
+
+            const elementTarget = src.target as Element;
+
+            this.target = (
+                elementTarget && elementTarget.nodeType === 3
+                    ? elementTarget.parentNode
+                    : elementTarget
+            ) as EventTarget;
+
+            this.currentTarget = src.currentTarget;
+        } else {
+            this.type = src as unknown as string;
+        }
+
+        // Put explicitly provided properties onto the event object
+        if (props) {
+            Object.assign(this, props);
+        }
+
+        // Create a timestamp if incoming event doesn't have one
+        this.timeStamp = (src && src.timeStamp) || Date.now();
+    };
+
+    function returnTrue() {
+        return true;
+    }
+
+    function returnFalse() {
+        return false;
+    }
+
+    // jQuery.Event is based on DOM3 Events as specified by the ECMAScript Language Binding
+    // https://www.w3.org/TR/2003/NOTE-DOM-Level-3-Events-20031107/ecma-script-binding.html
+    jQueryFn.Event.prototype = {
+        constructor: jQueryFn.Event,
+        isDefaultPrevented: returnFalse,
+        isPropagationStopped: returnFalse,
+        isImmediatePropagationStopped: returnFalse,
+        isSimulated: false,
+
+        preventDefault: function () {
+            const e = this.originalEvent;
+            this.isDefaultPrevented = returnTrue;
+
+            if (e && !this.isSimulated) {
+                e.preventDefault();
+            }
+        },
+        stopPropagation: function () {
+            const e = this.originalEvent;
+            this.isPropagationStopped = returnTrue;
+
+            if (e && !this.isSimulated) {
+                e.stopPropagation();
+            }
+        },
+        stopImmediatePropagation: function () {
+            const e = this.originalEvent;
+            this.isImmediatePropagationStopped = returnTrue;
+
+            if (e && !this.isSimulated) {
+                e.stopImmediatePropagation();
+            }
+
+            this.stopPropagation();
+        },
+    };
+
+    jQueryFn.expr = {
+        pseudos: {},
     };
 
     jQueryFn.extend = function (...args: unknown[]): Record<string, unknown> {
@@ -1393,6 +1672,30 @@ export const createMockJquery = (RED: unknown) => {
         });
     };
 
+    jQueryFn.isPlainObject = (obj: unknown): obj is Record<string, unknown> => {
+        if (typeof obj !== 'object' || obj === null) return false;
+        const proto = Object.getPrototypeOf(obj);
+        return proto === null || proto === Object.prototype;
+    };
+
+    jQueryFn.map = <TResult>(
+        array: ArrayLike<unknown>,
+        callback: (element: unknown, index: number) => TResult
+    ): TResult[] => {
+        const results: TResult[] = [];
+        for (let i = 0; i < array.length; i++) {
+            const result = callback(array[i], i);
+            if (result != null) {
+                results.push(result);
+            }
+        }
+        return results;
+    };
+
+    jQueryFn.noop = () => {
+        // noop
+    };
+
     jQueryFn.post = <TData extends BodyInit | undefined | null, TResponse>(
         url: string,
         data?: TData | ((data: TResponse) => void),
@@ -1427,165 +1730,16 @@ export const createMockJquery = (RED: unknown) => {
         }
     };
 
-    jQueryFn.Widget = class {
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
-        _create() {}
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
-        _init() {}
-        destroy(this: Record<string, unknown>) {
-            if (this.element) {
-                jQueryFn.removeData(
-                    this.element as Element,
-                    this.widgetFullName as string
-                );
-            }
-        }
-        option(
-            this: {
-                options: Record<string, unknown>;
-                [key: string]: unknown;
-            },
-            key: string | Record<string, unknown>,
-            value?: unknown
-        ) {
-            const options = key;
-            if (arguments.length === 0) {
-                return { ...this.options };
-            }
-
-            if (typeof key === 'string') {
-                if (value === undefined) {
-                    return this.options[key];
-                }
-                this.options[key] = value;
+    jQueryFn.uniqueSort = (elements: Element[]): Element[] => {
+        const uniqueElements = Array.from(new Set(elements));
+        return uniqueElements.sort((a, b) => {
+            if (a.compareDocumentPosition(b) & 2) {
+                return 1;
             } else {
-                this.options = {
-                    ...this.options,
-                    ...(options as Record<string, unknown>),
-                };
+                return -1;
             }
-
-            return this;
-        }
+        });
     };
-
-    Object.assign(jQueryFn.Widget.prototype, {
-        widgetName: '',
-        widgetFullName: '',
-        widgetEventPrefix: '',
-        options: {},
-    });
-
-    jQueryFn.widget = (
-        name: string,
-        prototype: Record<string, unknown>
-    ): void => {
-        const [namespace, methodName] = name.split('.');
-        const fullName = `${namespace}-${methodName}`;
-
-        const jQueryNs = jQueryFn as unknown as {
-            [namespace: string]: {
-                [methodName: string]: new (
-                    options?: string | Record<string, unknown>,
-                    element?: jQuery
-                ) => unknown;
-            };
-        };
-
-        if (!jQueryNs[namespace]) {
-            jQueryNs[namespace] = {};
-        }
-
-        jQueryNs[namespace][methodName] = class extends jQueryFn.Widget {
-            constructor(
-                private options: string | Record<string, unknown> = {},
-                private element?: jQuery
-            ) {
-                super();
-                this._create();
-            }
-        };
-
-        Object.assign(
-            jQueryNs[namespace][methodName].prototype,
-            { widgetName: name, widgetFullName: fullName },
-            prototype
-        );
-
-        jQueryFn.fn[methodName] = function (
-            this: jQuery,
-            options?: string | Record<string, unknown>,
-            ...args: unknown[]
-        ): unknown {
-            const isMethodCall = typeof options === 'string';
-
-            // Allow instantiation without "new" keyword
-            if (isMethodCall) {
-                let returnValue: unknown;
-
-                this.each((index, element) => {
-                    const instance = jQueryFn.data(element, fullName) as Record<
-                        string,
-                        unknown
-                    >;
-                    if (
-                        typeof options === 'string' &&
-                        instance &&
-                        typeof instance[options] === 'function'
-                    ) {
-                        const method = (
-                            instance[options] as (...args: unknown[]) => unknown
-                        ).bind(instance);
-                        const methodValue = method(...args);
-                        if (
-                            methodValue !== undefined &&
-                            methodValue !== instance
-                        ) {
-                            returnValue = methodValue;
-                            return false;
-                        }
-                        return true;
-                    }
-                    return true;
-                });
-
-                return returnValue;
-            } else {
-                return this.each(function (this: Element) {
-                    // eslint-disable-next-line @typescript-eslint/no-this-alias
-                    const element = this;
-                    if (jQueryFn.data(element, fullName)) {
-                        const instance = jQueryFn.data(
-                            element,
-                            fullName
-                        ) as Record<string, unknown>;
-                        if (typeof instance.option === 'function') {
-                            instance.option(options || {});
-                        }
-                        if (typeof instance._init === 'function') {
-                            instance._init();
-                        }
-                    } else {
-                        jQueryFn.data(
-                            element,
-                            fullName,
-                            new jQueryNs[namespace][methodName](
-                                options,
-                                jQueryFn(element)
-                            )
-                        );
-                    }
-                });
-            }
-        };
-    };
-
-    // plugins
-    applyTypedInput(RED, jQueryFn);
-    applyEditableList(RED, jQueryFn);
-
-    // Mock Plugins
-    jQueryFn.widget('mocked.spinner', {});
 
     return jQueryFn;
 };
