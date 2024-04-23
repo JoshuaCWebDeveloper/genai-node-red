@@ -22,6 +22,9 @@ import { applyTypedInput } from './red-typed-input';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import { applyEditableList } from './red-editable-list';
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import { createRedValidators } from './red-validators';
 
 export type RedType = {
     nodes: {
@@ -70,107 +73,6 @@ export const createMockRed = (
                     return undefined;
                 },
             },
-            validators: {
-                number: function (blankAllowed: boolean, _mopt: unknown) {
-                    return function (v: string, opt: Record<string, unknown>) {
-                        if (blankAllowed && (v === '' || v === undefined)) {
-                            return true;
-                        }
-                        if (v !== '') {
-                            if (
-                                /^NaN$|^[+-]?[0-9]*\.?[0-9]*([eE][-+]?[0-9]+)?$|^[+-]?(0b|0B)[01]+$|^[+-]?(0o|0O)[0-7]+$|^[+-]?(0x|0X)[0-9a-fA-F]+$/.test(
-                                    v
-                                )
-                            ) {
-                                return true;
-                            }
-                            if (/^\${[^}]+}$/.test(v)) {
-                                // Allow ${ENV_VAR} value
-                                return true;
-                            }
-                        }
-                        if (!isNaN(v as unknown as number)) {
-                            return true;
-                        }
-                        if (opt && opt.label) {
-                            return RED._('validator.errors.invalid-num-prop', {
-                                prop: opt.label,
-                            });
-                        }
-                        return opt
-                            ? RED._('validator.errors.invalid-num')
-                            : false;
-                    };
-                },
-                regex: function (re: RegExp, _mopt: Record<string, unknown>) {
-                    return function (v: string, opt: Record<string, unknown>) {
-                        if (re.test(v)) {
-                            return true;
-                        }
-                        if (opt && opt.label) {
-                            return RED._(
-                                'validator.errors.invalid-regex-prop',
-                                {
-                                    prop: opt.label,
-                                }
-                            );
-                        }
-                        return opt
-                            ? RED._('validator.errors.invalid-regexp')
-                            : false;
-                    };
-                },
-                typedInput: function (
-                    ptypeName: string | Record<string, unknown>,
-                    isConfig: boolean,
-                    _mopt: Record<string, unknown>
-                ) {
-                    let options: Record<string, unknown>;
-                    if (typeof ptypeName === 'string') {
-                        options = {};
-                        options.typeField = ptypeName;
-                        options.isConfig = isConfig;
-                        options.allowBlank = false;
-                    }
-
-                    return function (v: string, opt: Record<string, unknown>) {
-                        let ptype = options.type;
-                        if (!ptype && options.typeField) {
-                            ptype =
-                                (
-                                    document.querySelector(
-                                        '#node-' +
-                                            (options.isConfig
-                                                ? 'config-'
-                                                : '') +
-                                            'input-' +
-                                            options.typeField
-                                    ) as HTMLInputElement
-                                )?.value ||
-                                RED.validators[
-                                    options.typeField as keyof typeof RED.validators
-                                ];
-                        }
-                        if (options.allowBlank && v === '') {
-                            return true;
-                        }
-                        if (options.allowUndefined && v === undefined) {
-                            return true;
-                        }
-                        const result = RED.utils.validateTypedProperty(
-                            v,
-                            ptype,
-                            opt
-                        );
-                        if (result === true || opt) {
-                            // Valid, or opt provided - return result as-is
-                            return result;
-                        }
-                        // No opt - need to return false for backwards compatibilty
-                        return false;
-                    };
-                },
-            },
             events: {
                 on(event: string, _handler: (...args: unknown[]) => unknown) {
                     console.debug(
@@ -215,6 +117,9 @@ export const createMockRed = (
             tabs: undefined as unknown as ReturnType<typeof createRedTabs>,
             popover: undefined as unknown as ReturnType<
                 typeof createMockPopover
+            >,
+            validators: undefined as unknown as ReturnType<
+                typeof createRedValidators
             >,
             get editor() {
                 if (!initialized.editor) {
@@ -261,6 +166,7 @@ export const createMockRed = (
     i18n.init();
     RED._ = i18n._;
 
+    RED.validators = createRedValidators(RED, RED.$);
     RED.tabs = createRedTabs(RED, RED.$);
     RED.popover = createMockPopover(RED.$);
 
