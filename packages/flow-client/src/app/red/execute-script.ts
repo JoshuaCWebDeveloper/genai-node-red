@@ -1,3 +1,4 @@
+import environment from '../../environment';
 import { NodeEntity } from '../redux/modules/node/node.slice';
 import { JqueryContext } from './mock-jquery';
 import { createMockRed } from './mock-red';
@@ -192,4 +193,21 @@ export const finalizeNodeExecution = (
     // call i18n plugin on newly created content
     const RED = createMockRed(rootContext);
     (RED.$(dialogForm) as unknown as { i18n: () => void }).i18n();
+
+    // update typed input urls
+    Array.from(
+        dialogForm.querySelectorAll<HTMLImageElement>(
+            'img[src^="red/images/typedInput"]'
+        )
+    ).forEach(img => {
+        const baseUrl = environment.NODE_RED_API_ROOT;
+        const originalSrc = img.getAttribute('src');
+        if (originalSrc) {
+            const newPath = originalSrc.replace(
+                /.*red\/images\/typedInput/,
+                `${baseUrl}/red/images/typedInput`
+            );
+            img.setAttribute('src', newPath);
+        }
+    });
 };
