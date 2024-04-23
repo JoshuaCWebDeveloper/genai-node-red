@@ -1156,15 +1156,27 @@ export const applyTypedInput = (RED, jQuery) => {
                     return this.propertyType;
                 } else {
                     var that = this;
+                    if (this.options.debug) {
+                        console.log(
+                            this.identifier,
+                            '----- SET TYPE -----',
+                            type
+                        );
+                    }
                     var previousValue = null;
                     var opt = this.typeMap[type];
                     if (opt && this.propertyType !== type) {
                         // If previousType is !null, then this is a change of the type, rather than the initialisation
                         var previousType = this.typeMap[this.propertyType];
-                        var typeChanged = !!previousType;
                         previousValue = this.input.val();
 
-                        if (typeChanged) {
+                        if (previousType && this.typeChanged) {
+                            if (this.options.debug) {
+                                console.log(this.identifier, 'typeChanged', {
+                                    previousType,
+                                    previousValue,
+                                });
+                            }
                             if (previousType.options && opt.hasValue !== true) {
                                 this.oldValues[previousType.value] =
                                     previousValue;
@@ -1179,8 +1191,15 @@ export const applyTypedInput = (RED, jQuery) => {
                                 opt.hasValue === false
                             ) {
                                 if (this.oldValues.hasOwnProperty(opt.value)) {
+                                    if (this.options.debug) {
+                                        console.log(
+                                            this.identifier,
+                                            'restored previous (1)',
+                                            this.oldValues[opt.value]
+                                        );
+                                    }
                                     this.input.val(this.oldValues[opt.value]);
-                                } else {
+                                } else if (opt.options) {
                                     // No old value for the option type.
                                     // It is possible code has called 'value' then 'type'
                                     // to set the selected option. This is what the Inject/Switch/Change
@@ -1190,21 +1209,73 @@ export const applyTypedInput = (RED, jQuery) => {
                                         opt,
                                         previousValue
                                     );
-                                    if (previousValue && validOptions) {
+                                    if (this.options.debug) {
+                                        console.log(this.identifier, {
+                                            previousValue,
+                                            opt,
+                                            validOptions,
+                                        });
+                                    }
+                                    if (
+                                        (previousValue ||
+                                            previousValue === '') &&
+                                        validOptions
+                                    ) {
+                                        if (this.options.debug) {
+                                            console.log(
+                                                this.identifier,
+                                                'restored previous (2)'
+                                            );
+                                        }
                                         this.input.val(previousValue);
                                     } else {
                                         if (typeof opt.default === 'string') {
+                                            if (this.options.debug) {
+                                                console.log(
+                                                    this.identifier,
+                                                    'restored previous (3)',
+                                                    opt.default
+                                                );
+                                            }
                                             this.input.val(opt.default);
                                         } else if (Array.isArray(opt.default)) {
+                                            if (this.options.debug) {
+                                                console.log(
+                                                    this.identifier,
+                                                    'restored previous (4)',
+                                                    opt.default.join(',')
+                                                );
+                                            }
                                             this.input.val(
                                                 opt.default.join(',')
                                             );
                                         } else {
+                                            if (this.options.debug) {
+                                                console.log(
+                                                    this.identifier,
+                                                    'restored previous (5)'
+                                                );
+                                            }
                                             this.input.val('');
                                         }
                                     }
+                                } else {
+                                    if (this.options.debug) {
+                                        console.log(
+                                            this.identifier,
+                                            'restored default/blank',
+                                            opt.default || ''
+                                        );
+                                    }
+                                    this.input.val(opt.default || '');
                                 }
                             } else {
+                                if (this.options.debug) {
+                                    console.log(
+                                        this.identifier,
+                                        'restored old/default/blank'
+                                    );
+                                }
                                 this.input.val(
                                     this.oldValues.hasOwnProperty('_')
                                         ? this.oldValues['_']
@@ -1216,6 +1287,7 @@ export const applyTypedInput = (RED, jQuery) => {
                             }
                         }
                         this.propertyType = type;
+                        this.typeChanged = true;
                         if (this.typeField) {
                             this.typeField.val(type);
                         }
@@ -1225,12 +1297,14 @@ export const applyTypedInput = (RED, jQuery) => {
                             if (opt.icon.indexOf('<') === 0) {
                                 $(opt.icon).prependTo(this.selectLabel);
                             } else if (opt.icon.indexOf('/') !== -1) {
-                                image = new Image();
-                                image.name = opt.icon;
-                                image.src = mapDeprecatedIcon(opt.icon);
-                                $('<img>', {
-                                    src: mapDeprecatedIcon(opt.icon),
-                                    style: 'margin-right: 4px;height: 18px;',
+                                $('<i>', {
+                                    class: 'red-ui-typedInput-icon',
+                                    style:
+                                        'mask-image: url(' +
+                                        opt.icon +
+                                        '); -webkit-mask-image: url(' +
+                                        opt.icon +
+                                        '); margin-right: 4px;height: 18px;width:13px',
                                 }).prependTo(this.selectLabel);
                             } else {
                                 $('<i>', {
@@ -1351,9 +1425,13 @@ export const applyTypedInput = (RED, jQuery) => {
                                     var selectedOption =
                                         this.optionValue || opt.options[0];
                                     if (opt.parse) {
+                                        var selectedOptionObj =
+                                            typeof selectedOption === 'string'
+                                                ? { value: selectedOption }
+                                                : selectedOption;
                                         var parts = opt.parse(
                                             this.input.val(),
-                                            selectedOption
+                                            selectedOptionObj
                                         );
                                         if (parts.option) {
                                             selectedOption = parts.option;
@@ -1400,6 +1478,16 @@ export const applyTypedInput = (RED, jQuery) => {
                                             );
                                         }
                                     } else if (selectedOption) {
+                                        if (this.options.debug) {
+                                            console.log(
+                                                this.identifier,
+                                                'HERE',
+                                                {
+                                                    optionValue:
+                                                        selectedOption.value,
+                                                }
+                                            );
+                                        }
                                         this.optionValue = selectedOption.value;
                                         this._updateOptionSelectLabel(
                                             selectedOption
@@ -1476,6 +1564,7 @@ export const applyTypedInput = (RED, jQuery) => {
                                 if (opt.autoComplete) {
                                     this.input.autoComplete({
                                         search: opt.autoComplete,
+                                        minLength: 0,
                                     });
                                 }
                             }
