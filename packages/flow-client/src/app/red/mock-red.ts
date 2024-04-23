@@ -92,6 +92,9 @@ export const createMockRed = (
                     );
                     return defaultValue;
                 },
+                context: {
+                    stores: [],
+                },
             },
             text: {
                 bidi: {
@@ -128,7 +131,7 @@ export const createMockRed = (
                 }
                 return RedEditor;
             },
-            utils: createRedUtils(),
+            utils: undefined as unknown as ReturnType<typeof createRedUtils>,
         } as RedType,
         // proxy handler
         {
@@ -146,6 +149,9 @@ export const createMockRed = (
             },
         }
     );
+
+    // apply utils first
+    RED.utils = createRedUtils(RED);
 
     // Mock jQuery
     RED.$ = ((selector: string, context: JqueryContext = jQueryContext) =>
