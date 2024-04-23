@@ -1,9 +1,11 @@
+import '../../../../../vitest-esbuild-compat';
 import { MockedFunction } from 'vitest';
 import { RootState } from '../../store';
 import { NodeEntity, selectAllNodes } from '../node/node.slice';
 import { FlowLogic, NodeModel, SerializedGraph } from './flow.logic';
 import {
     FlowEntity,
+    FlowNodeEntity,
     flowActions,
     selectEntityById,
     selectFlowNodesByFlowId,
@@ -189,7 +191,9 @@ describe('flow.logic', () => {
                                     parentNode: 'node1',
                                     links: ['link1'],
                                     in: false,
-                                    label: 'Output',
+                                    extras: {
+                                        label: 'Output',
+                                    },
                                 },
                             ],
                         },
@@ -214,7 +218,9 @@ describe('flow.logic', () => {
                                     parentNode: 'node2',
                                     links: ['link1'],
                                     in: true,
-                                    label: 'Input',
+                                    extras: {
+                                        label: 'Input',
+                                    },
                                 },
                             ],
                         },
@@ -270,6 +276,82 @@ describe('flow.logic', () => {
                     ])
                 )
             );
+        });
+    });
+
+    describe('getNodeInputsOutputs', () => {
+        const baseNodeProps = {
+            id: 'test-node',
+            nodeRedId: 'test-node',
+            module: 'module',
+            version: 'version',
+            name: 'name',
+            type: 'type',
+        };
+
+        it('should extract inputs and outputs with default labels when no custom labels are provided', () => {
+            const entity = {
+                ...baseNodeProps,
+                id: 'test-node',
+            };
+
+            const instance = {
+                inputs: 2,
+                outputs: 1,
+            } as FlowNodeEntity;
+
+            const { inputs, outputs } = flowLogic.getNodeInputsOutputs(
+                instance,
+                entity
+            );
+
+            expect(inputs).toEqual(['Input 1', 'Input 2']);
+            expect(outputs).toEqual(['Output 1']);
+        });
+
+        it('should correctly deserialize and use custom input and output label functions', () => {
+            const entity = {
+                ...baseNodeProps,
+                id: 'test-node',
+                definitionScript: `
+                    RED.nodes.registerType("test-node", {
+                        inputLabels: function(index) { 
+                            return \`Custom Input \${index + 1}\`; 
+                        }, 
+                        outputLabels: function(index) { 
+                            return \`Custom Output \${index + 1}\`; 
+                        }
+                    });
+                `,
+            };
+
+            const instance = {
+                inputs: 2,
+                outputs: 2,
+            } as FlowNodeEntity;
+
+            const { inputs, outputs } = flowLogic.getNodeInputsOutputs(
+                instance,
+                entity
+            );
+
+            expect(inputs).toEqual(['Custom Input 1', 'Custom Input 2']);
+            expect(outputs).toEqual(['Custom Output 1', 'Custom Output 2']);
+        });
+
+        it('should handle nodes without inputs or outputs', () => {
+            const node = {
+                ...baseNodeProps,
+                id: 'test-node',
+            };
+
+            const { inputs, outputs } = flowLogic.getNodeInputsOutputs(
+                {} as FlowNodeEntity,
+                node
+            );
+
+            expect(inputs).toEqual([]);
+            expect(outputs).toEqual([]);
         });
     });
 
@@ -335,6 +417,13 @@ describe('flow.logic', () => {
                     },
                     locked: false,
                     selected: false,
+                    z: '123',
+                    inputs: 1,
+                    outputs: 1,
+                    wires: [],
+                    inPorts: [],
+                    outPorts: [],
+                    links: {},
                 },
             ];
 
