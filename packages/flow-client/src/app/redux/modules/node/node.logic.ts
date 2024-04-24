@@ -39,7 +39,7 @@ export class NodeLogic {
 
             // Process text/html script tags for editor templates
             doc.querySelectorAll(
-                'script[type="text/html"][data-template-name]'
+                'script[type="text/html"][data-template-name], script[type="text/x-red"][data-template-name]'
             ).forEach(script => {
                 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                 const nodeName = script.getAttribute('data-template-name')!;
@@ -54,7 +54,7 @@ export class NodeLogic {
 
             // Process text/html script tags for help templates
             doc.querySelectorAll(
-                'script[type="text/html"][data-help-name]'
+                'script[type="text/html"][data-help-name], script[type="text/x-red"][data-help-name]'
             ).forEach(script => {
                 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                 const nodeName = script.getAttribute('data-help-name')!;

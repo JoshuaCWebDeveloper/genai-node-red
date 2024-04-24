@@ -96,6 +96,42 @@ describe('NodeLogic', () => {
                 })
             );
         });
+
+        it('updates editor templates from script tags with type text/x-red correctly', async () => {
+            const nodeScriptsData = `
+      <script type="text/x-red" data-template-name="x-red-test-node">
+        <div>X-Red Editor Template</div>
+      </script>
+    `;
+            const nodeLogic = new NodeLogic();
+            await nodeLogic.setNodeScripts(nodeScriptsData)(mockDispatch);
+
+            expect(mockDispatch).toHaveBeenCalledWith(
+                nodeActions.updateOne({
+                    id: 'x-red-test-node',
+                    changes: {
+                        editorTemplate: '<div>X-Red Editor Template</div>',
+                    },
+                })
+            );
+        });
+
+        it('updates help templates from script tags with type text/x-red correctly', async () => {
+            const nodeScriptsData = `
+      <script type="text/x-red" data-help-name="x-red-test-node">
+        <p>X-Red Help Template</p>
+      </script>
+    `;
+            const nodeLogic = new NodeLogic();
+            await nodeLogic.setNodeScripts(nodeScriptsData)(mockDispatch);
+
+            expect(mockDispatch).toHaveBeenCalledWith(
+                nodeActions.updateOne({
+                    id: 'x-red-test-node',
+                    changes: { helpTemplate: '<p>X-Red Help Template</p>' },
+                })
+            );
+        });
     });
 
     describe('applyConfigDefaults', () => {
