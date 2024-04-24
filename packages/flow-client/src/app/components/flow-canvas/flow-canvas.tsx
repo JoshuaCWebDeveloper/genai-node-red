@@ -14,11 +14,11 @@ import React, {
 } from 'react';
 import { useDrop } from 'react-dnd';
 import styled from 'styled-components';
+import { v4 as uuidv4 } from 'uuid';
 
 import { useAppDispatch, useAppLogic, useAppSelector } from '../../redux/hooks';
 import { SerializedGraph } from '../../redux/modules/flow/flow.logic';
 import {
-    FlowNodeEntity,
     selectAllEntities,
     selectFlows,
 } from '../../redux/modules/flow/flow.slice';
@@ -85,8 +85,6 @@ const LogFlowSlice = () => {
     return null; // This component does not render anything
 };
 
-const engine = createEngine();
-
 // engine.registerListener({
 //     _globalEngine: (event: BaseEvent) => {
 //         console.log('Global Engine event fired: ', event);
@@ -111,8 +109,9 @@ export const FlowCanvas: React.FC<FlowCanvasProps> = ({
     const flowLogic = useAppLogic().flow;
     const existingFlows = useAppSelector(selectFlows);
 
+    const [engine] = useState(createEngine());
     const [model] = useState(
-        new CustomDiagramModel({ id: existingFlows[0]?.id })
+        new CustomDiagramModel({ id: existingFlows[0]?.id ?? uuidv4() })
     );
 
     const serializedGraph = useAppSelector(state =>
@@ -131,7 +130,7 @@ export const FlowCanvas: React.FC<FlowCanvasProps> = ({
 
         // Configure engine and model as needed
         engine.setModel(model);
-    }, [initialDiagram.links, initialDiagram.nodes, model]);
+    }, [initialDiagram.links, initialDiagram.nodes, model, engine]);
 
     const registerModelChangeListener = useCallback(() => {
         // Event listener for any change in the model
@@ -154,7 +153,7 @@ export const FlowCanvas: React.FC<FlowCanvasProps> = ({
             'PointModel:positionChanged': handleModelChange,
             // Add more listeners as needed
         });
-    }, [dispatch, flowLogic, model]);
+    }, [dispatch, engine, flowLogic, model]);
 
     const deregisterModelChangeListener = useCallback(() => {
         // Cleanup: use the ref to access the handle for deregistering listeners
@@ -162,7 +161,7 @@ export const FlowCanvas: React.FC<FlowCanvasProps> = ({
             engine.deregisterListener(listenerHandleRef.current);
             listenerHandleRef.current = null;
         }
-    }, []);
+    }, [engine]);
 
     useEffect(() => {
         let isCleanupCalled = false;
@@ -186,6 +185,7 @@ export const FlowCanvas: React.FC<FlowCanvasProps> = ({
         };
     }, [
         deregisterModelChangeListener,
+        engine,
         registerModelChangeListener,
         serializedGraph,
     ]);
@@ -226,7 +226,7 @@ export const FlowCanvas: React.FC<FlowCanvasProps> = ({
             canvas?.removeEventListener('contextmenu', disableContextMenu);
             actionEventBus.fireAction = originalFireAction;
         };
-    }, []);
+    }, [engine]);
 
     const [, drop] = useDrop(() => ({
         accept: ItemTypes.NODE,
@@ -254,7 +254,20 @@ export const FlowCanvas: React.FC<FlowCanvasProps> = ({
             }
 
             const config = nodeLogic.applyConfigDefaults(
-                {} as FlowNodeEntity,
+                {
+                    id: uuidv4(),
+                    type: entity.type,
+                    x: 0,
+                    y: 0,
+                    z: '',
+                    name: '',
+                    inputs: 1,
+                    outputs: 1,
+                    wires: [],
+                    inPorts: [],
+                    outPorts: [],
+                    links: {},
+                },
                 entity
             );
 
@@ -269,14 +282,16 @@ export const FlowCanvas: React.FC<FlowCanvasProps> = ({
 
             node.setPosition(nodePosition);
 
-            const ports = nodeLogic.getNodeInputsOutputs(entity);
+            const ports = flowLogic.getNodeInputsOutputs(config, entity);
             ports.inputs.forEach(input => {
                 node.addPort(
                     new DefaultPortModel({
                         in: true,
-                        name: input,
-                        label: input,
+                        name: uuidv4(),
                         alignment: PortModelAlignment.LEFT,
+                        extras: {
+                            label: input,
+                        },
                     })
                 );
             });
@@ -284,9 +299,11 @@ export const FlowCanvas: React.FC<FlowCanvasProps> = ({
                 node.addPort(
                     new DefaultPortModel({
                         in: false,
-                        name: output,
-                        label: output,
+                        name: uuidv4(),
                         alignment: PortModelAlignment.RIGHT,
+                        extras: {
+                            label: output,
+                        },
                     })
                 );
             });

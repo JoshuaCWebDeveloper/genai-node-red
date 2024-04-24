@@ -11,7 +11,7 @@ const StyledNode = styled.div<{ node: NodeEntity }>`
         props.node.color ? `background-color: ${props.node.color};` : ''}
     border: 1px solid #ddd;
     border-radius: 8px;
-    box-shadow: rgba(0, 0, 0, 0.2) 0px 0px 0px 1px inset;
+    box-shadow: rgba(0, 0, 0, 0.3) 0px 0px 0px 1px inset;
     display: flex;
     padding: 10px 15px;
     position: relative;

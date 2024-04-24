@@ -4,22 +4,26 @@ import styled from 'styled-components';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
     createNodeInstance,
-    extractNodePropertyFn,
-    finalizeNodeExecution,
+    executeNodeFn,
+    finalizeNodeEditor,
 } from '../red/execute-script';
-import { useAppDispatch, useAppSelector } from '../redux/hooks';
+import { useAppDispatch, useAppLogic, useAppSelector } from '../redux/hooks';
 import {
     builderActions,
     selectEditing,
 } from '../redux/modules/builder/builder.slice';
 
 import faCssUrl from '@fortawesome/fontawesome-free/css/all.css?url';
+import jqueryUiCssUrl from '../red/jquery-ui.css?url';
 import redCssUrl from '../red/red-style.css?url';
+import redTypedInputCssUrl from '../red/red-typed-input.css?url';
 import {
+    FlowNodeEntity,
     flowActions,
     selectEntityById,
 } from '../redux/modules/flow/flow.slice';
 import { selectNodeById } from '../redux/modules/node/node.slice';
+import environment from '../../environment';
 
 const StyledEditor = styled.div`
     position: absolute;
@@ -45,10 +49,46 @@ const StyledEditor = styled.div`
         background-color: white;
         box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
         overflow-y: auto;
+        min-width: 505px;
     }
 `;
 
 const StyledRedUi = styled.div`
+    .ui-icon,
+    .ui-widget-content .ui-icon {
+        background-image: url('${environment.NODE_RED_API_ROOT}/vendor/jquery/css/base/images/ui-icons_444444_256x240.png');
+    }
+
+    .ui-widget-header .ui-icon {
+        background-image: url('${environment.NODE_RED_API_ROOT}/vendor/jquery/css/base/images/ui-icons_444444_256x240.png');
+    }
+
+    .ui-state-hover .ui-icon,
+    .ui-state-focus .ui-icon,
+    .ui-button:hover .ui-icon,
+    .ui-button:focus .ui-icon {
+        background-image: url('${environment.NODE_RED_API_ROOT}/vendor/jquery/css/base/images/ui-icons_555555_256x240.png');
+    }
+
+    .ui-state-active .ui-icon,
+    .ui-button:active .ui-icon {
+        background-image: url('${environment.NODE_RED_API_ROOT}/vendor/jquery/css/base/images/ui-icons_ffffff_256x240.png');
+    }
+
+    .ui-state-highlight .ui-icon,
+    .ui-button .ui-state-highlight.ui-icon {
+        background-image: url('${environment.NODE_RED_API_ROOT}/vendor/jquery/css/base/images/ui-icons_777620_256x240.png');
+    }
+
+    .ui-state-error .ui-icon,
+    .ui-state-error-text .ui-icon {
+        background-image: url('${environment.NODE_RED_API_ROOT}/vendor/jquery/css/base/images/ui-icons_cc0000_256x240.png');
+    }
+
+    .ui-button .ui-icon {
+        background-image: url('${environment.NODE_RED_API_ROOT}/vendor/jquery/css/base/images/ui-icons_777777_256x240.png');
+    }
+
     .red-ui-tray {
         right: 0px;
         transition: right 0.25s ease 0s;
@@ -63,6 +103,36 @@ const StyledRedUi = styled.div`
 
     .red-ui-tabs li {
         width: 23.5%;
+    }
+
+    .red-ui-tray-body-wrapper {
+        overflow: visible !important;
+        height: calc(100% - 208px);
+    }
+
+    .red-ui-tray-body {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+
+        & > .red-ui-tabs {
+            flex: 0 0 35px;
+            height: initial;
+        }
+
+        .tray-content-wrapper {
+            flex: 1;
+        }
+    }
+
+    .red-ui-tray-content {
+        overflow: visible;
+        height: 100%;
+    }
+
+    .red-ui-tray-footer {
+        margin-top: 90px;
+        position: static;
     }
 `;
 
@@ -87,69 +157,93 @@ const selectNodeFormFields = (form: HTMLFormElement) => {
 
 export const NodeEditor = () => {
     const dispatch = useAppDispatch();
-    const [propertiesForm, setpropertiesForm] =
+    const flowLogic = useAppLogic().flow;
+
+    const [propertiesForm, setPropertiesForm] =
         useState<HTMLFormElement | null>(null);
+    const [loadedCss, setLoadedCss] = useState<{
+        'jquery-ui.css': boolean;
+        'red-style.css': boolean;
+        'red-typed-input.css': boolean;
+    }>({
+        'jquery-ui.css': false,
+        'red-style.css': false,
+        'red-typed-input.css': false,
+    });
     const loaded = useRef(false);
-    const [nodeInstance, setNodeInstance] = useState(createNodeInstance({}));
+    const [nodeInstance, setNodeInstance] = useState(
+        createNodeInstance({} as FlowNodeEntity)
+    );
     const editing = useAppSelector(selectEditing);
     const editingNode = useAppSelector(state =>
         selectEntityById(state, editing ?? '')
-    );
+    ) as FlowNodeEntity;
     const editingNodeEntity = useAppSelector(state =>
         selectNodeById(state, editingNode?.type)
     );
 
-    const executeNodeFn = useCallback(
-        (
-            fnName: string,
-            shadowRoot: ShadowRoot | undefined,
-            context: ReturnType<typeof createNodeInstance>
-        ) => {
-            const nodeFn = extractNodePropertyFn(
-                editingNodeEntity?.definitionScript ?? '',
-                fnName,
-                shadowRoot,
-                {},
-                context
-            );
-            try {
-                nodeFn?.();
-            } catch (error) {
-                console.error(
-                    `Error executing node function - ${fnName}: `,
-                    error
-                );
-            }
-        },
-        [editingNodeEntity]
-    );
-
     const propertiesFormRefCallback = useCallback(
         (formElement: HTMLFormElement | null) => {
-            setpropertiesForm(formElement);
+            setPropertiesForm(formElement);
+        },
+        []
+    );
+
+    const handleCssOnLoad = useCallback(
+        (e: React.SyntheticEvent<HTMLLinkElement>) => {
+            const cssFile = new URL(e.currentTarget.href).pathname
+                .split('/')
+                .pop() as keyof typeof loadedCss;
+            setLoadedCss(prev => ({ ...prev, [cssFile]: true }));
         },
         []
     );
 
     const closeEditor = useCallback(() => {
-        setNodeInstance(createNodeInstance({}));
+        setNodeInstance(createNodeInstance({} as FlowNodeEntity));
         dispatch(builderActions.clearEditing());
         loaded.current = false;
-        setpropertiesForm(null);
+        setLoadedCss({
+            'jquery-ui.css': false,
+            'red-style.css': false,
+            'red-typed-input.css': false,
+        });
+        setPropertiesForm(null);
     }, [dispatch]);
 
     const handleCancel = useCallback(
         (e: React.MouseEvent) => {
             e.stopPropagation();
             executeNodeFn(
-                'oneditcancel',
-                (propertiesForm?.getRootNode() as ShadowRoot) ?? undefined,
-                nodeInstance
+                ['oneditcancel'],
+                editingNodeEntity,
+                nodeInstance,
+                (propertiesForm?.getRootNode() as ShadowRoot) ?? undefined
             );
             closeEditor();
         },
-        [closeEditor, executeNodeFn, nodeInstance, propertiesForm]
+        [closeEditor, editingNodeEntity, nodeInstance, propertiesForm]
     );
+
+    const handleDelete = useCallback(() => {
+        // exec oneditsave
+        executeNodeFn(
+            ['oneditdelete'],
+            editingNodeEntity,
+            nodeInstance,
+            (propertiesForm?.getRootNode() as ShadowRoot) ?? undefined
+        );
+        // TODO: Implement logic method for removing any old input links (if necessary)
+        dispatch(flowActions.removeEntity(editingNode.id));
+        closeEditor();
+    }, [
+        closeEditor,
+        dispatch,
+        editingNode?.id,
+        editingNodeEntity,
+        nodeInstance,
+        propertiesForm,
+    ]);
 
     const handleSave = useCallback(() => {
         const form = propertiesForm;
@@ -158,9 +252,10 @@ export const NodeEditor = () => {
         }
         // exec oneditsave
         executeNodeFn(
-            'oneditsave',
-            (propertiesForm?.getRootNode() as ShadowRoot) ?? undefined,
-            nodeInstance
+            ['oneditsave'],
+            editingNodeEntity,
+            nodeInstance,
+            (propertiesForm?.getRootNode() as ShadowRoot) ?? undefined
         );
         // get our form data
         const formData = Object.fromEntries(
@@ -169,32 +264,45 @@ export const NodeEditor = () => {
                 field.value,
             ])
         );
+        // collect node updates
+        const nodeUpdates: Partial<FlowNodeEntity> = {};
+        Object.keys(editingNodeEntity.defaults ?? {}).forEach(key => {
+            if (Object.prototype.hasOwnProperty.call(nodeInstance, key)) {
+                nodeUpdates[key] =
+                    nodeInstance[key as keyof typeof nodeInstance];
+            }
+            if (Object.prototype.hasOwnProperty.call(formData, key)) {
+                nodeUpdates[key] = formData[key];
+            }
+        });
         // update node
-        dispatch(
-            flowActions.updateEntity({
-                id: editingNode.id,
-                changes: formData,
-            })
-        );
+        dispatch(flowLogic.updateFlowNode(editingNode.id, nodeUpdates));
         // close editor
         closeEditor();
     }, [
         closeEditor,
         dispatch,
         editingNode?.id,
-        executeNodeFn,
+        editingNodeEntity,
+        flowLogic,
         nodeInstance,
         propertiesForm,
     ]);
 
     useEffect(() => {
-        if (!propertiesForm || loaded.current) {
+        if (
+            !propertiesForm ||
+            loaded.current ||
+            !loadedCss['jquery-ui.css'] ||
+            !loadedCss['red-style.css'] ||
+            !loadedCss['red-typed-input.css']
+        ) {
             return;
         }
         // apply node values to form fields
         const formFields = selectNodeFormFields(propertiesForm);
         Object.entries(editingNode).forEach(([key, value]) => {
-            if (formFields[key]) {
+            if (Object.prototype.hasOwnProperty.call(formFields, key)) {
                 formFields[key].value = value as string;
             }
         });
@@ -202,12 +310,24 @@ export const NodeEditor = () => {
         const nodeInstance = createNodeInstance(editingNode);
         const context =
             (propertiesForm.getRootNode() as ShadowRoot) ?? undefined;
-        executeNodeFn('oneditprepare', context, nodeInstance);
-        finalizeNodeExecution(propertiesForm, context);
+        executeNodeFn(
+            ['oneditprepare'],
+            editingNodeEntity,
+            nodeInstance,
+            context
+        );
+        finalizeNodeEditor(propertiesForm, context);
+        const formSize = propertiesForm.getBoundingClientRect();
+        executeNodeFn(
+            ['oneditresize', formSize],
+            editingNodeEntity,
+            nodeInstance,
+            context
+        );
         setNodeInstance(nodeInstance);
         // set loaded
         loaded.current = true;
-    }, [editingNode, executeNodeFn, propertiesForm]);
+    }, [editingNode, editingNodeEntity, loadedCss, propertiesForm]);
 
     if (!editingNode) return null;
 
@@ -216,21 +336,38 @@ export const NodeEditor = () => {
             <div className="overlay" onClick={handleSave}></div>
             <div className="editor-pane">
                 <root.div className="editor-template">
-                    <link rel="stylesheet" href={redCssUrl} />
                     <link rel="stylesheet" href={faCssUrl} />
+                    <link
+                        rel="stylesheet"
+                        href={jqueryUiCssUrl}
+                        onLoad={handleCssOnLoad}
+                    />
+                    <link
+                        rel="stylesheet"
+                        href={redCssUrl}
+                        onLoad={handleCssOnLoad}
+                    />
+                    <link
+                        rel="stylesheet"
+                        href={redTypedInputCssUrl}
+                        onLoad={handleCssOnLoad}
+                    />
 
                     <StyledRedUi className="red-ui-editor ">
                         <div className="red-ui-tray ui-draggable">
                             <div className="red-ui-tray-header editor-tray-header">
                                 <div className="red-ui-tray-titlebar">
                                     <ul className="red-ui-tray-breadcrumbs">
-                                        <li>Edit function node</li>
+                                        <li>
+                                            Edit {editingNodeEntity.type} node
+                                        </li>
                                     </ul>
                                 </div>
                                 <div className="red-ui-tray-toolbar">
                                     <button
                                         className="ui-button ui-corner-all ui-widget leftButton"
                                         id="node-dialog-delete"
+                                        onClick={handleDelete}
                                     >
                                         Delete
                                     </button>
@@ -341,20 +478,18 @@ export const NodeEditor = () => {
                                             </a>
                                         </div>
                                     </div>
-                                    <div>
+                                    <div className="tray-content-wrapper">
                                         <div className="red-ui-tray-content">
                                             <form
+                                                id="dialog-form"
                                                 className="dialog-form form-horizontal"
                                                 ref={propertiesFormRefCallback}
-                                            >
-                                                <div
-                                                    dangerouslySetInnerHTML={{
-                                                        __html:
-                                                            editingNodeEntity.editorTemplate ??
-                                                            '',
-                                                    }}
-                                                ></div>
-                                            </form>
+                                                dangerouslySetInnerHTML={{
+                                                    __html:
+                                                        editingNodeEntity.editorTemplate ??
+                                                        '',
+                                                }}
+                                            ></form>
                                         </div>
 
                                         <div

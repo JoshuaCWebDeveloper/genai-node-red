@@ -3,6 +3,8 @@ import {
     DefaultNodeModel,
     GenerateModelEvent,
     GenerateWidgetEvent,
+    PortModel,
+    PortModelAlignment,
     PortWidget,
 } from '@projectstorm/react-diagrams';
 import React from 'react';
@@ -16,30 +18,43 @@ import { CustomEngine } from './engine';
 import { FlowNodeEntity } from '../../redux/modules/flow/flow.slice';
 
 // Styled components for the node and its elements
-const StyledNode = styled.div<{ borderColor?: string }>`
+const StyledNode = styled.div<{
+    borderColor?: string;
+    largestGroupSize: number;
+}>`
+    text-wrap: nowrap;
+
+    .node.node-red {
+        height: ${props =>
+            35 +
+            (props.largestGroupSize > 2
+                ? (props.largestGroupSize - 2) * 13 + 10
+                : 0)}px;
+    }
+
     &.selected .node.node-red {
         border: 2px #007bff solid;
     }
 
-    .ports-container {
+    .aligned-ports {
         display: flex;
         flex-direction: column;
-    }
-
-    .port {
-        background-color: #ddd;
-        border: 1px #ccc solid;
-        border-radius: 4px;
-        display: inline-block;
+        justify-content: center;
         margin: auto;
-        padding: 5px;
         position: absolute;
         top: 0;
         right: 0;
         bottom: 0;
         left: 0;
-        height: 12px;
-        width: 12px;
+
+        &.alignment-left,
+        &.alignment-right {
+            height: calc(100% + 20px);
+
+            .port {
+                margin: 1px 0;
+            }
+        }
 
         &.alignment-left {
             left: -6px;
@@ -77,6 +92,15 @@ const StyledNode = styled.div<{ borderColor?: string }>`
             }
         }
 
+        &.alignment-top,
+        &.alignment-bottom {
+            width: calc(100% + 20px);
+
+            .port {
+                margin: 0 1px;
+            }
+        }
+
         &.alignment-top {
             top: -6px;
             bottom: initial;
@@ -86,6 +110,17 @@ const StyledNode = styled.div<{ borderColor?: string }>`
             bottom: -6px;
             top: initial;
         }
+    }
+
+    .port {
+        background-color: #ddd;
+        border: 1px #777 solid;
+        border-radius: 4px;
+        display: inline-block;
+        padding: 5px;
+        position: relative;
+        height: 12px;
+        width: 12px;
 
         &:hover .tooltip {
             visibility: visible;
@@ -137,7 +172,27 @@ export const Node: React.FC<NodeProps> = ({ node, engine }) => {
     const dispatch = useAppDispatch();
 
     // Convert the ports model to an array for rendering
-    const ports = Object.values(node.getPorts());
+    const alignmentOrder = [
+        PortModelAlignment.TOP,
+        PortModelAlignment.RIGHT,
+        PortModelAlignment.BOTTOM,
+        PortModelAlignment.LEFT,
+    ];
+    const groupedPorts = Object.values(node.getPorts()).reduce<PortModel[][]>(
+        (acc, curr) => {
+            const alignmentIndex = alignmentOrder.indexOf(
+                curr.getOptions().alignment ?? alignmentOrder[0]
+            );
+            if (alignmentIndex !== -1) {
+                acc[alignmentIndex].push(curr);
+            }
+            return acc;
+        },
+        alignmentOrder.map(() => [])
+    );
+    const largestGroupSize = Math.max(
+        ...groupedPorts.map(group => group.length)
+    );
 
     const handleDoubleClick = () => {
         dispatch(builderActions.setEditing(node.getID()));
@@ -148,22 +203,34 @@ export const Node: React.FC<NodeProps> = ({ node, engine }) => {
     return (
         <StyledNode
             className={node.isSelected() ? 'selected' : ''}
+            largestGroupSize={largestGroupSize}
             onDoubleClick={handleDoubleClick}
         >
             <NodeRedNode entity={entity} instance={node.config}>
                 {/* Render ports */}
 
-                {ports.map((port, index) => (
-                    <PortWidget
+                {groupedPorts.map((alignedPorts, index) => (
+                    <div
                         key={index}
-                        engine={engine}
-                        port={port}
-                        className={`alignment-${port.getOptions().alignment}`}
+                        className={`aligned-ports alignment-${alignmentOrder[index]}`}
                     >
-                        {/* Tooltip added here */}
-                        <div className="tooltip">{port.getName()}</div>
-                        {/* You can still display the port's name or any other elements here if needed */}
-                    </PortWidget>
+                        {alignedPorts.map((port, index) => (
+                            <PortWidget
+                                key={index}
+                                engine={engine}
+                                port={port}
+                                className={`alignment-${
+                                    port.getOptions().alignment
+                                }`}
+                            >
+                                {/* Tooltip added here */}
+                                <div className="tooltip">
+                                    {port.getOptions().extras.label}
+                                </div>
+                                {/* You can still display the port's name or any other elements here if needed */}
+                            </PortWidget>
+                        ))}
+                    </div>
                 ))}
             </NodeRedNode>
             {/* You can add more custom UI elements here */}

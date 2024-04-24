@@ -192,6 +192,7 @@ export const applyEditableList = function (RED, $) {
                     start: function (e, ui) {
                         ui.placeholder.height(ui.item.height() - 4);
                     },
+                    helper: 'clone',
                 };
                 if (this.options.connectWith) {
                     sortOptions.connectWith = this.options.connectWith;

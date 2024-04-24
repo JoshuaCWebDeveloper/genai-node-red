@@ -19,7 +19,7 @@ import DOMPurify from 'dompurify';
  * limitations under the License.
  **/
 
-export const createRedUtils = () => {
+export const createRedUtils = RED => {
     window._marked = marked;
     window.marked = function (txt) {
         console.warn(
