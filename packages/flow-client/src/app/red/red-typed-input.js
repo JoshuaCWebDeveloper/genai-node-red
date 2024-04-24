@@ -507,16 +507,31 @@ export const applyTypedInput = (RED, jQuery) => {
 
         $.widget('nodered.typedInput', {
             _create: function () {
-                const rootNode = this.element[0].getRootNode();
-                if (rootNode === document) {
-                    this.rootNode = document;
-                    this.rootContainer = document.body;
-                    this.rootHost = document.body;
-                } else {
-                    this.rootNode = rootNode;
-                    this.rootContainer = rootNode;
-                    this.rootHost = rootNode.host;
-                }
+                const that = this;
+
+                Object.defineProperties(this, {
+                    rootNode: {
+                        get: function () {
+                            return this.element[0].getRootNode();
+                        },
+                    },
+                    rootContainer: {
+                        get: function () {
+                            if (this.rootNode === document) {
+                                return document.body;
+                            }
+                            return this.rootNode;
+                        },
+                    },
+                    rootHost: {
+                        get: function () {
+                            if (this.rootNode === document) {
+                                return document.body;
+                            }
+                            return this.rootNode.host;
+                        },
+                    },
+                });
 
                 try {
                     if (!nlsd && RED && RED._) {
@@ -557,7 +572,6 @@ export const applyTypedInput = (RED, jQuery) => {
                         }
                     }
                     nlsd = true;
-                    var that = this;
 
                     this.disarmClick = false;
                     this.input = $(
@@ -898,6 +912,10 @@ export const applyTypedInput = (RED, jQuery) => {
                 return menu;
             },
             _showMenu: function (menu, relativeTo) {
+                // if our menu is not a direct child of our root container, then move it there first
+                if (menu.parent() !== this.rootContainer) {
+                    menu.appendTo(this.rootContainer);
+                }
                 if (this.disarmClick) {
                     this.disarmClick = false;
                     return;
