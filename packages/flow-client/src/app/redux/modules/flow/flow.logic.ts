@@ -417,6 +417,7 @@ export class FlowLogic {
             // update changes, replace out ports and wires
             newChanges.outPorts = outPorts.filter(it => it);
             newChanges.wires = wires.filter(it => it);
+            // TODO: Remove old links from nodeInstance.links (if necessary)
         }
 
         let inputs = newChanges.inputs;
@@ -440,6 +441,7 @@ export class FlowLogic {
         if (inputs === 0) {
             // remove all input nodes
             newChanges.inPorts = [];
+            // TODO: Remove links from the source port and node (if necessary)
         }
 
         // update port labels

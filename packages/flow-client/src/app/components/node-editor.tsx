@@ -19,6 +19,7 @@ import redCssUrl from '../red/red-style.css?url';
 import redTypedInputCssUrl from '../red/red-typed-input.css?url';
 import {
     FlowNodeEntity,
+    flowActions,
     selectEntityById,
 } from '../redux/modules/flow/flow.slice';
 import { selectNodeById } from '../redux/modules/node/node.slice';
@@ -224,6 +225,26 @@ export const NodeEditor = () => {
         [closeEditor, editingNodeEntity, nodeInstance, propertiesForm]
     );
 
+    const handleDelete = useCallback(() => {
+        // exec oneditsave
+        executeNodeFn(
+            ['oneditdelete'],
+            editingNodeEntity,
+            nodeInstance,
+            (propertiesForm?.getRootNode() as ShadowRoot) ?? undefined
+        );
+        // TODO: Implement logic method for removing any old input links (if necessary)
+        dispatch(flowActions.removeEntity(editingNode.id));
+        closeEditor();
+    }, [
+        closeEditor,
+        dispatch,
+        editingNode?.id,
+        editingNodeEntity,
+        nodeInstance,
+        propertiesForm,
+    ]);
+
     const handleSave = useCallback(() => {
         const form = propertiesForm;
         if (!form) {
@@ -346,6 +367,7 @@ export const NodeEditor = () => {
                                     <button
                                         className="ui-button ui-corner-all ui-widget leftButton"
                                         id="node-dialog-delete"
+                                        onClick={handleDelete}
                                     >
                                         Delete
                                     </button>
