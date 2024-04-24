@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
 import { FlowCanvas } from './components/flow-canvas/flow-canvas'; // Ensure the path is correct
-import { NodeEditor } from './components/node-editor';
+import { NodeEditor } from './components/node-editor/node-editor';
 import { NodePalette } from './components/node-palette/node-palette'; // Import NodePalette
 
 // StyledApp defines the main application container styles.
