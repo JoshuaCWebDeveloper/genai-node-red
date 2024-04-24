@@ -468,7 +468,7 @@ export const applyTypedInput = (RED, jQuery) => {
 
         function isOptionValueValid(opt, currentVal) {
             if (!opt.multiple) {
-                for (var i = 0; i < opt.options.length; i++) {
+                for (var i = 0, op; i < opt.options.length; i++) {
                     op = opt.options[i];
                     if (typeof op === 'string' && op === currentVal) {
                         return { value: currentVal };
