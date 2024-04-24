@@ -16,22 +16,24 @@ export class NodeLogic {
                     const scriptContent = script.textContent?.trim();
                     if (!scriptContent) return; // Skip if script.textContent is empty
 
-                    const registeredType = executeRegisterType(scriptContent);
+                    const registeredTypes = executeRegisterType(scriptContent);
 
-                    if (!registeredType) {
+                    if (registeredTypes.length === 0) {
                         return;
                     }
 
                     // Logic to handle the node registration
-                    dispatch(
-                        nodeActions.updateOne({
-                            id: registeredType.type,
-                            changes: {
-                                ...registeredType.definition,
-                                definitionScript: scriptContent,
-                            },
-                        })
-                    );
+                    registeredTypes.forEach(registeredType => {
+                        dispatch(
+                            nodeActions.updateOne({
+                                id: registeredType.type,
+                                changes: {
+                                    ...registeredType.definition,
+                                    definitionScript: scriptContent,
+                                },
+                            })
+                        );
+                    });
                 }
             );
 

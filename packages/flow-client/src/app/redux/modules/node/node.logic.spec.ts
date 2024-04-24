@@ -30,6 +30,39 @@ describe('NodeLogic', () => {
             );
         });
 
+        it('registers multiple node types from a single script tag correctly', async () => {
+            const nodeScriptsData = `
+      <script type="text/javascript">
+        RED.nodes.registerType("multi-type-node1", {category: "function", color: "red"});
+        RED.nodes.registerType("multi-type-node2", {category: "input", color: "blue"});
+      </script>
+    `;
+            const nodeLogic = new NodeLogic();
+            await nodeLogic.setNodeScripts(nodeScriptsData)(mockDispatch);
+
+            expect(mockDispatch).toHaveBeenCalledTimes(2);
+            expect(mockDispatch).toHaveBeenNthCalledWith(
+                1,
+                nodeActions.updateOne({
+                    id: 'multi-type-node1',
+                    changes: expect.objectContaining({
+                        category: 'function',
+                        color: 'red',
+                    }),
+                })
+            );
+            expect(mockDispatch).toHaveBeenNthCalledWith(
+                2,
+                nodeActions.updateOne({
+                    id: 'multi-type-node2',
+                    changes: expect.objectContaining({
+                        category: 'input',
+                        color: 'blue',
+                    }),
+                })
+            );
+        });
+
         it('updates editor templates from script tags correctly', async () => {
             const nodeScriptsData = `
       <script type="text/html" data-template-name="test-node">
