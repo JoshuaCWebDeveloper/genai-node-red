@@ -220,7 +220,10 @@ export class FlowLogic {
         };
     }
 
-    private parseNodeOutputs(changes: DirtyNodeChanges): {
+    private parseNodeOutputs(
+        changes: DirtyNodeChanges,
+        nodeInstance: FlowNodeEntity
+    ): {
         outputs?: number;
         outputMap?: Record<string, string>;
     } {
@@ -233,6 +236,12 @@ export class FlowLogic {
             }
         };
 
+        // Create a new index for our output map, using the algorithm that
+        // Node-RED's switch node uses
+        const createNewIndex = () => {
+            return `${Math.floor((0x99999 - 0x10000) * Math.random())}`;
+        };
+
         // if no outputs, return nothing
         if (
             typeof changes.outputs == 'undefined' ||
@@ -242,11 +251,40 @@ export class FlowLogic {
             return {};
         }
 
-        // if it's already a number, just return it
+        // if we were just given a number
         const outputs = parseNumber(changes.outputs);
         if (outputs !== null) {
+            // get our existing number of outputs
+            const oldOutputs = nodeInstance.outputs ?? 0;
+            // if our number of outputs hasn't changed
+            if (outputs === oldOutputs) {
+                // just return our outputs
+                return {
+                    outputs,
+                };
+            }
+            // else, we either have more or fewer outputs
+            // we'll handle the addition/removal of ports by creating our own outputMap
+            const outputMap: Record<string, string> = {};
+            // if we have fewer outputs
+            if (outputs < oldOutputs) {
+                // truncate output ports and wires by marking excess as removed
+                for (let i = outputs; i < oldOutputs; i++) {
+                    outputMap[`${i}`] = '-1'; // Marking index for removal
+                }
+            }
+            // else, if we have more outputs
+            else if (outputs > oldOutputs) {
+                // create new output ports and wires
+                for (let i = oldOutputs; i < outputs; i++) {
+                    // a non-existent index indicates a new port
+                    outputMap[createNewIndex()] = `${i}`;
+                }
+            }
+            // return our new outputs
             return {
                 outputs,
+                outputMap,
             };
         }
 
@@ -264,9 +302,10 @@ export class FlowLogic {
 
             // if our old port is not a number, that indicates a new output
             if (parseNumber(oldPort) === null) {
-                outputCount++;
+                // replace our non number port with a number port that still indicates a new output
+                outputMap[createNewIndex()] = newPort;
                 delete outputMap[oldPort];
-                continue;
+                // our port is now definitely a number, so we can keep going
             }
 
             // a value of -1 indicates the port will be removed
@@ -311,8 +350,16 @@ export class FlowLogic {
         };
 
         // parse node outputs property
-        const { outputs, outputMap } = this.parseNodeOutputs(changes);
-        newChanges.outputs = outputs ?? 0;
+        const { outputs, outputMap } = this.parseNodeOutputs(
+            changes,
+            nodeInstance
+        );
+
+        // if we have new outputs
+        if (typeof outputs !== 'undefined' && outputs !== newChanges.outputs) {
+            // record them
+            newChanges.outputs = outputs;
+        }
 
         // handle the output map, if returned
         if (outputMap) {
@@ -372,22 +419,6 @@ export class FlowLogic {
             newChanges.wires = wires.filter(it => it);
         }
 
-        // handle the __outputs property, if given
-        if (Object.prototype.hasOwnProperty.call(changes, '__outputs')) {
-            if (newChanges.outputs < (changes.__outputs ?? 0)) {
-                // truncate output ports
-                newChanges.outPorts = newChanges.outPorts.slice(
-                    0,
-                    newChanges.outputs
-                );
-                // truncate output wires
-                newChanges.wires = newChanges.wires.slice(
-                    0,
-                    newChanges.outputs
-                );
-            }
-        }
-
         let inputs = newChanges.inputs;
         // parse new inputs
         if (Object.prototype.hasOwnProperty.call(changes, 'inputs')) {
@@ -400,6 +431,11 @@ export class FlowLogic {
         inputs = Math.min(1, Math.max(0, inputs ?? 0));
         if (isNaN(inputs)) {
             inputs = 0;
+        }
+        // if we have new inputs
+        if (inputs !== newChanges.inputs) {
+            // record them
+            newChanges.inputs = inputs;
         }
         if (inputs === 0) {
             // remove all input nodes

@@ -255,7 +255,6 @@ export const NodeEditor = () => {
             }
         });
         // update node
-        console.log(nodeUpdates.outputs);
         dispatch(flowLogic.updateFlowNode(editingNode.id, nodeUpdates));
         // close editor
         closeEditor();
