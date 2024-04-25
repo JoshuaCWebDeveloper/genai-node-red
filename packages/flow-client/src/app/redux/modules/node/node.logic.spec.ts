@@ -1,11 +1,42 @@
 import '../../../../../vitest-esbuild-compat';
+import { RootState } from '../../store';
 import { FlowNodeEntity } from '../flow/flow.slice';
 import { NodeLogic } from './node.logic';
-import { NodeEntity, nodeActions } from './node.slice';
+import { NodeEntity, NodeState, nodeActions } from './node.slice';
 
 describe('NodeLogic', () => {
     // Mock dispatch function using Vitest's built-in mocking functions
     const mockDispatch = vi.fn();
+    // Mock getState function using Vitest's built-in mocking functions
+    const mockGetState = vi.fn(
+        () =>
+            ({
+                node: {
+                    entities: {
+                        'mqtt-node1': {
+                            id: 'mqtt-node1',
+                            type: 'mqtt-node1',
+                            nodeRedId: 'node-red/mqtt',
+                            name: 'MQTT Node 1',
+                            module: 'node-red',
+                            version: '1.0.0',
+                        },
+                        'mqtt-node2': {
+                            id: 'mqtt-node2',
+                            type: 'mqtt-node2',
+                            nodeRedId: 'node-red/mqtt',
+                            name: 'MQTT Node 2',
+                            module: 'node-red',
+                            version: '1.0.0',
+                        },
+                    },
+                    ids: ['mqtt-node1', 'mqtt-node2'],
+                    loadingStatus: 'not loaded',
+                    error: null,
+                    searchQuery: '',
+                } as NodeState,
+            } as RootState)
+    );
 
     beforeEach(() => {
         // Reset mocks before each test
@@ -20,7 +51,10 @@ describe('NodeLogic', () => {
       </script>
     `;
             const nodeLogic = new NodeLogic();
-            await nodeLogic.setNodeScripts(nodeScriptsData)(mockDispatch);
+            await nodeLogic.setNodeScripts(nodeScriptsData)(
+                mockDispatch,
+                mockGetState
+            );
 
             expect(mockDispatch).toHaveBeenCalledWith(
                 nodeActions.updateOne({
@@ -38,7 +72,10 @@ describe('NodeLogic', () => {
       </script>
     `;
             const nodeLogic = new NodeLogic();
-            await nodeLogic.setNodeScripts(nodeScriptsData)(mockDispatch);
+            await nodeLogic.setNodeScripts(nodeScriptsData)(
+                mockDispatch,
+                mockGetState
+            );
 
             expect(mockDispatch).toHaveBeenCalledTimes(2);
             expect(mockDispatch).toHaveBeenNthCalledWith(
@@ -70,7 +107,10 @@ describe('NodeLogic', () => {
       </script>
     `;
             const nodeLogic = new NodeLogic();
-            await nodeLogic.setNodeScripts(nodeScriptsData)(mockDispatch);
+            await nodeLogic.setNodeScripts(nodeScriptsData)(
+                mockDispatch,
+                mockGetState
+            );
 
             expect(mockDispatch).toHaveBeenCalledWith(
                 nodeActions.updateOne({
@@ -87,7 +127,10 @@ describe('NodeLogic', () => {
       </script>
     `;
             const nodeLogic = new NodeLogic();
-            await nodeLogic.setNodeScripts(nodeScriptsData)(mockDispatch);
+            await nodeLogic.setNodeScripts(nodeScriptsData)(
+                mockDispatch,
+                mockGetState
+            );
 
             expect(mockDispatch).toHaveBeenCalledWith(
                 nodeActions.updateOne({
@@ -104,7 +147,10 @@ describe('NodeLogic', () => {
       </script>
     `;
             const nodeLogic = new NodeLogic();
-            await nodeLogic.setNodeScripts(nodeScriptsData)(mockDispatch);
+            await nodeLogic.setNodeScripts(nodeScriptsData)(
+                mockDispatch,
+                mockGetState
+            );
 
             expect(mockDispatch).toHaveBeenCalledWith(
                 nodeActions.updateOne({
@@ -123,12 +169,55 @@ describe('NodeLogic', () => {
       </script>
     `;
             const nodeLogic = new NodeLogic();
-            await nodeLogic.setNodeScripts(nodeScriptsData)(mockDispatch);
+            await nodeLogic.setNodeScripts(nodeScriptsData)(
+                mockDispatch,
+                mockGetState
+            );
 
             expect(mockDispatch).toHaveBeenCalledWith(
                 nodeActions.updateOne({
                     id: 'x-red-test-node',
                     changes: { helpTemplate: '<p>X-Red Help Template</p>' },
+                })
+            );
+        });
+
+        it('prepends style tags to editor templates based on module comments', async () => {
+            const nodeScriptsData = `
+      <!-- --- [red-module:node-red/mqtt] --- -->
+      <style>.mqtt-style { color: red; }</style>
+      <script type="text/html" data-template-name="mqtt-node1">
+        <div>MQTT Node Template</div>
+      </script>
+      <script type="text/html" data-template-name="mqtt-node2">
+        <div>Another MQTT Node Template</div>
+      </script>
+    `;
+            const nodeLogic = new NodeLogic();
+            await nodeLogic.setNodeScripts(nodeScriptsData)(
+                mockDispatch,
+                mockGetState
+            );
+
+            expect(mockDispatch).toHaveBeenCalledTimes(2);
+            expect(mockDispatch).toHaveBeenNthCalledWith(
+                1,
+                nodeActions.updateOne({
+                    id: 'mqtt-node1',
+                    changes: {
+                        editorTemplate:
+                            '<style>.mqtt-style { color: red; }</style><div>MQTT Node Template</div>',
+                    },
+                })
+            );
+            expect(mockDispatch).toHaveBeenNthCalledWith(
+                2,
+                nodeActions.updateOne({
+                    id: 'mqtt-node2',
+                    changes: {
+                        editorTemplate:
+                            '<style>.mqtt-style { color: red; }</style><div>Another MQTT Node Template</div>',
+                    },
                 })
             );
         });
