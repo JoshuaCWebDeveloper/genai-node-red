@@ -164,8 +164,20 @@ export const createMockRed = (
         jQuery(selector, context)) as typeof jQuery;
     Object.assign(RED.$, jQuery);
     // jQuery plugins
-    (RED.$ as typeof RED.$ & { migrateMute: boolean }).migrateMute = true;
-    applyJqueryMigrate(RED.$, window);
+    applyJqueryMigrate(
+        RED.$,
+        // migrateMute doesn't mute enough
+        Object.assign({}, window, {
+            console: {
+                warn: () => undefined,
+                error: () => undefined,
+                log: () => undefined,
+                info: () => undefined,
+                debug: () => undefined,
+                trace: () => undefined,
+            },
+        })
+    );
     applyJqueryUi(RED.$);
     const jQueryUi = RED.$ as typeof jQuery & {
         widget: (name: string, widget: Record<string, unknown>) => void;
