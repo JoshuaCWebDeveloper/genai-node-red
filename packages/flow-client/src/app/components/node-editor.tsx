@@ -107,7 +107,7 @@ const StyledRedUi = styled.div`
 
     .red-ui-tray-body-wrapper {
         overflow: visible !important;
-        height: calc(100% - 208px);
+        height: calc(100% - 35px - 83px);
     }
 
     .red-ui-tray-body {
@@ -121,17 +121,28 @@ const StyledRedUi = styled.div`
         }
 
         .tray-content-wrapper {
+            overflow-y: auto;
             flex: 1;
         }
     }
 
     .red-ui-tray-content {
         overflow: visible;
-        height: 100%;
+        padding-top: 1px;
+        height: calc(100% - 1px);
+    }
+
+    &.red-ui-editor .red-ui-tray #dialog-form {
+        height: calc(100% - 110px);
+
+        & > :last-child:after {
+            content: '';
+            display: block;
+            height: 20px;
+        }
     }
 
     .red-ui-tray-footer {
-        margin-top: 90px;
         position: static;
     }
 `;
@@ -353,7 +364,7 @@ export const NodeEditor = () => {
                         onLoad={handleCssOnLoad}
                     />
 
-                    <StyledRedUi className="red-ui-editor ">
+                    <StyledRedUi className="red-ui-editor">
                         <div className="red-ui-tray ui-draggable">
                             <div className="red-ui-tray-header editor-tray-header">
                                 <div className="red-ui-tray-titlebar">

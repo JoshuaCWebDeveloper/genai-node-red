@@ -130,6 +130,10 @@ export const selectNodeById = createSelector(
     [getNodeState, (state, nodeId: string) => nodeId],
     (state, nodeId) => selectById(state, nodeId)
 );
+export const selectNodesByNodeRedId = createSelector(
+    [selectAllNodes, (state, nodeRedId: string) => nodeRedId],
+    (nodes, nodeRedId) => nodes.filter(node => node.nodeRedId === nodeRedId)
+);
 
 // Selector for searchQuery
 export const selectSearchQuery = createSelector(

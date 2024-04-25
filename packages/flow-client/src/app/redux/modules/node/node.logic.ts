@@ -1,14 +1,47 @@
 import { executeRegisterType } from '../../../red/execute-script';
-import { AppDispatch } from '../../store';
+import { AppDispatch, RootState } from '../../store';
 import { FlowNodeEntity } from '../flow/flow.slice';
-import { NodeEntity, nodeActions } from './node.slice';
+import { NodeEntity, nodeActions, selectNodesByNodeRedId } from './node.slice';
 
 export class NodeLogic {
     // Define a plain thunk method that accepts nodeScripts data as an argument
     public setNodeScripts(nodeScriptsData: string) {
-        return async (dispatch: AppDispatch) => {
+        return async (dispatch: AppDispatch, getState: () => RootState) => {
             const parser = new DOMParser();
             const doc = parser.parseFromString(nodeScriptsData, 'text/html');
+
+            // Initialize variables to hold module styles and current module name
+            let currentModuleName = '';
+            const moduleStyles = {} as Record<string, string>;
+
+            // Process module comments and styles recursively
+            const processNodesRecursively = (nodes: NodeList) => {
+                nodes.forEach(node => {
+                    if (node.nodeType === Node.COMMENT_NODE) {
+                        const commentContent = node.textContent?.trim();
+                        const moduleMatch = commentContent?.match(
+                            /\[red-module:([^\]]+)\]/
+                        );
+                        if (moduleMatch) {
+                            currentModuleName = moduleMatch[1];
+                        }
+                    } else if (node.nodeName === 'STYLE' && currentModuleName) {
+                        const styleNode = node as HTMLStyleElement;
+                        selectNodesByNodeRedId(
+                            getState(),
+                            currentModuleName
+                        ).forEach(nodeEntity => {
+                            moduleStyles[nodeEntity.type] =
+                                styleNode.outerHTML ?? '';
+                        });
+                    }
+                    if (node.childNodes.length > 0) {
+                        processNodesRecursively(node.childNodes);
+                    }
+                });
+            };
+
+            processNodesRecursively(doc.childNodes);
 
             // Process text/javascript script tags
             doc.querySelectorAll('script[type="text/javascript"]').forEach(
@@ -16,32 +49,37 @@ export class NodeLogic {
                     const scriptContent = script.textContent?.trim();
                     if (!scriptContent) return; // Skip if script.textContent is empty
 
-                    const registeredType = executeRegisterType(scriptContent);
+                    const registeredTypes = executeRegisterType(scriptContent);
 
-                    if (!registeredType) {
+                    if (registeredTypes.length === 0) {
                         return;
                     }
 
                     // Logic to handle the node registration
-                    dispatch(
-                        nodeActions.updateOne({
-                            id: registeredType.type,
-                            changes: {
-                                ...registeredType.definition,
-                                definitionScript: scriptContent,
-                            },
-                        })
-                    );
+                    registeredTypes.forEach(registeredType => {
+                        dispatch(
+                            nodeActions.updateOne({
+                                id: registeredType.type,
+                                changes: {
+                                    ...registeredType.definition,
+                                    definitionScript: scriptContent,
+                                },
+                            })
+                        );
+                    });
                 }
             );
 
             // Process text/html script tags for editor templates
             doc.querySelectorAll(
-                'script[type="text/html"][data-template-name]'
+                'script[type="text/html"][data-template-name], script[type="text/x-red"][data-template-name]'
             ).forEach(script => {
                 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                 const nodeName = script.getAttribute('data-template-name')!;
-                const editorTemplate = script.innerHTML.trim();
+                let editorTemplate = script.innerHTML.trim();
+                if (moduleStyles[nodeName]) {
+                    editorTemplate = moduleStyles[nodeName] + editorTemplate;
+                }
                 dispatch(
                     nodeActions.updateOne({
                         id: nodeName,
@@ -52,7 +90,7 @@ export class NodeLogic {
 
             // Process text/html script tags for help templates
             doc.querySelectorAll(
-                'script[type="text/html"][data-help-name]'
+                'script[type="text/html"][data-help-name], script[type="text/x-red"][data-help-name]'
             ).forEach(script => {
                 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                 const nodeName = script.getAttribute('data-help-name')!;
@@ -98,8 +136,10 @@ export class NodeLogic {
 
         // Apply the default config to the existing config without overriding existing values
         const updatedNode = {
-            ...defaultConfig,
             ...node,
+            inputs: entity.inputs ?? node.inputs,
+            outputs: entity.outputs ?? node.outputs,
+            ...defaultConfig,
         };
 
         return updatedNode;

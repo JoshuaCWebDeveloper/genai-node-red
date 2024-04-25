@@ -71,7 +71,10 @@ export const deserializeFunction = <T = (...args: unknown[]) => unknown>(
 };
 
 export const executeRegisterType = (definitionScript: string) => {
-    let registeredType = null;
+    const registeredTypes = [] as Array<{
+        type: string;
+        definition: Partial<NodeEntity>;
+    }>;
 
     const RED = createMockRed();
     RED.nodes.registerType = (
@@ -94,18 +97,15 @@ export const executeRegisterType = (definitionScript: string) => {
             });
         };
         serializeFunctions(definition);
-        registeredType = {
+        registeredTypes.push({
             type,
             definition: definition,
-        };
+        });
     };
 
     executeDefinitionScript(definitionScript, RED);
 
-    return registeredType as {
-        type: string;
-        definition: Partial<NodeEntity>;
-    } | null;
+    return registeredTypes;
 };
 
 type NodeConfigOrInstance =
@@ -144,6 +144,13 @@ export const extractNodePropertyFn = <T = UnknownFn>(
                     obj
                 );
         };
+
+        // if this is not the correct type
+        if (type !== nodeEntity.type) {
+            // some scripts register more than one type
+            // we're only interested in our entity's type
+            return;
+        }
 
         const propertyFunction = getPropertyByPath(definition, propertyPath);
         if (typeof propertyFunction === 'function') {

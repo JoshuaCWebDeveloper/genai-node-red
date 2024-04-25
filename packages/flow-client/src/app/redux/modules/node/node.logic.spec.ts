@@ -1,11 +1,42 @@
 import '../../../../../vitest-esbuild-compat';
+import { RootState } from '../../store';
 import { FlowNodeEntity } from '../flow/flow.slice';
 import { NodeLogic } from './node.logic';
-import { NodeEntity, nodeActions } from './node.slice';
+import { NodeEntity, NodeState, nodeActions } from './node.slice';
 
 describe('NodeLogic', () => {
     // Mock dispatch function using Vitest's built-in mocking functions
     const mockDispatch = vi.fn();
+    // Mock getState function using Vitest's built-in mocking functions
+    const mockGetState = vi.fn(
+        () =>
+            ({
+                node: {
+                    entities: {
+                        'mqtt-node1': {
+                            id: 'mqtt-node1',
+                            type: 'mqtt-node1',
+                            nodeRedId: 'node-red/mqtt',
+                            name: 'MQTT Node 1',
+                            module: 'node-red',
+                            version: '1.0.0',
+                        },
+                        'mqtt-node2': {
+                            id: 'mqtt-node2',
+                            type: 'mqtt-node2',
+                            nodeRedId: 'node-red/mqtt',
+                            name: 'MQTT Node 2',
+                            module: 'node-red',
+                            version: '1.0.0',
+                        },
+                    },
+                    ids: ['mqtt-node1', 'mqtt-node2'],
+                    loadingStatus: 'not loaded',
+                    error: null,
+                    searchQuery: '',
+                } as NodeState,
+            } as RootState)
+    );
 
     beforeEach(() => {
         // Reset mocks before each test
@@ -20,12 +51,51 @@ describe('NodeLogic', () => {
       </script>
     `;
             const nodeLogic = new NodeLogic();
-            await nodeLogic.setNodeScripts(nodeScriptsData)(mockDispatch);
+            await nodeLogic.setNodeScripts(nodeScriptsData)(
+                mockDispatch,
+                mockGetState
+            );
 
             expect(mockDispatch).toHaveBeenCalledWith(
                 nodeActions.updateOne({
                     id: 'test-node',
                     changes: expect.objectContaining({ category: 'function' }),
+                })
+            );
+        });
+
+        it('registers multiple node types from a single script tag correctly', async () => {
+            const nodeScriptsData = `
+      <script type="text/javascript">
+        RED.nodes.registerType("multi-type-node1", {category: "function", color: "red"});
+        RED.nodes.registerType("multi-type-node2", {category: "input", color: "blue"});
+      </script>
+    `;
+            const nodeLogic = new NodeLogic();
+            await nodeLogic.setNodeScripts(nodeScriptsData)(
+                mockDispatch,
+                mockGetState
+            );
+
+            expect(mockDispatch).toHaveBeenCalledTimes(2);
+            expect(mockDispatch).toHaveBeenNthCalledWith(
+                1,
+                nodeActions.updateOne({
+                    id: 'multi-type-node1',
+                    changes: expect.objectContaining({
+                        category: 'function',
+                        color: 'red',
+                    }),
+                })
+            );
+            expect(mockDispatch).toHaveBeenNthCalledWith(
+                2,
+                nodeActions.updateOne({
+                    id: 'multi-type-node2',
+                    changes: expect.objectContaining({
+                        category: 'input',
+                        color: 'blue',
+                    }),
                 })
             );
         });
@@ -37,7 +107,10 @@ describe('NodeLogic', () => {
       </script>
     `;
             const nodeLogic = new NodeLogic();
-            await nodeLogic.setNodeScripts(nodeScriptsData)(mockDispatch);
+            await nodeLogic.setNodeScripts(nodeScriptsData)(
+                mockDispatch,
+                mockGetState
+            );
 
             expect(mockDispatch).toHaveBeenCalledWith(
                 nodeActions.updateOne({
@@ -54,12 +127,97 @@ describe('NodeLogic', () => {
       </script>
     `;
             const nodeLogic = new NodeLogic();
-            await nodeLogic.setNodeScripts(nodeScriptsData)(mockDispatch);
+            await nodeLogic.setNodeScripts(nodeScriptsData)(
+                mockDispatch,
+                mockGetState
+            );
 
             expect(mockDispatch).toHaveBeenCalledWith(
                 nodeActions.updateOne({
                     id: 'test-node',
                     changes: { helpTemplate: '<p>Help Template</p>' },
+                })
+            );
+        });
+
+        it('updates editor templates from script tags with type text/x-red correctly', async () => {
+            const nodeScriptsData = `
+      <script type="text/x-red" data-template-name="x-red-test-node">
+        <div>X-Red Editor Template</div>
+      </script>
+    `;
+            const nodeLogic = new NodeLogic();
+            await nodeLogic.setNodeScripts(nodeScriptsData)(
+                mockDispatch,
+                mockGetState
+            );
+
+            expect(mockDispatch).toHaveBeenCalledWith(
+                nodeActions.updateOne({
+                    id: 'x-red-test-node',
+                    changes: {
+                        editorTemplate: '<div>X-Red Editor Template</div>',
+                    },
+                })
+            );
+        });
+
+        it('updates help templates from script tags with type text/x-red correctly', async () => {
+            const nodeScriptsData = `
+      <script type="text/x-red" data-help-name="x-red-test-node">
+        <p>X-Red Help Template</p>
+      </script>
+    `;
+            const nodeLogic = new NodeLogic();
+            await nodeLogic.setNodeScripts(nodeScriptsData)(
+                mockDispatch,
+                mockGetState
+            );
+
+            expect(mockDispatch).toHaveBeenCalledWith(
+                nodeActions.updateOne({
+                    id: 'x-red-test-node',
+                    changes: { helpTemplate: '<p>X-Red Help Template</p>' },
+                })
+            );
+        });
+
+        it('prepends style tags to editor templates based on module comments', async () => {
+            const nodeScriptsData = `
+      <!-- --- [red-module:node-red/mqtt] --- -->
+      <style>.mqtt-style { color: red; }</style>
+      <script type="text/html" data-template-name="mqtt-node1">
+        <div>MQTT Node Template</div>
+      </script>
+      <script type="text/html" data-template-name="mqtt-node2">
+        <div>Another MQTT Node Template</div>
+      </script>
+    `;
+            const nodeLogic = new NodeLogic();
+            await nodeLogic.setNodeScripts(nodeScriptsData)(
+                mockDispatch,
+                mockGetState
+            );
+
+            expect(mockDispatch).toHaveBeenCalledTimes(2);
+            expect(mockDispatch).toHaveBeenNthCalledWith(
+                1,
+                nodeActions.updateOne({
+                    id: 'mqtt-node1',
+                    changes: {
+                        editorTemplate:
+                            '<style>.mqtt-style { color: red; }</style><div>MQTT Node Template</div>',
+                    },
+                })
+            );
+            expect(mockDispatch).toHaveBeenNthCalledWith(
+                2,
+                nodeActions.updateOne({
+                    id: 'mqtt-node2',
+                    changes: {
+                        editorTemplate:
+                            '<style>.mqtt-style { color: red; }</style><div>Another MQTT Node Template</div>',
+                    },
                 })
             );
         });
@@ -108,7 +266,7 @@ describe('NodeLogic', () => {
             );
         });
 
-        it('should not override existing node config values with defaults', () => {
+        it('should override existing node config values with defaults', () => {
             const node = {
                 id: 'node1',
                 type: 'exampleType',
@@ -143,7 +301,7 @@ describe('NodeLogic', () => {
 
             expect(result).toEqual(
                 expect.objectContaining({
-                    property1: 'existingValue', // Existing value is preserved
+                    property1: 'default1', // Default value is applied, overriding existing
                     property2: 42, // Default value is applied
                     // Ensure all other node properties are preserved
                     id: 'node1',
