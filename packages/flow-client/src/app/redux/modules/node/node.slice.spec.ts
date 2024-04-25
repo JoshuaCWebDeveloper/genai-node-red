@@ -6,6 +6,7 @@ import {
     nodeAdapter,
     nodeReducer,
     selectNodeById,
+    selectNodesByNodeRedId,
 } from './node.slice';
 
 describe('node reducer', () => {
@@ -184,6 +185,91 @@ describe('node reducer', () => {
             const selectedNode = selectNodeById(state, 'nonExistentNodeId');
 
             expect(selectedNode).toBeUndefined();
+        });
+    });
+
+    describe('selectNodesByNodeRedId', () => {
+        it('should return nodes that match the specified nodeRedId', () => {
+            // Mock state
+            const state = {
+                node: {
+                    ids: ['node1', 'node2', 'node3'],
+                    entities: {
+                        node1: {
+                            id: 'node1',
+                            nodeRedId: 'node-red/mqtt',
+                            name: 'MQTT Node 1',
+                        },
+                        node2: {
+                            id: 'node2',
+                            nodeRedId: 'node-red/mqtt',
+                            name: 'MQTT Node 2',
+                        },
+                        node3: {
+                            id: 'node3',
+                            nodeRedId: 'node-red/http',
+                            name: 'HTTP Node',
+                        },
+                    },
+                    loadingStatus: 'loaded',
+                    error: null,
+                    searchQuery: '',
+                },
+            };
+
+            // Selector call
+            const result = selectNodesByNodeRedId(state, 'node-red/mqtt');
+
+            // Expected result
+            expect(result).toEqual([
+                {
+                    id: 'node1',
+                    nodeRedId: 'node-red/mqtt',
+                    name: 'MQTT Node 1',
+                },
+                {
+                    id: 'node2',
+                    nodeRedId: 'node-red/mqtt',
+                    name: 'MQTT Node 2',
+                },
+            ]);
+        });
+
+        it('should return an empty array if no nodes match the specified nodeRedId', () => {
+            const state = {
+                node: {
+                    ids: ['node1', 'node2', 'node3'],
+                    entities: {
+                        node1: {
+                            id: 'node1',
+                            nodeRedId: 'node-red/mqtt',
+                            name: 'MQTT Node 1',
+                        },
+                        node2: {
+                            id: 'node2',
+                            nodeRedId: 'node-red/mqtt',
+                            name: 'MQTT Node 2',
+                        },
+                        node3: {
+                            id: 'node3',
+                            nodeRedId: 'node-red/http',
+                            name: 'HTTP Node',
+                        },
+                    },
+                    loadingStatus: 'loaded',
+                    error: null,
+                    searchQuery: '',
+                },
+            };
+
+            // Selector call
+            const result = selectNodesByNodeRedId(
+                state,
+                'non-existent-node-red-id'
+            );
+
+            // Expected result
+            expect(result).toEqual([]);
         });
     });
 });
