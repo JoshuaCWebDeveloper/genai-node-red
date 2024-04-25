@@ -100,8 +100,10 @@ export class NodeLogic {
 
         // Apply the default config to the existing config without overriding existing values
         const updatedNode = {
-            ...defaultConfig,
             ...node,
+            inputs: entity.inputs ?? node.inputs,
+            outputs: entity.outputs ?? node.outputs,
+            ...defaultConfig,
         };
 
         return updatedNode;
