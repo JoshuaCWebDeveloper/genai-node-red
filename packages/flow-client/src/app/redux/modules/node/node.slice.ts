@@ -67,7 +67,12 @@ export type NodeEntity = {
     button?: {
         onclick?: SerializedFunction;
     };
-    credentials?: Record<string, unknown>; // Optional object defining credential fields
+    credentials?: Record<
+        string,
+        {
+            type: string;
+        }
+    >; // Optional object defining credential fields
 
     definitionScript?: string;
 };

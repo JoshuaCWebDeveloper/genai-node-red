@@ -66,6 +66,7 @@ export interface FlowNodeEntity {
     inputs: number;
     outputs: number;
     wires: string[][]; // For nodes, to represent connections
+    credentials?: Record<string, unknown>;
     [key: string]: unknown; // To allow for other properties dynamically
     // React Diagrams
     selected?: boolean;

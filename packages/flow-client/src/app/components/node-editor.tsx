@@ -292,6 +292,24 @@ export const NodeEditor = () => {
                 nodeUpdates[key] = formData[key];
             }
         });
+        // collect credentials
+        if (editingNodeEntity.credentials) {
+            nodeUpdates.credentials = {};
+            Object.keys(editingNodeEntity.credentials).forEach(key => {
+                if (!formData[key]) {
+                    return;
+                }
+                if (editingNodeEntity.credentials?.[key].type === 'password') {
+                    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                    nodeUpdates.credentials![`has_${key}`] = !!formData[key];
+                    if (formData[key] === '__PWRD__') {
+                        return;
+                    }
+                }
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                nodeUpdates.credentials![key] = formData[key];
+            });
+        }
         // update node
         dispatch(flowLogic.updateFlowNode(editingNode.id, nodeUpdates));
         // close editor
@@ -323,6 +341,30 @@ export const NodeEditor = () => {
                 formFields[key].value = value as string;
             }
         });
+        // apply credentials
+        if (editingNodeEntity.credentials) {
+            const credentials = editingNode.credentials ?? {};
+            Object.keys(editingNodeEntity.credentials).forEach(key => {
+                if (!Object.prototype.hasOwnProperty.call(formFields, key)) {
+                    return;
+                }
+                const value = credentials[key];
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                if (editingNodeEntity.credentials![key].type !== 'password') {
+                    formFields[key].value = value as string;
+                    return;
+                }
+                if (value) {
+                    formFields[key].value = value as string;
+                    return;
+                }
+                if (credentials[`has_${key}`]) {
+                    formFields[key].value = '__PWRD__';
+                    return;
+                }
+                formFields[key].value = '';
+            });
+        }
         // exec oneditprepare
         const nodeInstance = createNodeInstance(editingNode);
         const context =
