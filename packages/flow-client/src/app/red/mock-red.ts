@@ -71,6 +71,7 @@ export const createMockRed = (
         // target RED object
         {
             nodes: {
+                getType: () => undefined,
                 node: () => undefined,
                 registerType(..._args: unknown[]): unknown {
                     // not implemented
@@ -99,6 +100,7 @@ export const createMockRed = (
                 context: {
                     stores: [],
                 },
+                httpNodeRoot: '/',
             },
             text: {
                 bidi: {
