@@ -68,6 +68,7 @@ export const createMockRed = (
         // target RED object
         {
             nodes: {
+                node: () => undefined,
                 registerType(..._args: unknown[]): unknown {
                     // not implemented
                     return undefined;
