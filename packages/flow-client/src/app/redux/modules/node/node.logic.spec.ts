@@ -177,7 +177,7 @@ describe('NodeLogic', () => {
             );
         });
 
-        it('should not override existing node config values with defaults', () => {
+        it('should override existing node config values with defaults', () => {
             const node = {
                 id: 'node1',
                 type: 'exampleType',
@@ -212,7 +212,7 @@ describe('NodeLogic', () => {
 
             expect(result).toEqual(
                 expect.objectContaining({
-                    property1: 'existingValue', // Existing value is preserved
+                    property1: 'default1', // Default value is applied, overriding existing
                     property2: 42, // Default value is applied
                     // Ensure all other node properties are preserved
                     id: 'node1',

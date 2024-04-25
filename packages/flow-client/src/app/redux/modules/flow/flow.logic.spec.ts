@@ -114,6 +114,7 @@ describe('flow.logic', () => {
             const entity = {
                 ...baseNodeProps,
                 id: 'test-node',
+                type: 'test-node',
                 definitionScript: `
                     RED.nodes.registerType("test-node", {
                         inputLabels: function(index) { 
