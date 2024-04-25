@@ -182,8 +182,8 @@ export const NodeEditor = () => {
         'red-typed-input.css': false,
     });
     const loaded = useRef(false);
-    const [nodeInstance, setNodeInstance] = useState(
-        createNodeInstance({} as FlowNodeEntity)
+    const [nodeInstance, setNodeInstance] = useState<FlowNodeEntity | null>(
+        null
     );
     const editing = useAppSelector(selectEditing);
     const editingNode = useAppSelector(state =>
@@ -225,10 +225,13 @@ export const NodeEditor = () => {
     const handleCancel = useCallback(
         (e: React.MouseEvent) => {
             e.stopPropagation();
+            if (!nodeInstance) {
+                return;
+            }
             executeNodeFn(
                 ['oneditcancel'],
                 editingNodeEntity,
-                nodeInstance,
+                nodeInstance as FlowNodeEntity,
                 (propertiesForm?.getRootNode() as ShadowRoot) ?? undefined
             );
             closeEditor();
@@ -237,11 +240,14 @@ export const NodeEditor = () => {
     );
 
     const handleDelete = useCallback(() => {
+        if (!nodeInstance) {
+            return;
+        }
         // exec oneditsave
         executeNodeFn(
             ['oneditdelete'],
             editingNodeEntity,
-            nodeInstance,
+            nodeInstance as FlowNodeEntity,
             (propertiesForm?.getRootNode() as ShadowRoot) ?? undefined
         );
         // TODO: Implement logic method for removing any old input links (if necessary)
@@ -258,14 +264,14 @@ export const NodeEditor = () => {
 
     const handleSave = useCallback(() => {
         const form = propertiesForm;
-        if (!form) {
+        if (!form || !nodeInstance) {
             return;
         }
         // exec oneditsave
         executeNodeFn(
             ['oneditsave'],
             editingNodeEntity,
-            nodeInstance,
+            nodeInstance as FlowNodeEntity,
             (propertiesForm?.getRootNode() as ShadowRoot) ?? undefined
         );
         // get our form data
