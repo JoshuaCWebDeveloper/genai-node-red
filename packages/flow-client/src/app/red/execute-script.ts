@@ -145,6 +145,13 @@ export const extractNodePropertyFn = <T = UnknownFn>(
                 );
         };
 
+        // if this is not the correct type
+        if (type !== nodeEntity.type) {
+            // some scripts register more than one type
+            // we're only interested in our entity's type
+            return;
+        }
+
         const propertyFunction = getPropertyByPath(definition, propertyPath);
         if (typeof propertyFunction === 'function') {
             propertyFn = (
