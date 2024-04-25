@@ -168,6 +168,7 @@ export const createMockRed = (
         RED.$,
         // migrateMute doesn't mute enough
         Object.assign({}, window, {
+            document: window.document,
             console: {
                 warn: () => undefined,
                 error: () => undefined,
