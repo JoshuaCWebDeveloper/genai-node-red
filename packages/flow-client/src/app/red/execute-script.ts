@@ -8,8 +8,13 @@ const executeDefinitionScript = (
     definitionScript: string,
     RED: ReturnType<typeof createMockRed>
 ) => {
+    // update any red/images urls in our script with our node red root
+    const updatedScript = definitionScript.replace(
+        /red\/images\/(.*)/g,
+        `${environment.NODE_RED_API_ROOT}/red/images/$1`
+    );
     // eslint-disable-next-line no-new-func
-    const scriptFunction = new Function('RED', '$', definitionScript);
+    const scriptFunction = new Function('RED', '$', updatedScript);
 
     try {
         // Call the script function with the RED object
@@ -232,21 +237,4 @@ export const finalizeNodeEditor = (
     // call i18n plugin on newly created content
     const RED = createMockRed(rootContext);
     (RED.$(dialogForm) as unknown as { i18n: () => void }).i18n();
-
-    // update typed input urls
-    Array.from(
-        dialogForm.querySelectorAll<HTMLImageElement>(
-            'img[src^="red/images/typedInput"]'
-        )
-    ).forEach(img => {
-        const baseUrl = environment.NODE_RED_API_ROOT;
-        const originalSrc = img.getAttribute('src');
-        if (originalSrc) {
-            const newPath = originalSrc.replace(
-                /.*red\/images\/typedInput/,
-                `${baseUrl}/red/images/typedInput`
-            );
-            img.setAttribute('src', newPath);
-        }
-    });
 };
