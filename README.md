@@ -302,6 +302,13 @@ The backlog is organized by epic, with each task having a unique ID, description
 
 Use the Scrum Board to visually track the progress of tasks through the To Do, In Progress, In Review, and Done columns. This method provides a clear view of the project's progress and helps identify any bottlenecks or areas that require additional focus.
 
+### TODO Notes
+
+-   Inject functionality
+-   Debug functionality
+-   Display junctions
+-   Display comments
+
 ## Flow Builder Development - Technical Details
 
 The Flow Builder is the cornerstone of our custom frontend client for Node-RED, enabling users to visually create and edit flows with ease. To achieve a robust, intuitive, and efficient development of this epic, we have selected the following key libraries:

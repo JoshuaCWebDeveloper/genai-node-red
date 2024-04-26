@@ -182,8 +182,8 @@ export const NodeEditor = () => {
         'red-typed-input.css': false,
     });
     const loaded = useRef(false);
-    const [nodeInstance, setNodeInstance] = useState(
-        createNodeInstance({} as FlowNodeEntity)
+    const [nodeInstance, setNodeInstance] = useState<FlowNodeEntity | null>(
+        null
     );
     const editing = useAppSelector(selectEditing);
     const editingNode = useAppSelector(state =>
@@ -225,10 +225,13 @@ export const NodeEditor = () => {
     const handleCancel = useCallback(
         (e: React.MouseEvent) => {
             e.stopPropagation();
+            if (!nodeInstance) {
+                return;
+            }
             executeNodeFn(
                 ['oneditcancel'],
                 editingNodeEntity,
-                nodeInstance,
+                nodeInstance as FlowNodeEntity,
                 (propertiesForm?.getRootNode() as ShadowRoot) ?? undefined
             );
             closeEditor();
@@ -237,11 +240,14 @@ export const NodeEditor = () => {
     );
 
     const handleDelete = useCallback(() => {
+        if (!nodeInstance) {
+            return;
+        }
         // exec oneditsave
         executeNodeFn(
             ['oneditdelete'],
             editingNodeEntity,
-            nodeInstance,
+            nodeInstance as FlowNodeEntity,
             (propertiesForm?.getRootNode() as ShadowRoot) ?? undefined
         );
         // TODO: Implement logic method for removing any old input links (if necessary)
@@ -258,22 +264,32 @@ export const NodeEditor = () => {
 
     const handleSave = useCallback(() => {
         const form = propertiesForm;
-        if (!form) {
+        if (!form || !nodeInstance) {
             return;
         }
         // exec oneditsave
         executeNodeFn(
             ['oneditsave'],
             editingNodeEntity,
-            nodeInstance,
+            nodeInstance as FlowNodeEntity,
             (propertiesForm?.getRootNode() as ShadowRoot) ?? undefined
         );
         // get our form data
         const formData = Object.fromEntries(
-            Object.entries(selectNodeFormFields(form)).map(([key, field]) => [
-                key,
-                field.value,
-            ])
+            Object.entries(selectNodeFormFields(form)).map(([key, field]) => {
+                if (field.type === 'checkbox') {
+                    return [key, (field as HTMLInputElement).checked];
+                } else if (field.type === 'select-multiple') {
+                    return [
+                        key,
+                        Array.from(
+                            (field as HTMLSelectElement).selectedOptions
+                        ).map(option => option.value),
+                    ];
+                } else {
+                    return [key, field.value];
+                }
+            })
         );
         // collect node updates
         const nodeUpdates: Partial<FlowNodeEntity> = {};
@@ -286,6 +302,24 @@ export const NodeEditor = () => {
                 nodeUpdates[key] = formData[key];
             }
         });
+        // collect credentials
+        if (editingNodeEntity.credentials) {
+            nodeUpdates.credentials = {};
+            Object.keys(editingNodeEntity.credentials).forEach(key => {
+                if (!formData[key]) {
+                    return;
+                }
+                if (editingNodeEntity.credentials?.[key].type === 'password') {
+                    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                    nodeUpdates.credentials![`has_${key}`] = !!formData[key];
+                    if (formData[key] === '__PWRD__') {
+                        return;
+                    }
+                }
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                nodeUpdates.credentials![key] = formData[key];
+            });
+        }
         // update node
         dispatch(flowLogic.updateFlowNode(editingNode.id, nodeUpdates));
         // close editor
@@ -313,10 +347,47 @@ export const NodeEditor = () => {
         // apply node values to form fields
         const formFields = selectNodeFormFields(propertiesForm);
         Object.entries(editingNode).forEach(([key, value]) => {
-            if (Object.prototype.hasOwnProperty.call(formFields, key)) {
-                formFields[key].value = value as string;
+            if (!Object.prototype.hasOwnProperty.call(formFields, key)) {
+                return;
+            }
+            const field = formFields[key];
+            if (field.type === 'checkbox') {
+                (field as HTMLInputElement).checked = Boolean(value);
+            } else if (field.type === 'select-multiple') {
+                const arrayValue = Array.isArray(value) ? value : [value];
+                Array.from((field as HTMLSelectElement).options).forEach(
+                    option => {
+                        option.selected = arrayValue.includes(option.value);
+                    }
+                );
+            } else {
+                field.value = value as string;
             }
         });
+        // apply credentials
+        if (editingNodeEntity.credentials) {
+            const credentials = editingNode.credentials ?? {};
+            Object.keys(editingNodeEntity.credentials).forEach(key => {
+                if (!Object.prototype.hasOwnProperty.call(formFields, key)) {
+                    return;
+                }
+                const value = credentials[key];
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                if (editingNodeEntity.credentials![key].type !== 'password') {
+                    formFields[key].value = value as string;
+                    return;
+                }
+                if (value) {
+                    formFields[key].value = value as string;
+                    return;
+                }
+                if (credentials[`has_${key}`]) {
+                    formFields[key].value = '__PWRD__';
+                    return;
+                }
+                formFields[key].value = '';
+            });
+        }
         // exec oneditprepare
         const nodeInstance = createNodeInstance(editingNode);
         const context =

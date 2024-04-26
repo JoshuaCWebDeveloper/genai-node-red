@@ -4,6 +4,9 @@ import jQuery from './jquery';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import { applyJqueryUi } from './jquery-ui';
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import { applyJqueryMigrate } from './jquery-migrate';
 import { RedEditorType, createMockEditor } from './mock-editor';
 import { JqueryContext, createMockJquery } from './mock-jquery';
 import { createMockPopover } from './mock-popover';
@@ -68,6 +71,7 @@ export const createMockRed = (
         // target RED object
         {
             nodes: {
+                getType: () => undefined,
                 node: () => undefined,
                 registerType(..._args: unknown[]): unknown {
                     // not implemented
@@ -96,6 +100,7 @@ export const createMockRed = (
                 context: {
                     stores: [],
                 },
+                httpNodeRoot: '/',
             },
             text: {
                 bidi: {
@@ -159,6 +164,21 @@ export const createMockRed = (
         jQuery(selector, context)) as typeof jQuery;
     Object.assign(RED.$, jQuery);
     // jQuery plugins
+    applyJqueryMigrate(
+        RED.$,
+        // migrateMute doesn't mute enough
+        Object.assign({}, window, {
+            document: window.document,
+            console: {
+                warn: () => undefined,
+                error: () => undefined,
+                log: () => undefined,
+                info: () => undefined,
+                debug: () => undefined,
+                trace: () => undefined,
+            },
+        })
+    );
     applyJqueryUi(RED.$);
     const jQueryUi = RED.$ as typeof jQuery & {
         widget: (name: string, widget: Record<string, unknown>) => void;
