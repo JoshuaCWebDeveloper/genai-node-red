@@ -276,10 +276,20 @@ export const NodeEditor = () => {
         );
         // get our form data
         const formData = Object.fromEntries(
-            Object.entries(selectNodeFormFields(form)).map(([key, field]) => [
-                key,
-                field.value,
-            ])
+            Object.entries(selectNodeFormFields(form)).map(([key, field]) => {
+                if (field.type === 'checkbox') {
+                    return [key, (field as HTMLInputElement).checked];
+                } else if (field.type === 'select-multiple') {
+                    return [
+                        key,
+                        Array.from(
+                            (field as HTMLSelectElement).selectedOptions
+                        ).map(option => option.value),
+                    ];
+                } else {
+                    return [key, field.value];
+                }
+            })
         );
         // collect node updates
         const nodeUpdates: Partial<FlowNodeEntity> = {};
@@ -337,8 +347,21 @@ export const NodeEditor = () => {
         // apply node values to form fields
         const formFields = selectNodeFormFields(propertiesForm);
         Object.entries(editingNode).forEach(([key, value]) => {
-            if (Object.prototype.hasOwnProperty.call(formFields, key)) {
-                formFields[key].value = value as string;
+            if (!Object.prototype.hasOwnProperty.call(formFields, key)) {
+                return;
+            }
+            const field = formFields[key];
+            if (field.type === 'checkbox') {
+                (field as HTMLInputElement).checked = Boolean(value);
+            } else if (field.type === 'select-multiple') {
+                const arrayValue = Array.isArray(value) ? value : [value];
+                Array.from((field as HTMLSelectElement).options).forEach(
+                    option => {
+                        option.selected = arrayValue.includes(option.value);
+                    }
+                );
+            } else {
+                field.value = value as string;
             }
         });
         // apply credentials
