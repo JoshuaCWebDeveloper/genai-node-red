@@ -117,12 +117,6 @@ The custom frontend client for Node-RED will focus on providing an intuitive and
 -   [Explore the project graph with `npx nx graph`](https://nx.dev/core-features/explore-graph)
 -   [Set up CI with Nx](https://nx.dev/recipes/ci)
 
-## Connect with us!
-
--   [Join the community](https://nx.dev/community)
--   [Subscribe to the Nx Youtube Channel](https://www.youtube.com/@nxdevtools)
--   [Follow us on Twitter](https://twitter.com/nxdevtools)
-
 ## Project Management - SCRUM Flow
 
 ### Backlog
