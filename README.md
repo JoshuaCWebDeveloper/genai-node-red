@@ -308,6 +308,16 @@ Use the Scrum Board to visually track the progress of tasks through the To Do, I
 -   Debug functionality
 -   Display junctions
 -   Display comments
+-   Support for Complete, catch, status nodes
+-   Support for Link in, link cal, and link out nodes
+-   Config node support
+-   New layout (a la vscode):
+    -   Primary side bar with file tree, config nodes, context data, info
+    -   Secondary side bar with node palette and help browser
+    -   Tabs up top
+    -   Console on bottom (debug output)
+    -   Light and dark modes (set somewhere in the header)
+    -   All panels have close buttons and all panels can be toggled in header
 
 ## Flow Builder Development - Technical Details
 
