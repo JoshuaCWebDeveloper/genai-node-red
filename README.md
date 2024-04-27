@@ -6,24 +6,45 @@
 
 ## Flow Client - Custom Frontend Client for Node-RED
 
-### Technical Details
+This documentation serves as a record of the existing functionality of our app that has already been implemented, along with technical implementation details that future developers and newcomers can refer to.
 
-The Flow Builder is the cornerstone of our custom frontend client for Node-RED, enabling users to visually create and edit flows with ease. To achieve a robust, intuitive, and efficient development of this epic, we have selected the following key libraries:
+### Feature Overview
 
-### @projectstorm/react-diagrams
+-   **Flow Canvas**: Users can add, arrange, and connect nodes on a scalable and navigable canvas that supports zooming and panning.
+-   **Node Palette**: A sidebar displays nodes categorized by type or functionality, with search and filter capabilities to streamline finding and selecting nodes.
+-   **Drag-and-Drop Interface**: Enables users to drag nodes from the node palette onto the canvas, facilitating intuitive flow construction.
+-   **Node Connection Functionality**: Supports drawing connections between nodes with enhanced visual feedback and auto-attachment features for ease of use.
+-   **Node Editor UI**: Provides a user-friendly interface for configuring and editing node properties, allowing detailed customization of node attributes.
 
--   **Purpose**: Serves as the core library for rendering the flow diagrams. It provides the functionality to create custom nodes, ports, and links, making it ideal for building complex, interactive diagrams with drag-and-drop capabilities.
--   **Documentation**: [https://projectstorm.gitbook.io/react-diagrams/](https://projectstorm.gitbook.io/react-diagrams/)
+### Technical Implementation
 
-### react-dnd
+-   **Flow Canvas**:
 
--   **Purpose**: Facilitates the drag-and-drop functionality within the flow builder, allowing users to drag nodes from the sidebar into the canvas and arrange them to form flows. Its flexible API supports complex drag-and-drop scenarios, which are essential for a seamless user experience in flow construction.
--   **Documentation**: [https://react-dnd.github.io/react-dnd/about](https://react-dnd.github.io/react-dnd/about)
+    -   Implemented using `@projectstorm/react-diagrams` to provide a scalable and interactive diagramming interface.
+    -   Supports high-performance rendering even with a large number of nodes and connections.
 
-### react-hook-form
+-   **Node Palette**:
 
--   **Purpose**: In the future, may be used for managing forms within the application. React Hook Form provides an efficient, flexible, and extensible way to handle form state and validation, improving the performance and user experience of form interactions.
--   **Documentation**: [https://react-hook-form.com/](https://react-hook-form.com/)
+    -   Developed with React components, allowing dynamic searching and filtering of nodes.
+    -   Utilizes `react-dnd` for drag-and-drop capabilities from the palette to the canvas.
+
+-   **Drag-and-Drop Interface**:
+
+    -   Integrates `react-dnd` to handle complex drag-and-drop scenarios, enhancing the user experience by allowing nodes to be visually dragged across the interface.
+
+-   **Node Connection Functionality**:
+
+    -   Utilizes `@projectstorm/react-diagrams` for creating and managing connections with visual feedback and auto-attachment logic to simplify the connection process.
+
+-   **Node Editor UI**:
+    -   Implements UI components for editing node properties, including individual node attributes and dialog boxes for configuration.
+    -   Re-implements a significant portion of Node-RED's editor logic within our flow-client to ensure accurate rendering and functionality of Node-RED nodes.
+
+### Libraries and Frameworks
+
+-   **@projectstorm/react-diagrams**: Used for creating and managing the diagram canvas, custom nodes, ports, and links.
+-   **react-dnd**: Utilized for adding drag-and-drop functionality to the node palette and canvas, enhancing the interactive experience.
+-   **react-hook-form**: Considered for future enhancements to handle form state and validation within the application.
 
 ## Planning Session - Flow Builder
 
@@ -108,108 +129,6 @@ The custom frontend client for Node-RED will focus on providing an intuitive and
 
 The backlog is organized by epic, with each task having a unique ID, description, priority, associated epic, and detailed descriptions all in one place, using nested lists to preserve the structure of task details.
 
-#### Epic: Flow Builder
-
--   **FB-01** (Priority: 1): Design the flow canvas for placing and connecting nodes.
-    -   **Objective**: Create a user-friendly and intuitive canvas area where users can add, arrange, and connect nodes to form flows.
-    -   **Technical Requirements**:
-        -   Implement a scalable and navigable canvas that supports zooming and panning.
-        -   Design considerations must include how nodes will be displayed, selected, and how connections between nodes will be visualized.
-        -   The canvas should support high performance, even with a large number of nodes and connections.
-        -   Integration points with `@projectstorm/react-diagrams` need to be identified and utilized for rendering the canvas and its elements.
-        -   To accomplish this task, the following components from `@projectstorm/react-diagrams` and React will be utilized:
-            1. **DiagramEngine**: Manages the rendering and operation of the diagram, handling the setup and rendering of the canvas, nodes, and links.
-            2. **DiagramModel**: Represents the model of the diagram, including nodes, links, and their connections. This is used by the `DiagramEngine` to render the diagram.
-            3. **CanvasWidget**: Renders the flow canvas, taking a `DiagramEngine` as a prop and displaying the diagram based on the current model.
-            4. **DefaultNodeModel** and **DefaultPortModel**: Used for creating nodes with ports that can be connected with links. These models support the basic functionality needed for the initial task.
-            5. **DefaultLinkModel**: Represents the connections between ports on different nodes, supporting straight and curved links that can be styled.
--   **FB-02** (Priority: 2): Implement the node palette with search and filter capabilities.
-    -   **Objective**: Develop a sidebar or palette that displays available nodes, allowing users to search and filter nodes to find what they need quickly.
-    -   **Technical Requirements**:
-        -   The node palette should categorize nodes based on their type or functionality to help users find the appropriate nodes for their flows.
-        -   Implement search functionality that allows users to type in keywords to filter and quickly locate specific nodes.
-        -   Each node in the palette should have a visual representation (icon and label) that makes it easy to identify.
-        -   Ensure that the node palette is responsive and accessible, with considerations for keyboard navigation and screen readers.
-        -   The implementation should be modular, allowing for easy updates or additions of new node types in the future.
-    -   **Implementation Details**:
-        -   **Components to Create**:
-            1. **NodePalette**: The main container component for the node palette. It will host the search bar, node categories, and the list of nodes.
-            2. **SearchBar**: A component for the search functionality. It will allow users to filter nodes based on keywords.
-            3. **NodeCategory**: A component to display each category of nodes. It can be expandable to show or hide the nodes under each category.
-            4. **NodeItem**: Represents an individual node in the palette. It will display the node's icon and label. Interaction with a node item will trigger CSS style changes and tooltips for immediate feedback but does not involve a selection state.
-        -   **Interaction Feedback**:
-            -   Implement CSS styles to change the appearance of a node item on hover or when the user interacts with it, providing visual feedback.
-            -   Use tooltips to display brief information about the node, such as its purpose or usage tips, when the user hovers over a node item.
-        -   **Libraries and Frameworks**:
-            -   Utilize React for building the UI components.
-            -   Consider using a state management library (e.g., Redux or Context API) to manage the state of the node palette, especially the active filters and search query.
-            -   For UI elements (like expandable lists and search bars), consider using a component library like Material-UI or Ant Design to speed up development.
-        -   **Data Handling**:
-            -   The node palette will need to fetch the list of available nodes from the backend or a static JSON file during the initial load.
-            -   Implement a mechanism to dynamically update the node list when new nodes are added or existing nodes are updated in the backend.
-        -   **Accessibility and Responsiveness**:
-            -   Ensure that all components are accessible, including keyboard navigation and screen reader support.
-            -   Use responsive design principles to make sure the node palette is usable on various screen sizes.
-        -   **Redux Toolkit and RTK Query Integration**:
-            -   **Slices to Update**:
-                1. **nodesSlice**: Manages the state of nodes within the node palette, including the list of nodes, the selected node, any filters applied, and the search query. This consolidation simplifies state management by handling all node-related UI state within a single slice.
-                    - **State Structure**:
-                        - `nodes`: An array of node objects available in the palette.
-                        - `searchQuery`: The current search filter applied to the node list.
-                    - **Reducers**:
-                        - `setNodes`: Sets the list of nodes.
-                        - `setSearchQuery`: Sets the current search query to filter the node list.
-            -   **API Slice to Create**:
-                1. **nodesApi**: Handles asynchronous requests for fetching nodes from the Node-RED backend. This API slice will use the `Accept` header to differentiate between JSON and HTML responses from the same `/nodes` endpoint.
-                    - **Endpoints**:
-                        - `getNodes`: Fetches the list of available nodes. This endpoint will conditionally set the `Accept` header to `application/json` for fetching the JSON list of nodes, or to `text/html` for fetching HTML script elements, based on the requirements of the request.
-                    - **Integration Details**:
-                        - Utilize the `createApi` function from Redux Toolkit Query (RTK Query) to define this API slice.
-                        - Ensure that the API service correctly handles the `Accept` header to fetch either JSON data or HTML script elements as needed.
-                        - Since the `/nodes` API is read-only and there's no backend support for adding or updating nodes through this API, the slice will focus solely on fetching data.
-                        - The search functionality will be implemented as a frontend filter within the `nodesSlice`, leveraging the `searchQuery` state to filter the node list based on the user's input.
--   **FB-03** (Priority: 3): Implement drag-and-drop interface for nodes.
-    -   **Objective**: Enable users to drag nodes from the node palette and drop them onto the canvas to add them to their flow.
-    -   **Technical Requirements**:
-        -   Utilize `react-dnd` for implementing the drag-and-drop functionality, ensuring a smooth and intuitive user experience.
-        -   Ensure that nodes can be dragged from the palette and visually follow the cursor until dropped onto the canvas.
-        -   On dropping a node onto the canvas, the node should be added to the flow at the drop location, with its position being adjustable by dragging.
-        -   Implement visual feedback during the drag operation, such as highlighting potential drop areas or showing a "ghost" of the node being dragged.
-        -   Considerations must be made for how the canvas and nodes respond to different screen sizes and resolutions.
-    -   **Implementation Details**:
-        -   **New Components to Create**:
-            1. **DraggableNodeComponent**: A new component that wraps each node in the node palette, making it draggable. This component will handle the drag start and end events, and carry the necessary node data that will be used when the node is dropped onto the canvas.
-            2. **DropZoneComponent**: This component will represent areas on the canvas where nodes can be dropped. It will handle the drop events and use the data from the `DraggableNodeComponent` to add a new node to the flow at the drop location.
-        -   **Existing Components to Update**:
-            1. **NodePalette**: Update to incorporate drag functionality, making each node in the palette draggable.
-            2. **FlowCanvasContainer**: Update to include `DropZoneComponent` functionality, allowing it to accept nodes dropped from the node palette.
-            3. **Node (custom-node-component.tsx)**: This component, intended for rendering each node on the canvas, may require updates to support being positioned based on where it is dropped and to integrate with the overall drag-and-drop logic.
-        -   **Utilize `react-dnd` for Drag-and-Drop Functionality**: `react-dnd` will be used to handle the drag-and-drop operations, providing a flexible and intuitive user experience for adding nodes to the canvas.
-        -   **Visual Feedback and User Experience**: Implement visual cues during the drag-and-drop operation, such as changing the cursor, highlighting potential drop zones, and showing a "ghost" image of the node being dragged to provide clear feedback to the user.
-        -   **Responsive Design Considerations**: Ensure that the drag-and-drop functionality is fully responsive and provides a consistent experience across different devices and screen sizes.
--   **FB-04** (Priority: 4): Verify and Enhance Node Connection Functionality.
-    -   **Objective**: Ensure the existing node connection functionality is working as expected and introduce enhancements for a more intuitive user experience.
-    -   **Technical Requirements**:
-        -   Verify that users can draw connections between nodes by dragging from one node's output port to another node's input port, utilizing `@projectstorm/react-diagrams` for rendering and logic. Ensure connections are visually distinct, support different styles for enhanced readability, include validation for incompatible node types or ports, and provide visual feedback during the connection process.
-        -   Implement state management for the flow canvas that streams changes into our application state, ensuring the state matches the spec for a Node-RED `flows.yaml` file. This will involve capturing the state of nodes, their connections, and any other relevant flow information in a format that is compatible with Node-RED, facilitating seamless integration and future features such as exporting flows.
-        -   Explore the feasibility of enhancing the connection drawing process to allow for auto-attachment of connections to the nearest appropriate port (input or output) when a user draws a connection over a node. This feature aims to simplify the process of creating connections by reducing the precision required to attach a wire to a specific port, thereby improving the user experience.
-    -   **Implementation Details**:
-        -   **State Management for Flow Canvas**:
-            -   To manage the state of the flow canvas effectively, including nodes, their connections, and other relevant flow information, new files dedicated to flow management will be introduced:
-                1. **Flow Slice (`flow/flow.slice.ts`)**: Manages the state of the flow canvas, including nodes, connections, and flow configurations.
-                2. **Flow Logic (`flow/flow.logic.ts`)**: Encapsulates the business logic for managing flows, including the creation, update, and deletion of nodes and connections.
-                3. **Flow Slice Tests (`flow/flow.slice.spec.ts`)**: Ensures the flow slice correctly manages the state of the flow canvas.
-                4. **Flow Logic Tests (`flow/flow.logic.spec.ts`)**: Validates the business logic for flow management.
-            -   These files will work together to ensure a robust state management system for the flow canvas, enhancing node connection functionality and ensuring a seamless user experience.
-        -   **Enhancements to Connection Drawing Process**:
-            -   **User Experience (UX) Improvements**: Simplify the process of creating connections with intuitive auto-attachment to the nearest valid port and provide visual feedback during the process.
-            -   **Technical Feasibility**: Implement port proximity detection and valid port identification to support auto-attachment features.
-            -   **Implementation Strategies**: Explore extending or customizing `@projectstorm/react-diagrams` for auto-attachment functionality and develop custom drag-and-drop logic as needed.
--   **FB-05** (Priority: 5): Implement editor UI for nodes.
-    -   **Objective**: Provide a user-friendly interface for configuring and editing node properties.
-    -   **Technical Requirements**:
-        -   Implement UI components for editing node properties, including individual node attributes and dialog boxes for configuration.
-
 #### Epic: Flow and Subflow Management
 
 -   **FM-01**: Develop UI for creating new flows/subflows.
@@ -285,13 +204,9 @@ The backlog is organized by epic, with each task having a unique ID, description
 
 ### Scrum Board
 
-| To Do | In Progress | In Review | Done  |
-| ----- | ----------- | --------- | ----- |
-|       |             |           | FB-01 |
-|       |             |           | FB-02 |
-|       |             |           | FB-03 |
-|       |             |           | FB-04 |
-|       |             |           | FB-05 |
+| To Do | In Progress | In Review | Done |
+| ----- | ----------- | --------- | ---- |
+|       |             |           |      |
 
 ### Progress Tracking
 
