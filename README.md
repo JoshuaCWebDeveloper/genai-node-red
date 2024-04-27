@@ -210,15 +210,6 @@ The backlog is organized by epic, with each task having a unique ID, description
     -   **Technical Requirements**:
         -   Implement UI components for editing node properties, including individual node attributes and dialog boxes for configuration.
 
-#### Epic: Node Management Interface
-
--   **NMI-01**: Design sidebar for displaying nodes.
-    -   **Objective**: Create a sidebar interface for displaying available nodes to the user.
-    -   **Technical Requirements**: The sidebar should categorize nodes by type/functionality and provide an easy-to-navigate interface.
--   **NMI-02**: Categorize nodes by type/functionality.
-    -   **Objective**: Organize nodes in the sidebar based on their type or functionality.
-    -   **Technical Requirements**: Implement a categorization system within the UI that allows for easy filtering and selection of node types.
-
 #### Epic: Flow and Subflow Management
 
 -   **FM-01**: Develop UI for creating new flows/subflows.
@@ -242,12 +233,6 @@ The backlog is organized by epic, with each task having a unique ID, description
 
 #### Epic: UI/UX Design and Responsive Layout
 
--   **UX-01**: Sketch initial design mockups.
-    -   **Objective**: Create initial design concepts for the main interface of the frontend client.
-    -   **Technical Requirements**: Use tools like Figma or Sketch to develop initial design mockups that outline the user interface and user experience.
--   **UX-02**: Develop high-fidelity prototypes.
-    -   **Objective**: Refine design mockups into high-fidelity prototypes.
-    -   **Technical Requirements**: Utilize UI/UX design tools to create detailed and interactive prototypes that closely represent the final product.
 -   **UX-03**: Implement responsive design.
     -   **Objective**: Ensure the frontend client is accessible and usable across various devices.
     -   **Technical Requirements**: Adopt a responsive design approach that allows the frontend client to adapt to different screen sizes and resolutions, ensuring a consistent user experience.
@@ -274,15 +259,6 @@ The backlog is organized by epic, with each task having a unique ID, description
     -   **Objective**: Facilitate the monitoring and troubleshooting of the frontend client.
     -   **Technical Requirements**: Develop a logging system that captures and stores important events and errors, aiding in the analysis and debugging of the application.
 
-#### Epic: Development Environment and Tooling Setup
-
--   **DE-01**: Set up Nx workspace and necessary libraries.
-    -   **Objective**: Prepare the development environment for the Node-RED frontend client project.
-    -   **Technical Requirements**: Ensure Node.js and npm are installed, set up an Nx workspace specifically for the project, and install necessary libraries and frameworks.
--   **DE-02**: Configure code quality tools and practices.
-    -   **Objective**: Maintain high code quality throughout the development process.
-    -   **Technical Requirements**: Implement linting, code reviews, and other best practices to ensure the codebase remains clean, efficient, and maintainable.
-
 #### Epic: Testing and Quality Assurance
 
 -   **QA-01**: Write unit and integration tests.
@@ -297,9 +273,6 @@ The backlog is organized by epic, with each task having a unique ID, description
 -   **CD-01**: Configure build process for deployment.
     -   **Objective**: Prepare the frontend client for production deployment.
     -   **Technical Requirements**: Set up and configure the build process, optimizing the application for performance and security in a production environment.
--   **CD-02**: Set up CI/CD pipelines.
-    -   **Objective**: Automate the testing, building, and deployment processes.
-    -   **Technical Requirements**: Implement continuous integration and continuous deployment pipelines that streamline the development workflow, ensuring that changes are automatically tested and deployed.
 
 #### Epic: Documentation and Community Engagement
 
