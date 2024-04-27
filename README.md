@@ -73,14 +73,14 @@ The backlog is organized by epic, with each task having a unique ID, description
 
 #### Epic: Flow and Subflow Management
 
--   **FM-01**: Develop UI for creating new flows/subflows.
-    -   **Objective**: Facilitate the creation of new flows and subflows within the application.
+-   **FM-01**: Develop UI for creating and managing new flows/subflows.
+    -   **Objective**: Facilitate the creation and management of new flows and subflows within the application.
     -   **Technical Requirements**: Implement a user interface that allows for the easy organization and management of flows and subflows.
 -   **FM-02**: Implement flow/subflow organization mechanisms.
     -   **Objective**: Provide mechanisms for organizing and managing flows and subflows.
     -   **Technical Requirements**: Develop features that allow users to segment their work into manageable, modular flows and subflows.
 
-#### Epic: Integration with Node-RED Backend
+#### Epic: Backend Integration and Data Management
 
 -   **IR-01**: Establish API communication for flow management.
     -   **Objective**: Enable communication between the frontend client and the Node-RED backend for flow management.
@@ -91,6 +91,10 @@ The backlog is organized by epic, with each task having a unique ID, description
 -   **IR-03**: Ensure authentication and authorization mechanisms.
     -   **Objective**: Implement security measures for accessing and managing flows.
     -   **Technical Requirements**: Design and integrate authentication and authorization mechanisms to protect user data and flows.
+-   **IR-04**: Saving Flows to `flows.json`
+    -   **Description**: Integrate with the Node-RED API to save the current state of flows to a `flows.json` file.
+    -   **Priority**: High
+    -   **Technical Requirements**: Implement features that interact with Node-RED's backend API to save and retrieve flow data, ensuring user progress is not lost.
 
 #### Epic: UI/UX Design and Responsive Layout
 
@@ -110,25 +114,19 @@ The backlog is organized by epic, with each task having a unique ID, description
         -   Prioritize user feedback on the current version of the flow builder to determine the necessity and priority of this enhancement.
     -   **Future Considerations**:
         -   Gather user feedback on the implementation to assess its effectiveness and explore further enhancements based on real-world usage.
--   **UX-05**: Implement Responsive Design
-    -   **Objective**: Ensure the frontend client is accessible and usable across various devices.
-    -   **Technical Requirements**: Adopt a responsive design approach that allows the frontend client to adapt to different screen sizes and resolutions, ensuring a consistent user experience.
 
-#### Epic: Debugging and Testing Tools
+#### Epic: Quality Assurance and Debugging
 
--   **DT-01**: Incorporate basic debugging tools.
+-   **QA-01**: Incorporate basic debugging tools.
     -   **Objective**: Enhance the development experience by providing tools for testing and troubleshooting flows.
     -   **Technical Requirements**: Integrate debugging tools into the frontend client that assist developers and users in identifying and resolving issues within their flows.
--   **DT-02**: Plan and implement a logging system.
+-   **QA-02**: Plan and implement a logging system.
     -   **Objective**: Facilitate the monitoring and troubleshooting of the frontend client.
     -   **Technical Requirements**: Develop a logging system that captures and stores important events and errors, aiding in the analysis and debugging of the application.
-
-#### Epic: Testing and Quality Assurance
-
--   **QA-01**: Write unit and integration tests.
+-   **QA-03**: Write unit and integration tests.
     -   **Objective**: Ensure the reliability and functionality of the frontend components and services.
     -   **Technical Requirements**: Plan and execute unit and integration tests that cover critical aspects of the frontend client, using testing frameworks compatible with the project's technology stack.
--   **QA-02**: Execute end-to-end tests for critical flows.
+-   **QA-04**: Execute end-to-end tests for critical flows.
     -   **Objective**: Validate the end-to-end functionality and user experience of critical user flows.
     -   **Technical Requirements**: Design and conduct end-to-end tests that simulate real user interactions, ensuring that key features and flows work as expected.
 
@@ -153,20 +151,6 @@ The backlog is organized by epic, with each task having a unique ID, description
     -   **Description**: Develop a context menu that provides additional configuration options for nodes directly on the canvas.
     -   **Priority**: Medium
     -   **Technical Requirements**: Implement UI components that allow users to access and modify node settings through a context-sensitive menu.
-
-#### Epic: Flow Management Enhancements
-
--   **FME-01**: Creation of New Flows and Subflows
-    -   **Description**: Allow users to create new flows and subflows within the application to manage complex projects efficiently.
-    -   **Priority**: High
-    -   **Technical Requirements**: Develop functionalities that enable the creation and management of modular flows and subflows.
-
-#### Epic: Data Persistence and Management
-
--   **DPM-01**: Saving Flows to `flows.json`
-    -   **Description**: Integrate with the Node-RED API to save the current state of flows to a `flows.json` file.
-    -   **Priority**: High
-    -   **Technical Requirements**: Implement features that interact with Node-RED's backend API to save and retrieve flow data, ensuring user progress is not lost.
 
 ### Scrum Board
 
