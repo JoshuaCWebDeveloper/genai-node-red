@@ -71,14 +71,17 @@ This documentation serves as a record of the existing functionality of our app t
 
 The backlog is organized by epic, with each task having a unique ID, description, priority, associated epic, and detailed descriptions all in one place, using nested lists to preserve the structure of task details.
 
-#### Epic: Flow and Subflow Management
+#### Epic: Flow Management
 
--   **FM-01**: Develop UI for creating and managing new flows/subflows.
-    -   **Objective**: Facilitate the creation and management of new flows and subflows within the application.
-    -   **Technical Requirements**: Implement a user interface that allows for the easy organization and management of flows and subflows.
--   **FM-02**: Implement flow/subflow organization mechanisms.
-    -   **Objective**: Provide mechanisms for organizing and managing flows and subflows.
-    -   **Technical Requirements**: Develop features that allow users to segment their work into manageable, modular flows and subflows.
+-   **FM-01**: Develop UI for creating and managing new flows.
+    -   **Objective**: Facilitate the creation and management of new flows within the application.
+    -   **Technical Requirements**: Implement a user interface that allows for the easy organization and management of flows.
+
+#### Epic: Subflows
+
+-   **SF-01**: Implement flow/subflow organization mechanisms.
+    -   **Objective**: Provide mechanisms for organizing and managing subflows.
+    -   **Technical Requirements**: Develop features that allow users to segment their work into manageable, modular subflows.
 
 #### Epic: Backend Integration and Data Management
 
