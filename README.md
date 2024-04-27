@@ -166,6 +166,16 @@ The backlog is organized by epic, with each task having a unique ID, description
 
 #### Epic: UI/UX Design and Responsive Layout
 
+-   **UX-01**: Implement Undo/Redo Functionality
+
+    -   **Description**: Add undo and redo capabilities to the flow canvas to allow users to revert and reapply actions easily.
+    -   **Priority**: Medium
+    -   **Technical Requirements**: Develop a history management system that tracks user actions and allows them to be reversed or reapplied.
+
+-   **UX-02**: Enhance Zoom and Navigation Controls
+    -   **Description**: Improve the zoom and navigation controls on the flow canvas to better manage viewing large and complex flows.
+    -   **Priority**: Medium
+    -   **Technical Requirements**: Implement a minimap and enhanced zoom controls that provide a better overview and navigation experience.
 -   **UX-03**: Implement responsive design.
     -   **Objective**: Ensure the frontend client is accessible and usable across various devices.
     -   **Technical Requirements**: Adopt a responsive design approach that allows the frontend client to adapt to different screen sizes and resolutions, ensuring a consistent user experience.
@@ -216,9 +226,23 @@ The backlog is organized by epic, with each task having a unique ID, description
 #### Epic: Enhanced Node Interaction
 
 -   **ENI-01**: Implement Context Menu for Node Options
+
     -   **Description**: Develop a context menu that provides additional configuration options for nodes directly on the canvas.
     -   **Priority**: Medium
     -   **Technical Requirements**: Implement UI components that allow users to access and modify node settings through a context-sensitive menu.
+
+#### Epic: Collaboration and Version Control
+
+-   **CV-01**: Implement Collaboration Tools
+
+-   **Description**: Develop tools that support multiple users working on the same flow simultaneously.
+-   **Priority**: High
+-   **Technical Requirements**: Integrate real-time editing capabilities, user presence indicators, and section locking mechanisms.
+
+-   **CV-02**: Integrate Version Control
+-   **Description**: Integrate version control mechanisms to manage and track changes in flow designs.
+-   **Priority**: High
+-   **Technical Requirements**: Implement or integrate with a version control system to allow users to manage versions of their flows, including viewing, reverting, and managing changes.
 
 ### Scrum Board
 
