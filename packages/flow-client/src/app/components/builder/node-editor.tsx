@@ -6,12 +6,12 @@ import {
     createNodeInstance,
     executeNodeFn,
     finalizeNodeEditor,
-} from '../red/execute-script';
-import { useAppDispatch, useAppLogic, useAppSelector } from '../redux/hooks';
+} from '../../red/execute-script';
+import { useAppDispatch, useAppLogic, useAppSelector } from '../../redux/hooks';
 import {
     builderActions,
     selectEditing,
-} from '../redux/modules/builder/builder.slice';
+} from '../../redux/modules/builder/builder.slice';
 
 import faCssUrl from '@fortawesome/fontawesome-free/css/all.css?url';
 import jqueryUiCssUrl from '../red/jquery-ui.css?url';
@@ -21,9 +21,9 @@ import {
     FlowNodeEntity,
     flowActions,
     selectEntityById,
-} from '../redux/modules/flow/flow.slice';
-import { selectNodeById } from '../redux/modules/node/node.slice';
-import environment from '../../environment';
+} from '../../redux/modules/flow/flow.slice';
+import { selectNodeById } from '../../redux/modules/node/node.slice';
+import environment from '../../../environment';
 
 const StyledEditor = styled.div`
     position: absolute;
