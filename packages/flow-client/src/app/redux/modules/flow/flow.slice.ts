@@ -83,6 +83,7 @@ export interface FlowEntity {
     disabled: boolean;
     info: string;
     env: unknown[];
+    treePath?: string;
 }
 
 export interface SubflowEntity {
@@ -96,6 +97,7 @@ export interface SubflowEntity {
     icon?: string;
     in?: unknown[];
     out?: unknown[];
+    treePath?: string;
 }
 
 // Union type for all possible entities in the flow state
