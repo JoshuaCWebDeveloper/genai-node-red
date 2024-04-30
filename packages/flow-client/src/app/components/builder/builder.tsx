@@ -17,23 +17,26 @@ const StyledBuilder = styled.div`
     display: flex;
     flex-direction: row;
     position: relative;
+    overflow: hidden;
     height: calc(100% - 60px);
+    width: 100%;
 
     .primary-sidebar {
         border-right-style: solid;
-        width: 150px;
+        flex: 0 0 150px;
     }
 
     .center {
         flex: 1;
+        min-width: 0;
 
         display: flex;
         flex-direction: column;
     }
 
-    .tab-list {
-        border-top-style: solid;
-        flex: 0 0 40px;
+    .tab-container {
+        flex: 0 0 35px;
+        min-height: 0;
     }
 
     .console-panel {
@@ -42,7 +45,7 @@ const StyledBuilder = styled.div`
 
     .secondary-sidebar {
         border-left-style: solid;
-        width: 200px;
+        flex: 0 0 200px;
     }
 `;
 
