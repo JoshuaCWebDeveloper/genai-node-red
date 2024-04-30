@@ -6,9 +6,12 @@ import { FlowLogic, NodeModel, SerializedGraph } from './flow.logic';
 import {
     FlowEntity,
     FlowNodeEntity,
+    SubflowEntity,
     flowActions,
     selectEntityById,
     selectFlowNodesByFlowId,
+    selectFlows,
+    selectSubflows,
 } from './flow.slice';
 
 vi.mock('../node/node.slice', async importOriginal => {
@@ -29,6 +32,8 @@ vi.mock('./flow.slice', async importOriginal => {
     >();
     return {
         ...originalModule,
+        selectFlows: vi.fn(() => []),
+        selectSubflows: vi.fn(() => []),
         selectFlowNodesByFlowId: vi.fn(() => []),
         selectEntityById: vi.fn(() => null),
     };
@@ -48,6 +53,10 @@ const mockedSelectEntityById = selectEntityById as MockedFunction<
 >;
 const mockedSelectFlowNodesByFlowId = selectFlowNodesByFlowId as MockedFunction<
     typeof selectFlowNodesByFlowId
+>;
+const mockedSelectFlows = selectFlows as MockedFunction<typeof selectFlows>;
+const mockedSelectSubflows = selectSubflows as MockedFunction<
+    typeof selectSubflows
 >;
 
 describe('flow.logic', () => {
@@ -643,6 +652,108 @@ describe('flow.logic', () => {
                     ]),
                 })
             );
+        });
+    });
+
+    describe('selectFlowTree', () => {
+        it('should construct a tree from flows and subflows', () => {
+            const state = {
+                flows: [
+                    {
+                        id: 'flow1',
+                        label: 'Main Flow',
+                        treePath: '/flows/main',
+                    },
+                    {
+                        id: 'flow2',
+                        label: 'Secondary Flow',
+                        treePath: '/flows/secondary',
+                    },
+                ] as FlowEntity[],
+                subflows: [
+                    {
+                        id: 'subflow1',
+                        name: 'Subflow A',
+                        treePath: '/subflows/groupA',
+                    },
+                    {
+                        id: 'subflow2',
+                        name: 'Subflow B',
+                        treePath: '/subflows/groupB',
+                    },
+                ] as SubflowEntity[],
+            };
+
+            mockedSelectFlows.mockImplementation(() => state.flows);
+            mockedSelectSubflows.mockImplementation(() => state.subflows);
+
+            const flowLogic = new FlowLogic();
+            const tree = flowLogic.selectFlowTree(state);
+
+            expect(tree).toEqual([
+                {
+                    id: 'flows',
+                    name: 'flows',
+                    parentPath: '',
+                    children: [
+                        {
+                            id: 'main',
+                            name: 'main',
+                            parentPath: '/flows',
+                            children: [
+                                {
+                                    id: 'flow1',
+                                    name: 'Main Flow',
+                                    parentPath: '/flows/main',
+                                },
+                            ],
+                        },
+                        {
+                            id: 'secondary',
+                            name: 'secondary',
+                            parentPath: '/flows',
+                            children: [
+                                {
+                                    id: 'flow2',
+                                    name: 'Secondary Flow',
+                                    parentPath: '/flows/secondary',
+                                },
+                            ],
+                        },
+                    ],
+                },
+                {
+                    id: 'subflows',
+                    name: 'subflows',
+                    parentPath: '',
+                    children: [
+                        {
+                            id: 'groupA',
+                            name: 'groupA',
+                            parentPath: '/subflows',
+                            children: [
+                                {
+                                    id: 'subflow1',
+                                    name: 'Subflow A',
+                                    parentPath: '/subflows/groupA',
+                                },
+                            ],
+                        },
+                        {
+                            id: 'groupB',
+                            name: 'groupB',
+                            parentPath: '/subflows',
+                            children: [
+                                {
+                                    id: 'subflow2',
+                                    name: 'Subflow B',
+                                    parentPath: '/subflows/groupB',
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ]);
         });
     });
 });

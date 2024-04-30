@@ -645,7 +645,6 @@ export class FlowLogic {
                         .split('/')
                         .filter(p => p)
                         .forEach(part => {
-                            parentPath += `/${part}`;
                             let node = currentNodes.find(it => it.id === part);
                             if (!node) {
                                 node = {
@@ -659,6 +658,7 @@ export class FlowLogic {
                             if (!node.children) {
                                 node.children = [];
                             }
+                            parentPath += `/${part}`;
                             currentNodes = node.children;
                         });
 
