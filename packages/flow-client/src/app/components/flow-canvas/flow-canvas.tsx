@@ -1,7 +1,6 @@
 import { Point } from '@projectstorm/geometry';
 import { CanvasWidget, ListenerHandle } from '@projectstorm/react-canvas-core';
 import {
-    DefaultLinkModel,
     DefaultPortModel,
     PortModelAlignment,
 } from '@projectstorm/react-diagrams';
@@ -18,10 +17,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { useAppDispatch, useAppLogic, useAppSelector } from '../../redux/hooks';
 import { SerializedGraph } from '../../redux/modules/flow/flow.logic';
-import {
-    selectAllEntities,
-    selectFlows,
-} from '../../redux/modules/flow/flow.slice';
+import { selectAllEntities } from '../../redux/modules/flow/flow.slice';
 import { NodeEntity } from '../../redux/modules/node/node.slice';
 import { ItemTypes } from '../node/draggable-item-types'; // Assuming ItemTypes is defined elsewhere
 import { createEngine } from './engine';
@@ -87,50 +83,48 @@ const LogFlowSlice = () => {
 //     },
 // });
 
+const createModel = (flowId: string) => {
+    return new CustomDiagramModel({ id: flowId });
+};
+
 export type FlowCanvasProps = {
-    initialDiagram?: {
-        nodes?: CustomNodeModel[];
-        links?: DefaultLinkModel[];
-    };
+    flowId?: string;
 };
 
 // FlowCanvasContainer initializes and displays the flow canvas.
 // It sets up the diagram engine and model for rendering nodes and connections.
 // It now accepts initialDiagram as props to allow hardcoded diagrams with nodes and links.
-export const FlowCanvas: React.FC<FlowCanvasProps> = ({
-    initialDiagram = {},
-}) => {
+export const FlowCanvas: React.FC<FlowCanvasProps> = ({ flowId }) => {
     const dispatch = useAppDispatch();
     const nodeLogic = useAppLogic().node;
     const flowLogic = useAppLogic().flow;
-    const existingFlows = useAppSelector(selectFlows);
 
     const [engine] = useState(createEngine());
-    const [model] = useState(
-        new CustomDiagramModel({ id: existingFlows[0]?.id ?? uuidv4() })
-    );
-
-    const serializedGraph = useAppSelector(state =>
-        flowLogic.selectSerializedGraphByFlowId(state, model.getID())
-    );
-
-    // Inside your component
     const listenerHandleRef = useRef<ListenerHandle | null>(null);
 
-    useMemo(() => {
-        model.setGridSize(20);
+    const model = useMemo(() => {
+        if (!flowId) {
+            return null;
+        }
 
-        // Add initial nodes and links to the model if any
-        initialDiagram.nodes?.forEach(node => model.addNode(node));
-        initialDiagram.links?.forEach(link => model.addLink(link));
+        const newModel = createModel(flowId);
+        newModel.setGridSize(20);
+        engine.setModel(newModel);
 
-        // Configure engine and model as needed
-        engine.setModel(model);
-    }, [initialDiagram.links, initialDiagram.nodes, model, engine]);
+        return newModel;
+    }, [flowId, engine]);
+
+    const serializedGraph = useAppSelector(state =>
+        flowLogic.selectSerializedGraphByFlowId(state, model?.getID() ?? '')
+    );
 
     const registerModelChangeListener = useCallback(() => {
         // Event listener for any change in the model
         const handleModelChange = debounce(() => {
+            if (!model) {
+                return;
+            }
+
             // Serialize the current state of the diagram
             // serialize() is defined with the incorrect type
             const serializedModel =
@@ -304,7 +298,7 @@ export const FlowCanvas: React.FC<FlowCanvasProps> = ({
                 );
             });
 
-            model.addNode(node);
+            model?.addNode(node);
             engine.repaintCanvas();
         },
     }));
