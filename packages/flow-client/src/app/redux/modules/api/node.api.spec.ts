@@ -1,5 +1,6 @@
 import * as apiModule from '@reduxjs/toolkit/query/react';
 import { MockedFunction } from 'vitest';
+import { nodeActions } from '../node/node.slice';
 
 // Mock the createApi and fetchBaseQuery functions from RTK Query
 vi.mock('@reduxjs/toolkit/query/react', () => {
@@ -23,6 +24,29 @@ const mockedBaseQuery = apiModule.fetchBaseQuery as unknown as MockedFunction<
 
 describe('nodeApi', () => {
     const BASE_URL = 'https://www.example.com/api';
+
+    const extractEndpointQuery = (endpoint: string) => {
+        const endpointFn = mockedCreateApi.mock.calls[0][0].endpoints;
+        const calls: number[] = [];
+        const mockQuery = vi.fn(_endpointDef => {
+            const call = Math.floor(Math.random() * 10000);
+            calls.push(call);
+            return call;
+        });
+
+        // Trigger the endpoint function with the mocked builder
+        const endpoints = endpointFn({
+            // @ts-expect-error: testing
+            query: mockQuery,
+            mutation: vi.fn(),
+        }) as unknown as Record<string, number>;
+
+        const callIndex = calls.findIndex(call => call === endpoints[endpoint]);
+
+        // Capture the query method passed to mockQuery
+        return mockQuery.mock.calls[callIndex][0];
+    };
+
     beforeEach(async () => {
         vi.stubEnv('VITE_NODE_RED_API_ROOT', BASE_URL);
         mockedCreateApi.mockClear();
@@ -38,78 +62,133 @@ describe('nodeApi', () => {
         });
     });
 
-    it('getNodes endpoint query configuration is correct', () => {
-        const endpointFn = mockedCreateApi.mock.calls[0][0].endpoints;
-        const mockQuery = vi.fn();
+    describe('getNodes()', () => {
+        it('query() configuration is correct', () => {
+            const { query } = extractEndpointQuery('getNodes');
 
-        // Trigger the endpoint function with the mocked builder
-        endpointFn({
-            query: mockQuery,
-            mutation: vi.fn(),
+            // Directly invoke the captured query method to test its configuration
+            const queryConfig = query();
+
+            // Assert the query configuration
+            expect(queryConfig).toEqual({
+                url: 'nodes',
+                headers: {
+                    Accept: 'application/json',
+                },
+            });
         });
 
-        // Ensure mockQuery was called with an object that includes a query method
-        expect(mockQuery).toHaveBeenCalled();
+        it('transformResponse() is configured correctly', () => {
+            const { transformResponse } = extractEndpointQuery('getNodes');
 
-        // Capture the query method passed to mockQuery
-        const queryMethod = mockQuery.mock.calls[0][0].query;
+            // Prepare mock response data for testing transformResponse
+            const mockResponse = [
+                {
+                    id: 'node-module-1',
+                    name: 'Test Node 1',
+                    types: ['test-node-1-type-1', 'test-node-1-type-2'],
+                    enabled: true,
+                    local: true,
+                    user: false,
+                    module: 'test-module-1',
+                    version: '1.0.0',
+                },
+                // Add more nodes as needed for thorough testing
+            ];
 
-        // Directly invoke the captured query method to test its configuration
-        const queryConfig = queryMethod();
-
-        // Assert the query configuration
-        expect(queryConfig).toEqual({
-            url: 'nodes',
-            headers: {
-                Accept: 'application/json',
-            },
+            // Test the transformResponse function
+            const transformedResponse = transformResponse(mockResponse);
+            const expectedTransformedResponse = mockResponse.flatMap(node =>
+                node.types.map(type => ({
+                    ...node,
+                    id: type,
+                    nodeRedId: node.id,
+                    type,
+                    types: undefined,
+                }))
+            );
+            expect(transformedResponse).toEqual(expectedTransformedResponse);
         });
-    });
 
-    it('getNodes endpoint transformResponse is configured correctly', () => {
-        const endpointFn = mockedCreateApi.mock.calls[0][0].endpoints;
-
-        // Mock the builder to capture the query configuration
-        const mockQuery = vi.fn();
-        // Invoke the endpoints function with the mocked builder to capture the getNodes configuration
-        endpointFn({
-            query: mockQuery,
-            mutation: vi.fn(),
-        });
-
-        // Ensure mockQuery was called with an object that includes a query method
-        expect(mockQuery).toHaveBeenCalled();
-
-        // Assuming the first call to builder.query() is for the getNodes endpoint
-        // Extract the query and transformResponse functions
-        const { transformResponse } = mockQuery.mock.calls[0][0];
-
-        // Prepare mock response data for testing transformResponse
-        const mockResponse = [
-            {
-                id: 'node-module-1',
-                name: 'Test Node 1',
-                types: ['test-node-1-type-1', 'test-node-1-type-2'],
+        it('onQueryStarted dispatches setNodes action with fetched data', async () => {
+            const dispatch = vi.fn();
+            const testNode = {
+                id: 'node1',
+                nodeRedId: 'node1',
+                name: 'Node 1',
+                type: 'type2',
                 enabled: true,
                 local: true,
                 user: false,
-                module: 'test-module-1',
-                version: '1.0.0',
-            },
-            // Add more nodes as needed for thorough testing
-        ];
+                module: 'module1',
+                version: '1.0',
+            };
+            const queryFulfilled = Promise.resolve({
+                data: [testNode],
+            });
 
-        // Test the transformResponse function
-        const transformedResponse = transformResponse(mockResponse);
-        const expectedTransformedResponse = mockResponse.flatMap(node =>
-            node.types.map(type => ({
-                ...node,
-                id: type,
-                nodeRedId: node.id,
-                type,
-                types: undefined,
-            }))
-        );
-        expect(transformedResponse).toEqual(expectedTransformedResponse);
+            const { onQueryStarted } = extractEndpointQuery('getNodes');
+
+            // Simulate the onQueryStarted logic
+            await onQueryStarted(undefined, {
+                dispatch,
+                queryFulfilled,
+                extra: {}, // Assuming no extra logic needed for this test
+            });
+
+            // Wait for the promise to resolve
+            await queryFulfilled;
+
+            // Check if the dispatch was called with the correct action and payload
+            expect(dispatch).toHaveBeenCalledWith(
+                nodeActions.setNodes([testNode])
+            );
+        });
+    });
+
+    describe('getNodeScripts()', () => {
+        it('query() configuration is correct', () => {
+            const { query } = extractEndpointQuery('getNodeScripts');
+
+            // Directly invoke the captured query method to test its configuration
+            const queryConfig = query();
+
+            // Assert the query configuration
+            expect(queryConfig).toEqual({
+                url: 'nodes',
+                headers: {
+                    Accept: 'text/html',
+                },
+            });
+        });
+
+        it('onQueryStarted dispatches setNodeScripts action with fetched data', async () => {
+            const dispatch = vi.fn();
+            const TEST_ACTION = 'test-action';
+            const setNodeScripts = vi.fn(() => TEST_ACTION);
+            const queryFulfilled = Promise.resolve({
+                data: '<script>console.log("Loaded")</script>',
+            });
+
+            const { onQueryStarted } = extractEndpointQuery('getNodeScripts');
+
+            // Simulate the onQueryStarted logic
+            await onQueryStarted(undefined, {
+                dispatch,
+                queryFulfilled,
+                extra: { node: { setNodeScripts } },
+            });
+
+            // Wait for the promise to resolve
+            await queryFulfilled;
+
+            // setNodeScripts thunk should have been called
+            expect(setNodeScripts).toHaveBeenCalledWith(
+                '<script>console.log("Loaded")</script>'
+            );
+
+            // Check if the dispatch was called with the correct action and payload
+            expect(dispatch).toHaveBeenCalledWith(TEST_ACTION);
+        });
     });
 });
