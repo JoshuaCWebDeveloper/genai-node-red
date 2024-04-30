@@ -1,7 +1,6 @@
 import { Point } from '@projectstorm/geometry';
 import { CanvasWidget, ListenerHandle } from '@projectstorm/react-canvas-core';
 import {
-    DefaultLinkModel,
     DefaultPortModel,
     PortModelAlignment,
 } from '@projectstorm/react-diagrams';
@@ -18,48 +17,71 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { useAppDispatch, useAppLogic, useAppSelector } from '../../redux/hooks';
 import { SerializedGraph } from '../../redux/modules/flow/flow.logic';
-import {
-    selectAllEntities,
-    selectFlows,
-} from '../../redux/modules/flow/flow.slice';
+import { selectAllEntities } from '../../redux/modules/flow/flow.slice';
 import { NodeEntity } from '../../redux/modules/node/node.slice';
 import { ItemTypes } from '../node/draggable-item-types'; // Assuming ItemTypes is defined elsewhere
 import { createEngine } from './engine';
 import { CustomDiagramModel } from './model';
 import { CustomNodeModel } from './node';
 
+const StyledContainer = styled.div`
+    height: 100%;
+    width: 100%;
+    background-color: var(--color-background-main);
+`;
+
 const StyledCanvasWidget = styled(CanvasWidget)`
-    background-color: #f0f0f0; /* Light grey background */
+    background-color: var(--color-background-main);
     background-image: linear-gradient(
             0deg,
             transparent 24%,
-            rgba(0, 0, 0, 0.1) 25%,
-            rgba(0, 0, 0, 0.1) 26%,
-            transparent 27%,
+            var(--color-border-light) 25%,
+            transparent 26%,
             transparent 74%,
-            rgba(0, 0, 0, 0.1) 75%,
-            rgba(0, 0, 0, 0.1) 76%,
+            var(--color-border-light) 75%,
             transparent 77%,
             transparent
         ),
         linear-gradient(
             90deg,
             transparent 24%,
-            rgba(0, 0, 0, 0.1) 25%,
-            rgba(0, 0, 0, 0.1) 26%,
-            transparent 27%,
+            var(--color-border-light) 25%,
+            transparent 26%,
             transparent 74%,
-            rgba(0, 0, 0, 0.1) 75%,
-            rgba(0, 0, 0, 0.1) 76%,
+            var(--color-border-light) 75%,
             transparent 77%,
             transparent
         );
     background-size: 50px 50px;
-    border: 1px solid #ccc; /* Adds a border around the canvas */
-    height: calc(
-        100vh - 60px
-    ); /* Adjust height if you have a header or toolbar */
+    /* border: 1px solid #ccc; Adds a border around the canvas */
+    height: 100%;
     overflow: auto; /* Allows scrolling within the canvas */
+`;
+
+const StyledEmptyFlowMessage = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 5em;
+    color: var(--color-text-light);
+    font-weight: bold;
+    text-align: center;
+    flex-direction: column;
+    height: calc(100% - 40px);
+    background-color: var(--color-background-element-light);
+    border: 2px dashed var(--color-border-medium);
+    border-radius: 10px;
+    padding: 20px;
+    margin: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+
+    i {
+        display: block;
+    }
+
+    p {
+        margin-bottom: 0;
+    }
 `;
 
 const debounce = (func: (...args: unknown[]) => void, wait: number) => {
@@ -91,50 +113,48 @@ const LogFlowSlice = () => {
 //     },
 // });
 
+const createModel = (flowId: string) => {
+    return new CustomDiagramModel({ id: flowId });
+};
+
 export type FlowCanvasProps = {
-    initialDiagram?: {
-        nodes?: CustomNodeModel[];
-        links?: DefaultLinkModel[];
-    };
+    flowId?: string;
 };
 
 // FlowCanvasContainer initializes and displays the flow canvas.
 // It sets up the diagram engine and model for rendering nodes and connections.
 // It now accepts initialDiagram as props to allow hardcoded diagrams with nodes and links.
-export const FlowCanvas: React.FC<FlowCanvasProps> = ({
-    initialDiagram = {},
-}) => {
+export const FlowCanvas: React.FC<FlowCanvasProps> = ({ flowId }) => {
     const dispatch = useAppDispatch();
     const nodeLogic = useAppLogic().node;
     const flowLogic = useAppLogic().flow;
-    const existingFlows = useAppSelector(selectFlows);
 
     const [engine] = useState(createEngine());
-    const [model] = useState(
-        new CustomDiagramModel({ id: existingFlows[0]?.id ?? uuidv4() })
-    );
-
-    const serializedGraph = useAppSelector(state =>
-        flowLogic.selectSerializedGraphByFlowId(state, model.getID())
-    );
-
-    // Inside your component
     const listenerHandleRef = useRef<ListenerHandle | null>(null);
 
-    useMemo(() => {
-        model.setGridSize(20);
+    const model = useMemo(() => {
+        if (!flowId) {
+            return null;
+        }
 
-        // Add initial nodes and links to the model if any
-        initialDiagram.nodes?.forEach(node => model.addNode(node));
-        initialDiagram.links?.forEach(link => model.addLink(link));
+        const newModel = createModel(flowId);
+        newModel.setGridSize(20);
+        engine.setModel(newModel);
 
-        // Configure engine and model as needed
-        engine.setModel(model);
-    }, [initialDiagram.links, initialDiagram.nodes, model, engine]);
+        return newModel;
+    }, [flowId, engine]);
+
+    const serializedGraph = useAppSelector(state =>
+        flowLogic.selectSerializedGraphByFlowId(state, model?.getID() ?? '')
+    );
 
     const registerModelChangeListener = useCallback(() => {
         // Event listener for any change in the model
         const handleModelChange = debounce(() => {
+            if (!model) {
+                return;
+            }
+
             // Serialize the current state of the diagram
             // serialize() is defined with the incorrect type
             const serializedModel =
@@ -308,7 +328,7 @@ export const FlowCanvas: React.FC<FlowCanvasProps> = ({
                 );
             });
 
-            model.addNode(node);
+            model?.addNode(node);
             engine.repaintCanvas();
         },
     }));
@@ -316,15 +336,21 @@ export const FlowCanvas: React.FC<FlowCanvasProps> = ({
     // The CanvasWidget component is used to render the flow canvas within the UI.
     // The "canvas-widget" className can be targeted for custom styling.
     return (
-        <div
+        <StyledContainer
             className="flow-canvas-container"
             ref={drop}
-            style={{ height: '100%', width: '100%' }}
             tabIndex={0}
         >
             <LogFlowSlice />
-            <StyledCanvasWidget engine={engine} className="flow-canvas" />
-        </div>
+            {model ? (
+                <StyledCanvasWidget engine={engine} className="flow-canvas" />
+            ) : (
+                <StyledEmptyFlowMessage>
+                    <i className="fa-solid fa-edit" />
+                    <p>Open flow to edit</p>
+                </StyledEmptyFlowMessage>
+            )}
+        </StyledContainer>
     );
 };
 

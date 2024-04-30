@@ -8,9 +8,12 @@ import {
     FlowNodeEntity,
     LinkModel,
     PortModel,
+    SubflowEntity,
     flowActions,
     selectEntityById,
     selectFlowNodesByFlowId,
+    selectFlows,
+    selectSubflows,
 } from './flow.slice';
 import { executeNodeFn } from '../../../red/execute-script';
 import { PortModelAlignment } from '@projectstorm/react-diagrams';
@@ -71,6 +74,13 @@ type DirtyNodeChanges = Partial<
         __outputs: number | null;
     }
 >;
+
+export type TreeItem = {
+    id: string;
+    name: string;
+    parentPath: string;
+    children?: TreeItem[];
+};
 
 export class FlowLogic {
     // Method to extract inputs and outputs from a NodeEntity, including deserializing inputLabels and outputLabels
@@ -607,6 +617,62 @@ export class FlowLogic {
             };
 
             return serializedGraph;
+        }
+    );
+
+    selectFlowTree = createSelector(
+        [state => state, selectFlows, selectSubflows],
+        (state, flows, subflows) => {
+            // collect tree hierarchy
+            const tree = [] as TreeItem[];
+            const treeParts = {} as Record<string, TreeItem>;
+            // loop flows and subflows with default paths
+            [
+                {
+                    defaultPath: '/flows',
+                    items: flows,
+                },
+                {
+                    defaultPath: '/subflows',
+                    items: subflows,
+                },
+            ].forEach(({ defaultPath, items }) => {
+                items.forEach(item => {
+                    const treePath = item.treePath ?? defaultPath;
+                    let currentNodes = tree;
+                    let parentPath = '';
+                    treePath
+                        .split('/')
+                        .filter(p => p)
+                        .forEach(part => {
+                            let node = currentNodes.find(it => it.id === part);
+                            if (!node) {
+                                node = {
+                                    id: part,
+                                    name: part,
+                                    parentPath,
+                                };
+                                treeParts[node.id] = node;
+                                currentNodes.push(node);
+                            }
+                            if (!node.children) {
+                                node.children = [];
+                            }
+                            parentPath += `/${part}`;
+                            currentNodes = node.children;
+                        });
+
+                    currentNodes.push({
+                        id: item.id,
+                        name:
+                            (item as SubflowEntity).name ??
+                            (item as FlowEntity).label,
+                        parentPath,
+                    });
+                });
+            });
+
+            return tree;
         }
     );
 }

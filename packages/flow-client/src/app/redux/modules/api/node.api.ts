@@ -1,6 +1,7 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import environment from '../../../../environment';
-import { NodeEntity } from '../node/node.slice';
+import { NodeEntity, nodeActions } from '../node/node.slice';
+import { AppLogic } from '../../logic';
 
 // Define a service using a base URL and expected endpoints for nodes
 export const nodeApi = createApi({
@@ -43,6 +44,14 @@ export const nodeApi = createApi({
                 );
                 return transformed;
             },
+            async onQueryStarted(_args, { dispatch, queryFulfilled }) {
+                try {
+                    const { data: rawNodes } = await queryFulfilled;
+                    dispatch(nodeActions.setNodes(rawNodes));
+                } catch (error) {
+                    /* ignore errors - handled by caller */
+                }
+            },
         }),
         // Endpoint to fetch the collection of scripts to inject as HTML
         getNodeScripts: builder.query<string, void>({
@@ -54,6 +63,18 @@ export const nodeApi = createApi({
             }),
             // No transformResponse needed for scripts
             providesTags: ['Node'],
+            async onQueryStarted(
+                _arg,
+                { dispatch, queryFulfilled, extra: logic }
+            ) {
+                const nodeLogic = (logic as AppLogic).node;
+                try {
+                    const { data: nodeScripts } = await queryFulfilled;
+                    dispatch(nodeLogic.setNodeScripts(nodeScripts));
+                } catch (error) {
+                    /* ignore errors - handled by caller */
+                }
+            },
         }),
     }),
 });

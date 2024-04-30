@@ -16,6 +16,7 @@ import { nodeApi } from './modules/api/node.api'; // Import the nodeApi
 import {
     BUILDER_FEATURE_KEY,
     builderReducer,
+    BuilderState,
 } from './modules/builder/builder.slice';
 import {
     FEATURE_FEATURE_KEY,
@@ -27,8 +28,9 @@ import {
     FlowState,
 } from './modules/flow/flow.slice';
 import { NODE_FEATURE_KEY, nodeReducer } from './modules/node/node.slice';
+import type { AppLogic } from './logic';
 
-export const createStore = () => {
+export const createStore = (logic: AppLogic) => {
     const store = configureStore({
         reducer: {
             [FEATURE_FEATURE_KEY]: featureReducer,
@@ -43,7 +45,13 @@ export const createStore = () => {
                 },
                 flowReducer
             ),
-            [BUILDER_FEATURE_KEY]: builderReducer,
+            [BUILDER_FEATURE_KEY]: persistReducer<BuilderState>(
+                {
+                    key: BUILDER_FEATURE_KEY,
+                    storage: storage,
+                },
+                builderReducer
+            ),
         },
         // Additional middleware can be passed to this array
         middleware: getDefaultMiddleware =>
@@ -57,6 +65,9 @@ export const createStore = () => {
                         PURGE,
                         REGISTER,
                     ],
+                },
+                thunk: {
+                    extraArgument: logic,
                 },
             }).concat(featureApi.middleware, nodeApi.middleware),
         devTools: process.env.NODE_ENV !== 'production',

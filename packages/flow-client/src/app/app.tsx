@@ -1,8 +1,10 @@
 import styled from 'styled-components';
 
-import { FlowCanvas } from './components/flow-canvas/flow-canvas'; // Ensure the path is correct
-import { NodeEditor } from './components/node-editor';
-import { NodePalette } from './components/node-palette/node-palette'; // Import NodePalette
+import { Builder } from './components/builder/builder';
+import { Header } from './components/header/header'; // Import the new Header component
+import { useAppSelector } from './redux/hooks';
+import { selectTheme } from './redux/modules/builder/builder.slice';
+import themes from './themes';
 
 // StyledApp defines the main application container styles.
 // It ensures the flow canvas takes up the full viewport height for better visibility.
@@ -10,44 +12,23 @@ const StyledApp = styled.div`
     height: 100vh; // Full viewport height
 
     header {
-        height: 60px; /* Example height */
-        background-color: #333; /* Dark background for contrast */
-        color: white; /* Light text for readability */
-        display: flex;
-        align-items: center;
-        padding: 0 20px; /* Padding on the sides */
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Adds a subtle shadow for depth */
-    }
-
-    .builder-container {
-        display: flex;
-        flex-direction: row;
-        position: relative;
-        height: calc(100% - 60px);
-
-        .node-palette {
-            width: 200px;
-        }
-
-        .flow-canvas {
-            flex: 1;
-        }
+        height: 40px;
     }
 `;
 
 // App is the main functional component of the application.
 // It renders the FlowCanvasContainer component within a styled div.
 export function App() {
+    const theme = useAppSelector(selectTheme);
+    const GlobalTheme = themes[theme];
+
     return (
         <StyledApp>
-            <header className="toolbar">
-                <h1>Flow Canvas</h1>
-            </header>
-            <div className="builder-container">
-                <NodePalette />
-                <FlowCanvas />
-                <NodeEditor />
-            </div>
+            <GlobalTheme />
+
+            <Header />
+
+            <Builder />
         </StyledApp>
     );
 }

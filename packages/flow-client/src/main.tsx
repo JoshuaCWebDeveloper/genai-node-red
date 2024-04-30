@@ -25,12 +25,14 @@ const GlobalStyle = createGlobalStyle`
 
 `;
 
+const logic = createLogic();
+
 const root = ReactDOM.createRoot(
     document.getElementById('root') as HTMLElement
 );
 
 root.render(
-    <AppProvider store={createStore()} logic={createLogic()}>
+    <AppProvider store={createStore(logic)} logic={logic}>
         <DndProvider backend={HTML5Backend}>
             <StrictMode>
                 <GlobalStyle />
