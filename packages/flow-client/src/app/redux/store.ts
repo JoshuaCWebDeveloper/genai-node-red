@@ -16,6 +16,7 @@ import { nodeApi } from './modules/api/node.api'; // Import the nodeApi
 import {
     BUILDER_FEATURE_KEY,
     builderReducer,
+    BuilderState,
 } from './modules/builder/builder.slice';
 import {
     FEATURE_FEATURE_KEY,
@@ -44,7 +45,13 @@ export const createStore = (logic: AppLogic) => {
                 },
                 flowReducer
             ),
-            [BUILDER_FEATURE_KEY]: builderReducer,
+            [BUILDER_FEATURE_KEY]: persistReducer<BuilderState>(
+                {
+                    key: BUILDER_FEATURE_KEY,
+                    storage: storage,
+                },
+                builderReducer
+            ),
         },
         // Additional middleware can be passed to this array
         middleware: getDefaultMiddleware =>
