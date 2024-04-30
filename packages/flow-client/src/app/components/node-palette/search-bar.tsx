@@ -5,19 +5,12 @@ export type SearchBarProps = {
     onSearch: (query: string) => void;
 };
 
-const StyledSearchInput = styled.input`
-    margin-bottom: 20px;
-    display: block;
-    width: 100%;
-    height: 30px;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-`;
+const StyledSearchInput = styled.input``;
 
 export const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
     return (
         <StyledSearchInput
+            className="search-bar"
             type="text"
             placeholder="Search nodes..."
             onChange={e => onSearch(e.target.value)}

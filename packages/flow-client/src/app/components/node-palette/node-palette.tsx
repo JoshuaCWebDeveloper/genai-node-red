@@ -9,9 +9,25 @@ import NodeList from './node-list';
 import SearchBar from './search-bar';
 
 const StyledNodePalette = styled.div`
-    background-color: #f0f0f0;
-    padding: 20px 0;
-    border-right: 1px solid #ddd;
+    padding: 0 0 20px;
+    width: 100%;
+    height: 100%;
+
+    .search-bar {
+        background-color: var(--color-background-element-medium);
+        color: var(--color-text-sharp);
+        border: 0;
+        margin-bottom: 20px;
+        display: block;
+        width: 100%;
+        height: calc(40px + 1px);
+        padding: 10px;
+        border-bottom: 1px solid #ddd;
+
+        &::placeholder {
+            color: var(--color-text-medium);
+        }
+    }
 `;
 
 export const NodePalette = () => {
