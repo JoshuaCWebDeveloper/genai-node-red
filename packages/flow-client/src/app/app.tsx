@@ -9,6 +9,7 @@ import themes from './themes';
 // StyledApp defines the main application container styles.
 // It ensures the flow canvas takes up the full viewport height for better visibility.
 const StyledApp = styled.div`
+    background-color: var(--color-background-main);
     height: 100vh; // Full viewport height
 
     header {

@@ -146,8 +146,8 @@ export class FlowLogic {
                 )
             );
 
-            // Create a flow entity to represent the graph
-            const flowEntity: FlowEntity = {
+            // get existing flow entity or create new one
+            const flowEntity = selectEntityById(getState(), graph.id) ?? {
                 id: graph.id,
                 type: 'tab',
                 label: 'My Flow', // Example label, could be dynamic

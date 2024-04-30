@@ -197,6 +197,47 @@ describe('flow.logic', () => {
             );
         });
 
+        it('should not override existing flow properties with new ones', async () => {
+            const existingFlow = {
+                id: 'flow1',
+                label: 'Existing Flow Label',
+                type: 'tab',
+                extras: { detail: 'Existing details' },
+                disabled: false,
+                info: '',
+                env: [],
+            } as FlowEntity;
+
+            const serializedGraph = {
+                id: 'flow1',
+                extras: { detail: 'New details' },
+                layers: [],
+                offsetX: 0,
+                offsetY: 0,
+                zoom: 100,
+                gridSize: 20,
+                locked: false,
+                selected: false,
+            } as SerializedGraph;
+
+            mockedSelectEntityById.mockReturnValue(existingFlow);
+
+            await flowLogic.updateFlowFromSerializedGraph(serializedGraph)(
+                mockDispatch,
+                mockGetState
+            );
+
+            expect(mockDispatch).toHaveBeenCalledWith(
+                flowActions.upsertEntity(
+                    expect.objectContaining({
+                        id: 'flow1',
+                        label: 'Existing Flow Label', // Ensure the label is not overridden
+                        extras: { detail: 'Existing details' }, // Ensure extras are not overridden
+                    })
+                )
+            );
+        });
+
         it('correctly creates a node from a serialized graph', async () => {
             const serializedGraph = {
                 id: 'flow1',
