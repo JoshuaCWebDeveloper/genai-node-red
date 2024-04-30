@@ -3,6 +3,9 @@ import styled from 'styled-components';
 import { FlowCanvas } from './components/flow-canvas/flow-canvas'; // Ensure the path is correct
 import { NodeEditor } from './components/node-editor';
 import { NodePalette } from './components/node-palette/node-palette'; // Import NodePalette
+import themes, { Theme } from './themes';
+import { useAppSelector } from './redux/hooks';
+import { selectTheme } from './redux/modules/builder/builder.slice';
 
 // StyledApp defines the main application container styles.
 // It ensures the flow canvas takes up the full viewport height for better visibility.
@@ -38,6 +41,9 @@ const StyledApp = styled.div`
 // App is the main functional component of the application.
 // It renders the FlowCanvasContainer component within a styled div.
 export function App() {
+    const theme = useAppSelector(selectTheme);
+    const GlobalTheme = themes[theme];
+
     return (
         <StyledApp>
             <header className="toolbar">
@@ -48,6 +54,7 @@ export function App() {
                 <FlowCanvas />
                 <NodeEditor />
             </div>
+            <GlobalTheme />
         </StyledApp>
     );
 }

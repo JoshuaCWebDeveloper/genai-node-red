@@ -1,14 +1,17 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { Theme } from '../../../themes';
 
 export const BUILDER_FEATURE_KEY = 'builder';
 
 // Define the state interface
 export interface BuilderState {
+    theme: Theme;
     editing: string | null;
 }
 
 // Initial state
 const initialState: BuilderState = {
+    theme: 'light',
     editing: null,
 };
 
@@ -17,6 +20,10 @@ export const builderSlice = createSlice({
     name: BUILDER_FEATURE_KEY,
     initialState,
     reducers: {
+        // Action to set the theme
+        setTheme: (state, action: PayloadAction<Theme>) => {
+            state.theme = action.payload;
+        },
         // Action to set the editing node
         setEditing: (state, action: PayloadAction<string | null>) => {
             state.editing = action.payload;
@@ -33,5 +40,7 @@ export const builderReducer = builderSlice.reducer;
 export const builderActions = builderSlice.actions;
 
 // Selectors
+export const selectTheme = (state: { [BUILDER_FEATURE_KEY]: BuilderState }) =>
+    state[BUILDER_FEATURE_KEY].theme;
 export const selectEditing = (state: { [BUILDER_FEATURE_KEY]: BuilderState }) =>
     state[BUILDER_FEATURE_KEY].editing;

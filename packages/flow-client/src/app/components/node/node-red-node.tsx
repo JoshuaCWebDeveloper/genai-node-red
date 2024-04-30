@@ -7,11 +7,11 @@ import { FlowNodeEntity } from '../../redux/modules/flow/flow.slice';
 // Styled component for the node item
 const StyledNode = styled.div<{ node: NodeEntity }>`
     align-items: center;
-    ${props =>
-        props.node.color ? `background-color: ${props.node.color};` : ''}
-    border: 1px solid #ddd;
+    background-color: ${props =>
+        props.node.color ? props.node.color : '#fff'};
     border-radius: 8px;
     box-shadow: rgba(0, 0, 0, 0.3) 0px 0px 0px 1px inset;
+    color: #000;
     display: flex;
     padding: 10px 15px;
     position: relative;

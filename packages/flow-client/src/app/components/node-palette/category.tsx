@@ -13,7 +13,7 @@ const StyledCategory = styled.div`
     margin-bottom: 30px;
 
     h3 {
-        color: #333;
+        color: var(--color-text);
         margin: 0 20px;
     }
 

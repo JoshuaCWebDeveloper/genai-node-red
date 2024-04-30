@@ -29,28 +29,24 @@ import { CustomDiagramModel } from './model';
 import { CustomNodeModel } from './node';
 
 const StyledCanvasWidget = styled(CanvasWidget)`
-    background-color: #f0f0f0; /* Light grey background */
+    background-color: var(--color-background-main);
     background-image: linear-gradient(
             0deg,
             transparent 24%,
-            rgba(0, 0, 0, 0.1) 25%,
-            rgba(0, 0, 0, 0.1) 26%,
-            transparent 27%,
+            var(--color-border-light) 25%,
+            transparent 26%,
             transparent 74%,
-            rgba(0, 0, 0, 0.1) 75%,
-            rgba(0, 0, 0, 0.1) 76%,
+            var(--color-border-light) 75%,
             transparent 77%,
             transparent
         ),
         linear-gradient(
             90deg,
             transparent 24%,
-            rgba(0, 0, 0, 0.1) 25%,
-            rgba(0, 0, 0, 0.1) 26%,
-            transparent 27%,
+            var(--color-border-light) 25%,
+            transparent 26%,
             transparent 74%,
-            rgba(0, 0, 0, 0.1) 75%,
-            rgba(0, 0, 0, 0.1) 76%,
+            var(--color-border-light) 75%,
             transparent 77%,
             transparent
         );
