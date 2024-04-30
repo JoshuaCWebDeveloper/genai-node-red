@@ -289,8 +289,8 @@ The backlog is organized by epic, with each task having a unique ID, description
 
 | To Do | In Progress | In Review | Done  |
 | ----- | ----------- | --------- | ----- |
-|       | FM-02       |           | FM-01 |
-| FM-03 |             |           |       |
+|       |             |           | FM-01 |
+| FM-03 |             |           | FM-02 |
 
 ### Progress Tracking
 
