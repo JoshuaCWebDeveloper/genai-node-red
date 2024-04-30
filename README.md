@@ -125,6 +125,33 @@ The backlog is organized by epic, with each task having a unique ID, description
         -   Integrate a console at the bottom for displaying debug outputs and system messages, aiding in troubleshooting and development.
         -   Add a theme switcher in the header to allow users to toggle between light and dark modes, catering to personal preferences and reducing eye strain.
         -   Ensure all panels include close buttons and can be toggled from the header to allow users to customize their workspace according to their needs.
+    -   **New and Updated Components**:
+        1. **Primary Sidebar**
+            - **Component**: `PrimarySidebar`
+            - **Description**: A new component that includes a file tree for managing flows, sections for config nodes, context data, and general information.
+            - **Integration**: Interacts with the backend for real-time updates and management of flows.
+        2. **Secondary Sidebar**
+            - **Component**: `SecondarySidebar`
+            - **Description**: A new component that includes the existing `NodePalette` and a new help browser section.
+            - **Features**: Combines node management and help resources in one accessible location, improving usability and accessibility.
+        3. **Tabs for Multiple Flows**
+            - **Component**: `TabManager`
+            - **Description**: A new component to manage multiple flow canvases, allowing users to switch between different flows via tabs.
+            - **Features**: Dynamic tab management with capabilities to add, close, and switch tabs efficiently.
+        4. **Console for Debug Outputs**
+            - **Component**: `Console`
+            - **Description**: A new component at the bottom of the interface for displaying debug outputs and system messages.
+            - **Features**: Support for various log levels and filtering to aid in troubleshooting and development.
+        5. **Header**
+            - **Component**: `Header`
+            - **Description**: A new component that replaces the existing header in `App.tsx`. It will include navigation controls, theme switching, and user settings.
+            - **Features**: Integrated theme switcher to toggle between light and dark modes, enhancing user preference management.
+    -   **Updates to App.tsx**
+        -   **Description**: Update the `App.tsx` to accommodate the new layout components and ensure cohesive integration.
+        -   **Changes**:
+            -   Replace the existing header with the new `Header` component.
+            -   Ensure the `Header`, `PrimarySidebar`, `SecondarySidebar`, and `Console` components are properly integrated and styled within the main application layout.
+            -   Adjust the overall styling to maintain a consistent and responsive design across the application.
 -   **FM-02**: Implement Tabbed Layout for Multiple Flows
     -   **Description**: Develop a tabbed interface to manage and switch between multiple flow canvases efficiently.
     -   **Priority**: High
@@ -248,7 +275,7 @@ The backlog is organized by epic, with each task having a unique ID, description
 
 | To Do | In Progress | In Review | Done |
 | ----- | ----------- | --------- | ---- |
-| FM-01 |             |           |      |
+|       | FM-01       |           |      |
 | FM-02 |             |           |      |
 | FM-03 |             |           |      |
 
