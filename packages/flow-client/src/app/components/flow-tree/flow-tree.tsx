@@ -1,4 +1,3 @@
-import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
 
 import { useAppLogic, useAppSelector } from '../../redux/hooks';
@@ -13,7 +12,6 @@ const StyledFlowTree = styled.div`
 
 // FlowTree component using react-arborist
 export const FlowTree = () => {
-    const dispatch = useDispatch();
     const flowLogic = useAppLogic().flow;
     const treeItems = useAppSelector(flowLogic.selectFlowTree);
 

@@ -2,10 +2,9 @@ import styled from 'styled-components';
 
 import { Builder } from './components/builder/builder';
 import { Header } from './components/header/header'; // Import the new Header component
-import { useState } from 'react';
-import themes, { Theme } from './themes';
 import { useAppSelector } from './redux/hooks';
 import { selectTheme } from './redux/modules/builder/builder.slice';
+import themes from './themes';
 
 // StyledApp defines the main application container styles.
 // It ensures the flow canvas takes up the full viewport height for better visibility.

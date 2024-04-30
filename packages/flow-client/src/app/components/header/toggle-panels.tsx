@@ -68,10 +68,10 @@ const StyledTogglePanels = styled.div`
 `;
 
 // HeaderProps might include any props for theme switching or other functionalities
-export type TogglePanelsProps = {};
+export type TogglePanelsProps = Record<string, never>;
 
 // Header component with theme toggle functionality
-export const TogglePanels = ({}: TogglePanelsProps) => {
+export const TogglePanels = () => {
     const dispatch = useAppDispatch();
 
     return (

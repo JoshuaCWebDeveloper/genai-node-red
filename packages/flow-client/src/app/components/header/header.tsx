@@ -1,10 +1,7 @@
 import styled from 'styled-components';
 
-import { useAppDispatch, useAppSelector } from '../../redux/hooks';
-import {
-    builderActions,
-    selectTheme,
-} from '../../redux/modules/builder/builder.slice';
+import { useAppSelector } from '../../redux/hooks';
+import { selectTheme } from '../../redux/modules/builder/builder.slice';
 import { Theme } from '../../themes';
 import { ThemeSwitcher } from './theme-switcher';
 import { TogglePanels } from './toggle-panels';
@@ -35,11 +32,10 @@ const StyledHeader = styled.header<{ customTheme: Theme }>`
 `;
 
 // HeaderProps might include any props for theme switching or other functionalities
-export type HeaderProps = {};
+export type HeaderProps = Record<string, never>;
 
 // Header component with theme toggle functionality
-export const Header = ({}: HeaderProps) => {
-    const dispatch = useAppDispatch();
+export const Header = () => {
     const theme = useAppSelector(selectTheme);
 
     return (

@@ -1,10 +1,9 @@
 import styled from 'styled-components';
 
+import { UnknownAction } from '@reduxjs/toolkit';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
-import { builderActions } from '../../redux/modules/builder/builder.slice';
 import { RootState } from '../../redux/store';
 import ClosePanelButton from './close-panel-button';
-import { UnknownAction } from '@reduxjs/toolkit';
 
 const StyledPanel = styled.div`
     background-color: var(--color-background-main);

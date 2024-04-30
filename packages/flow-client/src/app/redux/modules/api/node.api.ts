@@ -48,7 +48,9 @@ export const nodeApi = createApi({
                 try {
                     const { data: rawNodes } = await queryFulfilled;
                     dispatch(nodeActions.setNodes(rawNodes));
-                } catch (error) {}
+                } catch (error) {
+                    /* ignore errors - handled by caller */
+                }
             },
         }),
         // Endpoint to fetch the collection of scripts to inject as HTML
@@ -69,7 +71,9 @@ export const nodeApi = createApi({
                 try {
                     const { data: nodeScripts } = await queryFulfilled;
                     dispatch(nodeLogic.setNodeScripts(nodeScripts));
-                } catch (error) {}
+                } catch (error) {
+                    /* ignore errors - handled by caller */
+                }
             },
         }),
     }),

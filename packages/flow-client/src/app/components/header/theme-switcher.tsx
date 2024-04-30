@@ -74,16 +74,16 @@ const StyledSwitch = styled.label`
     }
 `;
 
-export type ThemeSwitcherProps = {};
+export type ThemeSwitcherProps = Record<string, never>;
 
-export const ThemeSwitcher = ({}: ThemeSwitcherProps) => {
+export const ThemeSwitcher = () => {
     const dispatch = useAppDispatch();
     const theme = useAppSelector(selectTheme);
 
     const handleThemeChange = useCallback(() => {
         const newTheme = theme === 'light' ? 'dark' : 'light';
         dispatch(builderActions.setTheme(newTheme));
-    }, [theme]);
+    }, [dispatch, theme]);
 
     return (
         <StyledSwitch className="theme-switcher">
