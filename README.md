@@ -159,14 +159,28 @@ The backlog is organized by epic, with each task having a unique ID, description
         -   Implement a dynamic tab system at the top of the interface where each tab represents an open flow.
         -   Ensure that each tab can host an instance of the flow-canvas component, maintaining the state of each flow independently.
         -   Provide functionality to add, close, and switch tabs without losing work, with prompt saving or caching options.
-        -   Integrate with the backend to load and save flow states as users switch between them, ensuring data consistency and integrity.
+        -   Load and save flow states as users switch between them, ensuring data consistency and integrity.
+    -   **Implementation Details**:
+        1. **Dynamic Tab Creation**:
+            - Modify the `openFlow` action to ensure a new tab is created when a new flow is opened. This might involve checking for duplicates and only adding unique flow IDs.
+            - Ensure the UI updates to reflect the addition of new tabs dynamically.
+        2. **Enhanced Tab Switching**:
+            - Improve the `switchTab` function to handle large numbers of tabs efficiently, possibly including optimizations for re-rendering only the necessary components.
+        3. **Tab Persistence and State Management**:
+            - Ensure that each tab maintains its state independently when switching between tabs. This involves careful management of the flow state in Redux to prevent cross-contamination between different flow states.
+        4. **Close Tab Functionality**:
+            - Enhance the `closeTab` function to handle edge cases such as closing the last tab, or the first tab, and setting a new active tab appropriately.
+            - Implement UI feedback for tab closing, such as confirmation dialogs if unsaved changes exist.
+        5. **UI Enhancements**:
+            - Implement visual indicators for unsaved changes or errors within each tab.
+            - Consider adding features like reordering tabs via drag-and-drop if not already supported.
 -   **FM-03**: Implement File Tree in Primary Sidebar
     -   **Description**: Create a file tree section within the primary sidebar to list and manage all available flows.
     -   **Priority**: High
     -   **Technical Requirements**:
         -   Develop a collapsible file tree that displays all available flows categorized by projects or folders.
         -   Allow users to interact with the file tree to open a flow in a new tab, delete a flow, or create a new flow.
-        -   Integrate file tree actions with the backend to reflect changes in real-time, ensuring that the file tree is always up-to-date with the latest files and folders.
+        -   Integrate file tree actions with state to reflect changes in real-time, ensuring that the file tree is always up-to-date with the latest files and folders.
         -   Implement search functionality within the file tree to allow users to quickly find specific flows.
 
 #### Epic: Subflows
@@ -275,8 +289,7 @@ The backlog is organized by epic, with each task having a unique ID, description
 
 | To Do | In Progress | In Review | Done  |
 | ----- | ----------- | --------- | ----- |
-|       |             |           | FM-01 |
-| FM-02 |             |           |       |
+|       | FM-02       |           | FM-01 |
 | FM-03 |             |           |       |
 
 ### Progress Tracking
