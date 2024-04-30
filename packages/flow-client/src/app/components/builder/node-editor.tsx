@@ -14,9 +14,9 @@ import {
 } from '../../redux/modules/builder/builder.slice';
 
 import faCssUrl from '@fortawesome/fontawesome-free/css/all.css?url';
-import jqueryUiCssUrl from '../red/jquery-ui.css?url';
-import redCssUrl from '../red/red-style.css?url';
-import redTypedInputCssUrl from '../red/red-typed-input.css?url';
+import jqueryUiCssUrl from '../../red/jquery-ui.css?url';
+import redCssUrl from '../../red/red-style.css?url';
+import redTypedInputCssUrl from '../../red/red-typed-input.css?url';
 import {
     FlowNodeEntity,
     flowActions,
