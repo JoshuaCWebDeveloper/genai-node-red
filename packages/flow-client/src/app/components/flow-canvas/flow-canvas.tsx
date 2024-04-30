@@ -24,6 +24,12 @@ import { createEngine } from './engine';
 import { CustomDiagramModel } from './model';
 import { CustomNodeModel } from './node';
 
+const StyledContainer = styled.div`
+    height: 100%;
+    width: 100%;
+    background-color: var(--color-background-main);
+`;
+
 const StyledCanvasWidget = styled(CanvasWidget)`
     background-color: var(--color-background-main);
     background-image: linear-gradient(
@@ -47,11 +53,35 @@ const StyledCanvasWidget = styled(CanvasWidget)`
             transparent
         );
     background-size: 50px 50px;
-    border: 1px solid #ccc; /* Adds a border around the canvas */
-    height: calc(
-        100vh - 60px
-    ); /* Adjust height if you have a header or toolbar */
+    /* border: 1px solid #ccc; Adds a border around the canvas */
+    height: 100%;
     overflow: auto; /* Allows scrolling within the canvas */
+`;
+
+const StyledEmptyFlowMessage = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 5em;
+    color: var(--color-text-light);
+    font-weight: bold;
+    text-align: center;
+    flex-direction: column;
+    height: calc(100% - 40px);
+    background-color: var(--color-background-element-light);
+    border: 2px dashed var(--color-border-medium);
+    border-radius: 10px;
+    padding: 20px;
+    margin: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+
+    i {
+        display: block;
+    }
+
+    p {
+        margin-bottom: 0;
+    }
 `;
 
 const debounce = (func: (...args: unknown[]) => void, wait: number) => {
@@ -306,15 +336,21 @@ export const FlowCanvas: React.FC<FlowCanvasProps> = ({ flowId }) => {
     // The CanvasWidget component is used to render the flow canvas within the UI.
     // The "canvas-widget" className can be targeted for custom styling.
     return (
-        <div
+        <StyledContainer
             className="flow-canvas-container"
             ref={drop}
-            style={{ height: '100%', width: '100%' }}
             tabIndex={0}
         >
             <LogFlowSlice />
-            <StyledCanvasWidget engine={engine} className="flow-canvas" />
-        </div>
+            {model ? (
+                <StyledCanvasWidget engine={engine} className="flow-canvas" />
+            ) : (
+                <StyledEmptyFlowMessage>
+                    <i className="fa-solid fa-edit" />
+                    <p>Open flow to edit</p>
+                </StyledEmptyFlowMessage>
+            )}
+        </StyledContainer>
     );
 };
 
