@@ -1,9 +1,8 @@
 import styled from 'styled-components';
 
-import { FlowCanvas } from './components/flow-canvas/flow-canvas'; // Ensure the path is correct
-import { NodeEditor } from './components/node-editor';
-import { NodePalette } from './components/node-palette/node-palette'; // Import NodePalette
+import { Builder } from './components/builder/builder';
 import { Header } from './components/header/header'; // Import the new Header component
+import { useState } from 'react';
 import themes, { Theme } from './themes';
 import { useAppSelector } from './redux/hooks';
 import { selectTheme } from './redux/modules/builder/builder.slice';
@@ -26,14 +25,11 @@ export function App() {
 
     return (
         <StyledApp>
-            <div className="builder-container">
-                <NodePalette />
-                <FlowCanvas />
-                <NodeEditor />
-            </div>
             <GlobalTheme />
 
             <Header />
+
+            <Builder />
         </StyledApp>
     );
 }
