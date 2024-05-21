@@ -1,3 +1,4 @@
+import { flowActions } from '../flow/flow.slice';
 import {
     builderActions,
     builderReducer,
@@ -8,6 +9,9 @@ import {
     selectEditing,
     selectOpenFlows,
     selectActiveFlow,
+    selectNewFlowCounter,
+    selectNewFolderCounter,
+    selectNewTreeItem,
 } from './builder.slice';
 
 describe('builder.slice', () => {
@@ -19,21 +23,15 @@ describe('builder.slice', () => {
         showConsolePanel: true,
         openFlows: [],
         activeFlow: null,
+        newFlowCounter: 0,
+        newFolderCounter: 0,
     };
 
     describe('reducer actions', () => {
         it('should handle initial state', () => {
-            const expected = {
-                editing: null,
-                theme: 'light' as const,
-                showPrimarySidebar: true,
-                showSecondarySidebar: true,
-                showConsolePanel: true,
-                openFlows: [],
-                activeFlow: null,
-            };
-
-            expect(builderReducer(undefined, { type: '' })).toEqual(expected);
+            expect(builderReducer(undefined, { type: '' })).toEqual(
+                baseInitialState
+            );
         });
 
         it('setEditing() should handle setEditing', () => {
@@ -169,6 +167,95 @@ describe('builder.slice', () => {
 
             expect(state.activeFlow).toEqual(flowId);
         });
+
+        it('addNewFlow() should increment newFlowCounter and set newTreeItem', () => {
+            const initialState = {
+                ...baseInitialState,
+                newFlowCounter: 0,
+                newTreeItem: undefined,
+            };
+
+            const newItem = 'newFlow1';
+
+            const state = builderReducer(
+                initialState,
+                builderActions.addNewFlow(newItem)
+            );
+
+            expect(state.newFlowCounter).toEqual(1);
+            expect(state.newTreeItem).toEqual(newItem);
+        });
+
+        it('addNewFolder() should increment newFolderCounter and set newTreeItem', () => {
+            const initialState = {
+                ...baseInitialState,
+                newFolderCounter: 0,
+                newTreeItem: undefined,
+            };
+
+            const newItem = 'newFolder1';
+
+            const state = builderReducer(
+                initialState,
+                builderActions.addNewFolder(newItem)
+            );
+
+            expect(state.newFolderCounter).toEqual(1);
+            expect(state.newTreeItem).toEqual(newItem);
+        });
+
+        it('clearNewTreeItem() should clear newTreeItem', () => {
+            const initialState = {
+                ...baseInitialState,
+                newTreeItem: 'someItem',
+            };
+
+            const state = builderReducer(
+                initialState,
+                builderActions.clearNewTreeItem()
+            );
+
+            expect(state.newTreeItem).toBeUndefined();
+        });
+    });
+
+    describe('extra reducers', () => {
+        it('flowActions.removeEntity() should trigger closeFlow if the entity is an open flow', () => {
+            const initialState = {
+                ...baseInitialState,
+                openFlows: ['flow1', 'flow2'],
+                activeFlow: 'flow1',
+            };
+
+            const action = {
+                type: flowActions.removeEntity.type,
+                payload: 'flow1',
+            };
+
+            const state = builderReducer(initialState, action);
+
+            expect(state.openFlows).not.toContain('flow1');
+            expect(state.activeFlow).not.toEqual('flow1');
+            expect(state.openFlows).toEqual(['flow2']);
+        });
+
+        it('flowActions.removeEntity() should not affect state if the entity is not an open flow', () => {
+            const initialState = {
+                ...baseInitialState,
+                openFlows: ['flow1', 'flow2'],
+                activeFlow: 'flow1',
+            };
+
+            const action = {
+                type: flowActions.removeEntity.type,
+                payload: 'flow3', // flow3 is not in openFlows
+            };
+
+            const state = builderReducer(initialState, action);
+
+            expect(state.openFlows).toEqual(['flow1', 'flow2']);
+            expect(state.activeFlow).toEqual('flow1');
+        });
     });
 
     describe('selectors', () => {
@@ -247,6 +334,39 @@ describe('builder.slice', () => {
             };
 
             expect(selectActiveFlow(state)).toEqual('flow1');
+        });
+
+        it('selectNewFlowCounter() should select the newFlowCounter', () => {
+            const state = {
+                builder: {
+                    ...baseInitialState,
+                    newFlowCounter: 5,
+                },
+            };
+
+            expect(selectNewFlowCounter(state)).toEqual(5);
+        });
+
+        it('selectNewFolderCounter() should select the newFolderCounter', () => {
+            const state = {
+                builder: {
+                    ...baseInitialState,
+                    newFolderCounter: 3,
+                },
+            };
+
+            expect(selectNewFolderCounter(state)).toEqual(3);
+        });
+
+        it('selectNewTreeItem() should select the newTreeItem', () => {
+            const state = {
+                builder: {
+                    ...baseInitialState,
+                    newTreeItem: 'newItem1',
+                },
+            };
+
+            expect(selectNewTreeItem(state)).toEqual('newItem1');
         });
     });
 });
