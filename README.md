@@ -11,6 +11,9 @@ This documentation serves as a record of the existing functionality of our app t
 -   **Drag-and-Drop Interface**: Enables users to drag nodes from the node palette onto the canvas, facilitating intuitive flow construction.
 -   **Node Connection Functionality**: Supports drawing connections between nodes with enhanced visual feedback and auto-attachment features for ease of use.
 -   **Node Editor UI**: Provides a user-friendly interface for configuring and editing node properties, allowing detailed customization of node attributes.
+-   **Builder Layout**: Features a primary sidebar with sections for file tree, config nodes, context data, and general information, enhancing navigation and accessibility. A secondary sidebar includes the node palette and a new help browser section. Tabs at the top of the interface allow users to manage multiple flows or views simultaneously. A console at the bottom displays debug outputs and system messages, aiding in troubleshooting and development. A theme switcher in the header allows users to toggle between light and dark modes.
+-   **Tabbed Layout for Multiple Flows**: A dynamic tab system at the top of the interface where each tab represents an open flow. Each tab can host an instance of the flow-canvas component, maintaining the state of each flow independently. Functionality to add, close, and switch tabs without losing work, with prompt saving or caching options.
+-   **File Tree in Primary Sidebar**: A collapsible file tree that displays all available flows and subflows categorized by projects or folders. Users can interact with the file tree to open a flow in a new tab, delete a flow, or create a new flow.
 
 ### Technical Implementation
 
@@ -33,14 +36,19 @@ This documentation serves as a record of the existing functionality of our app t
     -   Utilizes `@projectstorm/react-diagrams` for creating and managing connections with visual feedback and auto-attachment logic to simplify the connection process.
 
 -   **Node Editor UI**:
+
     -   Implements UI components for editing node properties, including individual node attributes and dialog boxes for configuration.
     -   Re-implements a significant portion of Node-RED's editor logic within our flow-client to ensure accurate rendering and functionality of Node-RED nodes.
+
+-   **File tree**:
+    -   A few different React libraries were evaluated, but it was decided to go with a custom solution to display the file tree.
 
 ### Libraries and Frameworks
 
 -   **@projectstorm/react-diagrams**: Used for creating and managing the diagram canvas, custom nodes, ports, and links.
 -   **react-dnd**: Utilized for adding drag-and-drop functionality to the node palette and canvas, enhancing the interactive experience.
 -   **react-hook-form**: Considered for future enhancements to handle form state and validation within the application.
+-   **react-tooltip**: Used for tooltips in the flow builder.
 
 ### Nx Overview
 
@@ -64,92 +72,6 @@ This documentation serves as a record of the existing functionality of our app t
 ### Backlog
 
 The backlog is organized by epic, with each task having a unique ID, description, priority, associated epic, and detailed descriptions all in one place, using nested lists to preserve the structure of task details.
-
-#### Epic: Flow Management
-
--   **FM-01**: Implement Updated Layout (a la Visual Studio Code)
-    -   **Description**: Revamp the UI layout to enhance usability and accessibility, inspired by Visual Studio Code's interface, specifically for managing flow creation and organization.
-    -   **Priority**: High
-    -   **Technical Requirements**:
-        -   Develop a primary sidebar with sections for file tree, config nodes, context data, and general information, enhancing navigation and accessibility.
-        -   Create a secondary sidebar dedicated to the node palette and help browser to facilitate easy access and usage.
-        -   Implement tabs at the top of the interface to allow users to manage multiple flows or views simultaneously.
-        -   Integrate a console at the bottom for displaying debug outputs and system messages, aiding in troubleshooting and development.
-        -   Add a theme switcher in the header to allow users to toggle between light and dark modes, catering to personal preferences and reducing eye strain.
-        -   Ensure all panels include close buttons and can be toggled from the header to allow users to customize their workspace according to their needs.
-    -   **New and Updated Components**:
-        1. **Primary Sidebar**
-            - **Component**: `PrimarySidebar`
-            - **Description**: A new component that includes a file tree for managing flows, sections for config nodes, context data, and general information.
-            - **Integration**: Interacts with the backend for real-time updates and management of flows.
-        2. **Secondary Sidebar**
-            - **Component**: `SecondarySidebar`
-            - **Description**: A new component that includes the existing `NodePalette` and a new help browser section.
-            - **Features**: Combines node management and help resources in one accessible location, improving usability and accessibility.
-        3. **Tabs for Multiple Flows**
-            - **Component**: `TabManager`
-            - **Description**: A new component to manage multiple flow canvases, allowing users to switch between different flows via tabs.
-            - **Features**: Dynamic tab management with capabilities to add, close, and switch tabs efficiently.
-        4. **Console for Debug Outputs**
-            - **Component**: `Console`
-            - **Description**: A new component at the bottom of the interface for displaying debug outputs and system messages.
-            - **Features**: Support for various log levels and filtering to aid in troubleshooting and development.
-        5. **Header**
-            - **Component**: `Header`
-            - **Description**: A new component that replaces the existing header in `App.tsx`. It will include navigation controls, theme switching, and user settings.
-            - **Features**: Integrated theme switcher to toggle between light and dark modes, enhancing user preference management.
-    -   **Updates to App.tsx**
-        -   **Description**: Update the `App.tsx` to accommodate the new layout components and ensure cohesive integration.
-        -   **Changes**:
-            -   Replace the existing header with the new `Header` component.
-            -   Ensure the `Header`, `PrimarySidebar`, `SecondarySidebar`, and `Console` components are properly integrated and styled within the main application layout.
-            -   Adjust the overall styling to maintain a consistent and responsive design across the application.
--   **FM-02**: Implement Tabbed Layout for Multiple Flows
-    -   **Description**: Develop a tabbed interface to manage and switch between multiple flow canvases efficiently.
-    -   **Priority**: High
-    -   **Technical Requirements**:
-        -   Implement a dynamic tab system at the top of the interface where each tab represents an open flow.
-        -   Ensure that each tab can host an instance of the flow-canvas component, maintaining the state of each flow independently.
-        -   Provide functionality to add, close, and switch tabs without losing work, with prompt saving or caching options.
-        -   Load and save flow states as users switch between them, ensuring data consistency and integrity.
-    -   **Implementation Details**:
-        1. **Dynamic Tab Creation**:
-            - Modify the `openFlow` action to ensure a new tab is created when a new flow is opened. This might involve checking for duplicates and only adding unique flow IDs.
-            - Ensure the UI updates to reflect the addition of new tabs dynamically.
-        2. **Enhanced Tab Switching**:
-            - Improve the `switchTab` function to handle large numbers of tabs efficiently, possibly including optimizations for re-rendering only the necessary components.
-        3. **Tab Persistence and State Management**:
-            - Ensure that each tab maintains its state independently when switching between tabs. This involves careful management of the flow state in Redux to prevent cross-contamination between different flow states.
-        4. **Close Tab Functionality**:
-            - Enhance the `closeTab` function to handle edge cases such as closing the last tab, or the first tab, and setting a new active tab appropriately.
-            - Implement UI feedback for tab closing, such as confirmation dialogs if unsaved changes exist.
-        5. **UI Enhancements**:
-            - Implement visual indicators for unsaved changes or errors within each tab.
-            - Consider adding features like reordering tabs via drag-and-drop if not already supported.
--   **FM-03**: Implement File Tree in Primary Sidebar
-    -   **Description**: Create a file tree section within the primary sidebar to list and manage all available flows.
-    -   **Priority**: High
-    -   **Technical Requirements**:
-        -   Develop a collapsible file tree that displays all available flows and subflows categorized by projects or folders.
-        -   Allow users to interact with the file tree to open a flow in a new tab, delete a flow, or create a new flow. Also subflows.
-        -   Integrate file tree actions with state to reflect changes in real-time, ensuring that the file tree is always up-to-date with the latest files and folders.
-    -   **Implementation Details**:
-        1. **Design and Style the File Tree Component**
-            - **Description**: Design the UI for the file tree to ensure it is intuitive and aligns with the overall design of the application.
-            - **Sub-tasks**:
-                - Create a collapsible component structure for the file tree.
-                - Style the file tree using styled-components for consistency with the rest of the application.
-        2. **Integrate File Tree with Redux State**
-            - **Description**: Connect the file tree component to the Redux store to dynamically display the flows and subflows.
-            - **Sub-tasks**:
-                - Utilize the `selectFlowTree` selector from `flow.logic.ts` to fetch tree data.
-                - Implement actions and reducers to handle updates to the flow structure (e.g., adding, removing, renaming flows).
-        3. **Implement Interactivity in the File Tree**
-            - **Description**: Allow users to interact with the file tree to manage flows directly from the sidebar.
-            - **Sub-tasks**:
-                - Enable opening a flow in a new tab by clicking on a flow node.
-                - Add context menu options for each node (e.g., delete, rename, new flow).
-                - Implement drag-and-drop functionality within the tree to reorganize flows.
 
 #### Epic: Subflows
 
@@ -255,11 +177,9 @@ The backlog is organized by epic, with each task having a unique ID, description
 
 ### Scrum Board
 
-| To Do | In Progress | In Review | Done  |
-| ----- | ----------- | --------- | ----- |
-|       |             |           | FM-01 |
-|       |             |           | FM-02 |
-|       |             |           | FM-03 |
+| To Do | In Progress | In Review | Done |
+| ----- | ----------- | --------- | ---- |
+|       |             |           |      |
 
 ### Progress Tracking
 
