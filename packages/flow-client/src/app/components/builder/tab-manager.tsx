@@ -21,7 +21,9 @@ const StyledTabManager = styled.div`
     .tab-container {
         background-color: var(--color-background-element-light);
         display: flex;
+        flex: 0 0 var(--builder-tab-container-height);
         overflow: hidden;
+        min-height: 0;
     }
 
     .tab-content {

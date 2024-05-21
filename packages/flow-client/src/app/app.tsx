@@ -10,7 +10,9 @@ import themes from './themes';
 // It ensures the flow canvas takes up the full viewport height for better visibility.
 const StyledApp = styled.div`
     background-color: var(--color-background-main);
-    height: 100vh; // Full viewport height
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 
     header {
         height: 40px;

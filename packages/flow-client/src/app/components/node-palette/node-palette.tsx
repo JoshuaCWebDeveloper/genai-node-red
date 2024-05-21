@@ -20,7 +20,7 @@ const StyledNodePalette = styled.div`
         margin-bottom: 20px;
         display: block;
         width: 100%;
-        height: calc(40px + 1px);
+        height: calc(var(--builder-tab-container-height) + 1px);
         padding: 10px;
         border-bottom: 1px solid #ddd;
 
