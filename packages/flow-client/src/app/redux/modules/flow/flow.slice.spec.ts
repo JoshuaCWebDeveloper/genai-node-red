@@ -1,8 +1,10 @@
 import {
     FlowEntity,
+    FlowStateEntity,
     flowActions,
     flowAdapter,
     flowReducer,
+    selectDirectories,
 } from './flow.slice';
 
 describe('flow reducer', () => {
@@ -96,5 +98,59 @@ describe('flow reducer', () => {
                 }),
             })
         );
+    });
+
+    describe('selectDirectories selector', () => {
+        it('should return only directory entities from state', () => {
+            const initialState = flowAdapter.getInitialState({
+                loadingStatus: 'not loaded' as const,
+                error: null,
+            });
+
+            const entities = [
+                {
+                    id: 'dir1',
+                    type: 'directory',
+                    name: 'Main Directory',
+                    directory: '/main',
+                },
+                {
+                    id: 'flow1',
+                    type: 'tab',
+                    label: 'Example Flow',
+                    disabled: false,
+                    info: 'Example flow info',
+                    env: [],
+                },
+                {
+                    id: 'dir2',
+                    type: 'directory',
+                    name: 'Secondary Directory',
+                    directory: '/secondary',
+                },
+            ];
+
+            const state = flowReducer(
+                initialState,
+                flowActions.addEntities(entities as FlowStateEntity[])
+            );
+
+            const selectedDirectories = selectDirectories({ flow: state });
+
+            expect(selectedDirectories).toEqual([
+                {
+                    id: 'dir1',
+                    type: 'directory',
+                    name: 'Main Directory',
+                    directory: '/main',
+                },
+                {
+                    id: 'dir2',
+                    type: 'directory',
+                    name: 'Secondary Directory',
+                    directory: '/secondary',
+                },
+            ]);
+        });
     });
 });
