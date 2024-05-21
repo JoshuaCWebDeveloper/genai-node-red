@@ -4,12 +4,14 @@ import { v4 as uuidv4 } from 'uuid';
 import { AppDispatch, RootState } from '../../store';
 import { NodeEntity, selectAllNodes, selectNodeById } from '../node/node.slice';
 import {
+    DirectoryEntity,
     FlowEntity,
     FlowNodeEntity,
     LinkModel,
     PortModel,
     SubflowEntity,
     flowActions,
+    selectDirectories,
     selectEntityById,
     selectFlowNodesByFlowId,
     selectFlows,
@@ -75,12 +77,23 @@ type DirtyNodeChanges = Partial<
     }
 >;
 
-export type TreeItem = {
+type TreeItem = {
     id: string;
     name: string;
-    parentPath: string;
-    children?: TreeItem[];
+    directory: string;
+    directoryPath: string;
 };
+
+export type TreeDirectory = TreeItem & {
+    type: 'directory';
+    children: TreeItemData[];
+};
+
+export type TreeFile = TreeItem & {
+    type: 'file';
+};
+
+export type TreeItemData = TreeDirectory | TreeFile;
 
 export class FlowLogic {
     // Method to extract inputs and outputs from a NodeEntity, including deserializing inputLabels and outputLabels
@@ -620,59 +633,139 @@ export class FlowLogic {
         }
     );
 
+    public directoryIsDefault(item: TreeDirectory) {
+        return ['flows', 'subflows'].includes(item.id);
+    }
+
+    public getFilePath(item: TreeItemData) {
+        const parent = item.directoryPath ? `${item.directoryPath}` : '';
+        return item.name ? `${parent}/${item.name}` : parent;
+    }
+
+    private createTreeDirectory(
+        directory: DirectoryEntity,
+        defaultDirectory: string
+    ) {
+        return {
+            id: directory.id,
+            name: directory.name,
+            type: 'directory',
+            directory: directory.directory ?? defaultDirectory,
+            directoryPath: '',
+            children: [],
+        } as TreeDirectory;
+    }
+
+    private addTreeDirectory(
+        treeItems: Record<string, TreeItemData>,
+        directories: DirectoryEntity[],
+        defaultDirectory: string,
+        directory: DirectoryEntity
+    ) {
+        // create item
+        const item = this.createTreeDirectory(directory, defaultDirectory);
+        // get the parent directory
+        let parent = treeItems[item.directory] as TreeDirectory;
+        if (!parent) {
+            const parentEntity = directories.find(
+                it => it.id === item.directory
+            );
+            if (!parentEntity) {
+                throw new Error(`Directory ${item.directory} not found`);
+            }
+            parent = this.addTreeDirectory(
+                treeItems,
+                directories,
+                defaultDirectory,
+                parentEntity
+            );
+        }
+        // update item
+        item.directoryPath = this.getFilePath(parent);
+        parent.children?.push(item);
+        treeItems[item.id] = item;
+        // return item
+        return item;
+    }
+
     selectFlowTree = createSelector(
-        [state => state, selectFlows, selectSubflows],
-        (state, flows, subflows) => {
+        [state => state, selectDirectories, selectFlows, selectSubflows],
+        (state, directories, flows, subflows) => {
             // collect tree hierarchy
-            const tree = [] as TreeItem[];
-            const treeParts = {} as Record<string, TreeItem>;
+            const rootDirectory = {
+                id: '',
+                name: '',
+                type: 'directory',
+                directory: '',
+                directoryPath: '',
+                children: [],
+            } as TreeDirectory;
+            const flowsDirectory = {
+                id: 'flows',
+                name: 'Flows',
+                type: 'directory',
+                directory: rootDirectory.id,
+                directoryPath: '',
+                children: [],
+            } as TreeDirectory;
+            const subflowsDirectory = {
+                id: 'subflows',
+                name: 'Subflows',
+                type: 'directory',
+                directory: rootDirectory.id,
+                directoryPath: '',
+                children: [],
+            } as TreeDirectory;
+            rootDirectory.children?.push(flowsDirectory, subflowsDirectory);
+            const treeItems = {
+                [rootDirectory.id]: rootDirectory,
+                [flowsDirectory.id]: flowsDirectory,
+                [subflowsDirectory.id]: subflowsDirectory,
+            } as Record<string, TreeItemData>;
+            // loop directories
+            directories.forEach(directory => {
+                // if we've already created it
+                if (treeItems[directory.id]) {
+                    // nothing to do
+                    return;
+                }
+                // else, create it
+                this.addTreeDirectory(
+                    treeItems,
+                    directories,
+                    rootDirectory.id,
+                    directory
+                );
+            });
             // loop flows and subflows with default paths
             [
                 {
-                    defaultPath: '/flows',
-                    items: flows,
+                    defaultDirectory: flowsDirectory.id,
+                    entities: flows,
                 },
                 {
-                    defaultPath: '/subflows',
-                    items: subflows,
+                    defaultDirectory: subflowsDirectory.id,
+                    entities: subflows,
                 },
-            ].forEach(({ defaultPath, items }) => {
-                items.forEach(item => {
-                    const treePath = item.treePath ?? defaultPath;
-                    let currentNodes = tree;
-                    let parentPath = '';
-                    treePath
-                        .split('/')
-                        .filter(p => p)
-                        .forEach(part => {
-                            let node = currentNodes.find(it => it.id === part);
-                            if (!node) {
-                                node = {
-                                    id: part,
-                                    name: part,
-                                    parentPath,
-                                };
-                                treeParts[node.id] = node;
-                                currentNodes.push(node);
-                            }
-                            if (!node.children) {
-                                node.children = [];
-                            }
-                            parentPath += `/${part}`;
-                            currentNodes = node.children;
-                        });
-
-                    currentNodes.push({
-                        id: item.id,
+            ].forEach(({ defaultDirectory, entities }) => {
+                entities.forEach(entity => {
+                    const directoryId = entity.directory ?? defaultDirectory;
+                    const directory = treeItems[directoryId] as TreeDirectory;
+                    const item = {
+                        id: entity.id,
                         name:
-                            (item as SubflowEntity).name ??
-                            (item as FlowEntity).label,
-                        parentPath,
-                    });
+                            (entity as SubflowEntity).name ??
+                            (entity as FlowEntity).label,
+                        type: 'file',
+                        directory: directoryId,
+                        directoryPath: `${directory.directoryPath}/${directory.name}`,
+                    } as TreeFile;
+                    directory.children.push(item);
+                    treeItems[item.id] = item;
                 });
             });
 
-            return tree;
+            return { tree: rootDirectory.children, items: treeItems };
         }
     );
 }
