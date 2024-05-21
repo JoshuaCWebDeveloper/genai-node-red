@@ -59,54 +59,6 @@ This documentation serves as a record of the existing functionality of our app t
 -   [Explore the project graph with `npx nx graph`](https://nx.dev/core-features/explore-graph)
 -   [Set up CI with Nx](https://nx.dev/recipes/ci)
 
-## Planning Session - Flow Management
-
-### Scope
-
-The scope for the Flow Management epic includes the development and enhancement of the UI for creating, managing, and organizing flows within the application. This will involve:
-
--   Developing a user-friendly interface for the creation and management of new flows (FM-01).
-
-### Feature/Task Breakdown
-
-#### Task: Implement Updated Layout (a la Visual Studio Code)
-
--   **Description**: Revamp the UI layout to enhance usability and accessibility, inspired by Visual Studio Code's interface, specifically for managing flow creation and organization.
--   **Objective**: Provide a more intuitive and accessible interface for flow management by incorporating a new layout that includes a primary sidebar, secondary sidebar, tabs, console, and theme toggling.
--   **Technical Requirements**:
-    -   Develop a primary sidebar with sections for file tree, config nodes, context data, and general information, enhancing navigation and accessibility.
-    -   Create a secondary sidebar dedicated to the node palette and help browser to facilitate easy access and usage.
-    -   Implement tabs at the top of the interface to allow users to manage multiple flows or views simultaneously.
-    -   Integrate a console at the bottom for displaying debug outputs and system messages, aiding in troubleshooting and development.
-    -   Add a theme switcher in the header to allow users to toggle between light and dark modes, catering to personal preferences and reducing eye strain.
-    -   Ensure all panels include close buttons and can be toggled from the header to allow users to customize their workspace according to their needs.
--   **Priority**: High
--   **Justification**: This task is crucial for enhancing the overall user experience and efficiency in flow management, making the interface more adaptable and user-friendly.
-
-#### Task: Implement Tabbed Layout for Multiple Flows
-
--   **Description**: Develop a tabbed interface to manage and switch between multiple flow canvases efficiently.
--   **Objective**: Enable users to work on multiple flows simultaneously and switch between them with ease.
--   **Technical Requirements**:
-    -   Implement a dynamic tab system at the top of the interface where each tab represents an open flow.
-    -   Ensure that each tab can host an instance of the flow-canvas component, maintaining the state of each flow independently.
-    -   Provide functionality to add, close, and switch tabs without losing work, with prompt saving or caching options.
-    -   Integrate with the backend to load and save flow states as users switch between them, ensuring data consistency and integrity.
--   **Priority**: High
--   **Justification**: This feature is essential for enhancing productivity and usability, allowing users to manage multiple projects or parts of a project without needing to open multiple instances of the application.
-
-#### Task: Implement File Tree in Primary Sidebar
-
--   **Description**: Create a file tree section within the primary sidebar to list and manage all available flows.
--   **Objective**: Provide a structured and navigable list of all flows, allowing users to open, delete, or create new flows directly from the sidebar.
--   **Technical Requirements**:
-    -   Develop a collapsible file tree that displays all available flows categorized by projects or folders.
-    -   Allow users to interact with the file tree to open a flow in a new tab, delete a flow, or create a new flow.
-    -   Integrate file tree actions with the backend to reflect changes in real-time, ensuring that the file tree is always up-to-date with the latest files and folders.
-    -   Implement search functionality within the file tree to allow users to quickly find specific flows.
--   **Priority**: Medium
--   **Justification**: This task supports the tabbed layout feature by providing a direct and efficient way to manage multiple flows, enhancing the overall flow management system within the application.
-
 ## Project Management - SCRUM Flow
 
 ### Backlog
@@ -178,10 +130,26 @@ The backlog is organized by epic, with each task having a unique ID, description
     -   **Description**: Create a file tree section within the primary sidebar to list and manage all available flows.
     -   **Priority**: High
     -   **Technical Requirements**:
-        -   Develop a collapsible file tree that displays all available flows categorized by projects or folders.
-        -   Allow users to interact with the file tree to open a flow in a new tab, delete a flow, or create a new flow.
+        -   Develop a collapsible file tree that displays all available flows and subflows categorized by projects or folders.
+        -   Allow users to interact with the file tree to open a flow in a new tab, delete a flow, or create a new flow. Also subflows.
         -   Integrate file tree actions with state to reflect changes in real-time, ensuring that the file tree is always up-to-date with the latest files and folders.
-        -   Implement search functionality within the file tree to allow users to quickly find specific flows.
+    -   **Implementation Details**:
+        1. **Design and Style the File Tree Component**
+            - **Description**: Design the UI for the file tree to ensure it is intuitive and aligns with the overall design of the application.
+            - **Sub-tasks**:
+                - Create a collapsible component structure for the file tree.
+                - Style the file tree using styled-components for consistency with the rest of the application.
+        2. **Integrate File Tree with Redux State**
+            - **Description**: Connect the file tree component to the Redux store to dynamically display the flows and subflows.
+            - **Sub-tasks**:
+                - Utilize the `selectFlowTree` selector from `flow.logic.ts` to fetch tree data.
+                - Implement actions and reducers to handle updates to the flow structure (e.g., adding, removing, renaming flows).
+        3. **Implement Interactivity in the File Tree**
+            - **Description**: Allow users to interact with the file tree to manage flows directly from the sidebar.
+            - **Sub-tasks**:
+                - Enable opening a flow in a new tab by clicking on a flow node.
+                - Add context menu options for each node (e.g., delete, rename, new flow).
+                - Implement drag-and-drop functionality within the tree to reorganize flows.
 
 #### Epic: Subflows
 
@@ -290,7 +258,8 @@ The backlog is organized by epic, with each task having a unique ID, description
 | To Do | In Progress | In Review | Done  |
 | ----- | ----------- | --------- | ----- |
 |       |             |           | FM-01 |
-| FM-03 |             |           | FM-02 |
+|       |             |           | FM-02 |
+|       |             |           | FM-03 |
 
 ### Progress Tracking
 
@@ -312,3 +281,4 @@ Use the Scrum Board to visually track the progress of tasks through the To Do, I
     -   Console on bottom (debug output)
     -   Light and dark modes (set somewhere in the header)
     -   All panels have close buttons and all panels can be toggled in header
+-   Implement search functionality within the file tree to allow users to quickly find specific flows.

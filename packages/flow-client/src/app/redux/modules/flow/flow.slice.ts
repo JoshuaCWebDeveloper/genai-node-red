@@ -83,7 +83,7 @@ export interface FlowEntity {
     disabled: boolean;
     info: string;
     env: unknown[];
-    treePath?: string;
+    directory?: string;
 }
 
 export interface SubflowEntity {
@@ -97,11 +97,22 @@ export interface SubflowEntity {
     icon?: string;
     in?: unknown[];
     out?: unknown[];
-    treePath?: string;
+    directory?: string;
+}
+
+export interface DirectoryEntity {
+    id: string;
+    type: 'directory';
+    name: string;
+    directory: string;
 }
 
 // Union type for all possible entities in the flow state
-export type FlowStateEntity = FlowNodeEntity | FlowEntity | SubflowEntity;
+export type FlowStateEntity =
+    | FlowNodeEntity
+    | FlowEntity
+    | SubflowEntity
+    | DirectoryEntity;
 
 export interface FlowState extends EntityState<FlowStateEntity, string> {
     loadingStatus: 'not loaded' | 'loading' | 'loaded' | 'error';
@@ -148,6 +159,14 @@ export const {
     selectIds: selectEntityIds,
 } = flowAdapter.getSelectors(
     (state: { [FLOW_FEATURE_KEY]: FlowState }) => state[FLOW_FEATURE_KEY]
+);
+
+export const selectDirectories = createSelector(
+    selectAllEntities,
+    entities =>
+        entities.filter(
+            entity => entity.type === 'directory'
+        ) as DirectoryEntity[]
 );
 
 export const selectFlows = createSelector(

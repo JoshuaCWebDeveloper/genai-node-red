@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
@@ -7,9 +7,16 @@ import { useAppSelector } from '../../redux/hooks';
 import {
     builderActions,
     selectActiveFlow,
+    selectNewFlowCounter,
     selectOpenFlows,
 } from '../../redux/modules/builder/builder.slice';
-import { flowActions, selectFlows } from '../../redux/modules/flow/flow.slice';
+import {
+    FlowEntity,
+    SubflowEntity,
+    flowActions,
+    selectFlows,
+    selectSubflows,
+} from '../../redux/modules/flow/flow.slice';
 import { FlowCanvas } from '../flow-canvas/flow-canvas';
 
 const StyledTabManager = styled.div`
@@ -21,7 +28,9 @@ const StyledTabManager = styled.div`
     .tab-container {
         background-color: var(--color-background-element-light);
         display: flex;
+        flex: 0 0 var(--builder-tab-container-height);
         overflow: hidden;
+        min-height: 0;
     }
 
     .tab-content {
@@ -118,19 +127,28 @@ const StyledTabManager = styled.div`
 export const TabManager = () => {
     const dispatch = useDispatch();
     const flows = useAppSelector(selectFlows);
+    const subflows = useAppSelector(selectSubflows);
     const openFlows = useAppSelector(selectOpenFlows);
     const activeFlow = useAppSelector(selectActiveFlow);
-    const [flowCounter, setFlowCounter] = useState(0);
+    const flowCounter = useAppSelector(selectNewFlowCounter);
 
-    const switchTab = (tabId: string) => {
-        dispatch(builderActions.setActiveFlow(tabId));
-    };
+    const tabContentRef = useRef<HTMLDivElement>(null);
 
-    const closeTab = (tabId: string) => {
-        dispatch(builderActions.closeFlow(tabId));
-    };
+    const switchTab = useCallback(
+        (tabId: string) => {
+            dispatch(builderActions.setActiveFlow(tabId));
+        },
+        [dispatch]
+    );
 
-    const createNewTab = () => {
+    const closeTab = useCallback(
+        (tabId: string) => {
+            dispatch(builderActions.closeFlow(tabId));
+        },
+        [dispatch]
+    );
+
+    const createNewTab = useCallback(() => {
         const flowId = uuidv4();
         dispatch(
             flowActions.addEntity({
@@ -142,38 +160,65 @@ export const TabManager = () => {
                 env: [],
             })
         );
+        dispatch(builderActions.addNewFlow(flowId));
         dispatch(builderActions.openFlow(flowId));
-        setFlowCounter(flowCounter + 1);
-    };
+        dispatch(builderActions.setActiveFlow(flowId));
+    }, [dispatch, flowCounter]);
+
+    useEffect(() => {
+        if (activeFlow) {
+            document.getElementById(`tab-${activeFlow}`)?.scrollIntoView();
+        }
+    }, [activeFlow]);
+
+    const handleWheel = useCallback((event: React.WheelEvent) => {
+        const container = tabContentRef.current;
+        if (container) {
+            container.scrollLeft += event.deltaY;
+        }
+    }, []);
 
     return (
         <StyledTabManager>
             <div className="tab-container">
-                <div className="tab-content">
+                <div
+                    className="tab-content"
+                    onWheel={handleWheel}
+                    ref={tabContentRef}
+                >
                     <div className="tab-list">
-                        {openFlows.map(flowId => (
-                            <div
-                                key={flowId}
-                                className={`tab-item ${
-                                    flowId === activeFlow ? 'active-tab' : ''
-                                }`}
-                                onClick={() => switchTab(flowId)}
-                            >
-                                <p>
-                                    {flows.find(flow => flow.id === flowId)
-                                        ?.label ?? '...'}
-                                </p>
-                                <span
-                                    className="close-btn"
-                                    onClick={e => {
-                                        e.stopPropagation(); // Prevent tab switch when closing
-                                        closeTab(flowId);
-                                    }}
+                        {openFlows.map(flowId => {
+                            const flowOrSubflow = [...flows, ...subflows].find(
+                                it => it.id === flowId
+                            );
+                            const name =
+                                (flowOrSubflow as SubflowEntity)?.name ??
+                                (flowOrSubflow as FlowEntity)?.label ??
+                                '...';
+                            return (
+                                <div
+                                    key={flowId}
+                                    id={`tab-${flowId}`}
+                                    className={`tab-item ${
+                                        flowId === activeFlow
+                                            ? 'active-tab'
+                                            : ''
+                                    }`}
+                                    onClick={() => switchTab(flowId)}
                                 >
-                                    <i className="fa fa-times"></i>
-                                </span>
-                            </div>
-                        ))}
+                                    <p>{name}</p>
+                                    <span
+                                        className="close-btn"
+                                        onClick={e => {
+                                            e.stopPropagation(); // Prevent tab switch when closing
+                                            closeTab(flowId);
+                                        }}
+                                    >
+                                        <i className="fa fa-times"></i>
+                                    </span>
+                                </div>
+                            );
+                        })}
                     </div>
                 </div>
 

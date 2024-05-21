@@ -14,11 +14,12 @@ import { SecondarySidebar } from './secondary-sidebar';
 import { TabManager } from './tab-manager';
 
 const StyledBuilder = styled.div`
+    --builder-tab-container-height: 35px;
+
     display: flex;
     flex-direction: row;
     position: relative;
     overflow: hidden;
-    height: calc(100% - 60px);
     width: 100%;
 
     .primary-sidebar {
@@ -32,11 +33,6 @@ const StyledBuilder = styled.div`
 
         display: flex;
         flex-direction: column;
-    }
-
-    .tab-container {
-        flex: 0 0 35px;
-        min-height: 0;
     }
 
     .console-panel {

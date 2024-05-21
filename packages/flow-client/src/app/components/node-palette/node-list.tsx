@@ -11,6 +11,10 @@ const StyledNodeList = styled.div`
     list-style: none;
     padding: 0;
     overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-background-element-medium)
+        var(--color-background-element-light);
     height: calc(100% - 50px);
 `;
 
