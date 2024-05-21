@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Theme } from '../../../themes';
+import { flowActions } from '../flow/flow.slice';
 
 export const BUILDER_FEATURE_KEY = 'builder';
 
@@ -89,6 +90,16 @@ export const builderSlice = createSlice({
         clearNewTreeItem: state => {
             state.newTreeItem = undefined;
         },
+    },
+    extraReducers(builder) {
+        builder.addCase(
+            flowActions.removeEntity,
+            (state, action: PayloadAction<string>) => {
+                if (state.openFlows.includes(action.payload)) {
+                    builderSlice.caseReducers.closeFlow(state, action);
+                }
+            }
+        );
     },
 });
 
