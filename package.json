@@ -28,6 +28,7 @@
     "react-is": "18.2.0",
     "react-redux": "^9.1.0",
     "react-shadow": "^20.4.0",
+    "react-tooltip": "^5.26.4",
     "redux-persist": "^6.0.0",
     "styled-components": "5.3.6",
     "uuid": "^9.0.1"
