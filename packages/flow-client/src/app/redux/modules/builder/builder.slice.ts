@@ -12,6 +12,9 @@ export interface BuilderState {
     editing: string | null;
     openFlows: string[]; // Array of flow IDs that are open
     activeFlow: string | null; // ID of the currently active flow
+    newFlowCounter: number;
+    newFolderCounter: number;
+    newTreeItem?: string;
 }
 
 // Initial state
@@ -23,6 +26,8 @@ const initialState: BuilderState = {
     editing: null,
     openFlows: [],
     activeFlow: null,
+    newFlowCounter: 0,
+    newFolderCounter: 0,
 };
 
 // Create the slice
@@ -73,6 +78,17 @@ export const builderSlice = createSlice({
         setActiveFlow: (state, action: PayloadAction<string | null>) => {
             state.activeFlow = action.payload;
         },
+        addNewFlow: (state, action: PayloadAction<string>) => {
+            state.newFlowCounter++;
+            state.newTreeItem = action.payload;
+        },
+        addNewFolder: (state, action: PayloadAction<string>) => {
+            state.newFolderCounter++;
+            state.newTreeItem = action.payload;
+        },
+        clearNewTreeItem: state => {
+            state.newTreeItem = undefined;
+        },
     },
 });
 
@@ -100,3 +116,12 @@ export const selectOpenFlows = (state: {
 export const selectActiveFlow = (state: {
     [BUILDER_FEATURE_KEY]: BuilderState;
 }) => state[BUILDER_FEATURE_KEY].activeFlow;
+export const selectNewFlowCounter = (state: {
+    [BUILDER_FEATURE_KEY]: BuilderState;
+}) => state[BUILDER_FEATURE_KEY].newFlowCounter;
+export const selectNewFolderCounter = (state: {
+    [BUILDER_FEATURE_KEY]: BuilderState;
+}) => state[BUILDER_FEATURE_KEY].newFolderCounter;
+export const selectNewTreeItem = (state: {
+    [BUILDER_FEATURE_KEY]: BuilderState;
+}) => state[BUILDER_FEATURE_KEY].newTreeItem;
