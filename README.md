@@ -123,6 +123,17 @@ The backlog is organized by epic, with each task having a unique ID, description
         -   Prioritize user feedback on the current version of the flow builder to determine the necessity and priority of this enhancement.
     -   **Future Considerations**:
         -   Gather user feedback on the implementation to assess its effectiveness and explore further enhancements based on real-world usage.
+-   **UX-05**: Implement Search Functionality within the File Tree
+    -   **Description**: Develop a search feature that allows users to quickly locate specific flows within the file tree.
+    -   **Priority**: Medium
+    -   **Technical Requirements**: Implement a search input field integrated into the file tree component. The search should dynamically filter the tree view based on user input, highlighting and expanding the relevant sections that match the search criteria.
+    -   **Justification**: This feature will enhance the usability of the application by reducing the time and effort needed to navigate through large numbers of flows, especially in complex projects.
+    -   **Implementation Notes**:
+        -   Consider using a debounce mechanism to optimize search performance and reduce the load on the rendering process.
+        -   Ensure that the search functionality is accessible and easy to use across various devices and screen sizes.
+    -   **Future Considerations**:
+        -   Evaluate user feedback on the search functionality to determine if further enhancements are needed.
+        -   Explore the possibility of adding advanced search options, such as regex or filter by tags.
 
 #### Epic: Quality Assurance and Debugging
 
@@ -194,11 +205,3 @@ Use the Scrum Board to visually track the progress of tasks through the To Do, I
 -   Support for Complete, catch, status nodes
 -   Support for Link in, link cal, and link out nodes
 -   Config node support
--   New layout (a la vscode):
-    -   Primary side bar with file tree, config nodes, context data, info
-    -   Secondary side bar with node palette and help browser
-    -   Tabs up top
-    -   Console on bottom (debug output)
-    -   Light and dark modes (set somewhere in the header)
-    -   All panels have close buttons and all panels can be toggled in header
--   Implement search functionality within the file tree to allow users to quickly find specific flows.
