@@ -130,10 +130,26 @@ The backlog is organized by epic, with each task having a unique ID, description
     -   **Description**: Create a file tree section within the primary sidebar to list and manage all available flows.
     -   **Priority**: High
     -   **Technical Requirements**:
-        -   Develop a collapsible file tree that displays all available flows categorized by projects or folders.
-        -   Allow users to interact with the file tree to open a flow in a new tab, delete a flow, or create a new flow.
+        -   Develop a collapsible file tree that displays all available flows and subflows categorized by projects or folders.
+        -   Allow users to interact with the file tree to open a flow in a new tab, delete a flow, or create a new flow. Also subflows.
         -   Integrate file tree actions with state to reflect changes in real-time, ensuring that the file tree is always up-to-date with the latest files and folders.
-        -   Implement search functionality within the file tree to allow users to quickly find specific flows.
+    -   **Implementation Details**:
+        1. **Design and Style the File Tree Component**
+            - **Description**: Design the UI for the file tree to ensure it is intuitive and aligns with the overall design of the application.
+            - **Sub-tasks**:
+                - Create a collapsible component structure for the file tree.
+                - Style the file tree using styled-components for consistency with the rest of the application.
+        2. **Integrate File Tree with Redux State**
+            - **Description**: Connect the file tree component to the Redux store to dynamically display the flows and subflows.
+            - **Sub-tasks**:
+                - Utilize the `selectFlowTree` selector from `flow.logic.ts` to fetch tree data.
+                - Implement actions and reducers to handle updates to the flow structure (e.g., adding, removing, renaming flows).
+        3. **Implement Interactivity in the File Tree**
+            - **Description**: Allow users to interact with the file tree to manage flows directly from the sidebar.
+            - **Sub-tasks**:
+                - Enable opening a flow in a new tab by clicking on a flow node.
+                - Add context menu options for each node (e.g., delete, rename, new flow).
+                - Implement drag-and-drop functionality within the tree to reorganize flows.
 
 #### Epic: Subflows
 
@@ -241,8 +257,8 @@ The backlog is organized by epic, with each task having a unique ID, description
 
 | To Do | In Progress | In Review | Done  |
 | ----- | ----------- | --------- | ----- |
-|       |             |           | FM-01 |
-| FM-03 |             |           | FM-02 |
+|       | FM-03       |           | FM-01 |
+|       |             |           | FM-02 |
 
 ### Progress Tracking
 
@@ -264,3 +280,4 @@ Use the Scrum Board to visually track the progress of tasks through the To Do, I
     -   Console on bottom (debug output)
     -   Light and dark modes (set somewhere in the header)
     -   All panels have close buttons and all panels can be toggled in header
+-   Implement search functionality within the file tree to allow users to quickly find specific flows.
