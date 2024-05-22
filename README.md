@@ -208,11 +208,11 @@ The backlog is organized by epic, with each task having a unique ID, description
 
 ### Scrum Board
 
-| To Do | In Progress | In Review | Done |
-| ----- | ----------- | --------- | ---- |
-| SF-01 |             |           |      |
-| SF-02 |             |           |      |
-| SF-03 | SF-04       |           |      |
+| To Do | In Progress | In Review | Done  |
+| ----- | ----------- | --------- | ----- |
+| SF-01 |             |           | SF-04 |
+| SF-02 |             |           |       |
+| SF-03 |             |           |       |
 
 ### Progress Tracking
 
