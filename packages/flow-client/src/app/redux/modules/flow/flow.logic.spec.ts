@@ -2,9 +2,9 @@ import { MockedFunction } from 'vitest';
 import '../../../../../vitest-esbuild-compat';
 import { RootState } from '../../store';
 import {
-    NodeEntity,
-    selectAllNodes,
-    selectNodeById,
+    PaletteNodeEntity,
+    selectAllPaletteNodes,
+    selectPaletteNodeById,
 } from '../palette/node.slice';
 import {
     FlowLogic,
@@ -19,21 +19,21 @@ import {
     FlowNodeEntity,
     SubflowEntity,
     flowActions,
-    selectDirectories,
-    selectEntityById,
+    selectAllDirectories,
+    selectAllFlowEntities,
+    selectFlowEntityById,
+    selectFlowNodeById,
     selectFlowNodesByFlowId,
-    selectFlows,
-    selectSubflows,
 } from './flow.slice';
 
-vi.mock('../node/node.slice', async importOriginal => {
+vi.mock('../palette/node.slice', async importOriginal => {
     const originalModule = await importOriginal<
         typeof import('../palette/node.slice')
     >();
     return {
         ...originalModule,
-        selectAllNodes: vi.fn(() => []),
-        selectNodeById: vi.fn(() => null),
+        selectAllPaletteNodes: vi.fn(() => []),
+        selectPaletteNodeById: vi.fn(() => null),
     };
 });
 
@@ -44,35 +44,37 @@ vi.mock('./flow.slice', async importOriginal => {
     >();
     return {
         ...originalModule,
-        selectFlows: vi.fn(() => []),
-        selectSubflows: vi.fn(() => []),
+        selectAllFlowEntities: vi.fn(() => []),
         selectFlowNodesByFlowId: vi.fn(() => []),
-        selectEntityById: vi.fn(() => null),
-        selectDirectories: vi.fn(() => []),
+        selectFlowEntityById: vi.fn(() => null),
+        selectFlowNodeById: vi.fn(() => null),
+        selectAllDirectories: vi.fn(() => []),
     };
 });
 
 const mockDispatch = vi.fn();
 const mockGetState = vi.fn(() => ({})) as unknown as () => RootState;
 
-const mockedSelectAllNodes = selectAllNodes as MockedFunction<
-    typeof selectAllNodes
+const mockedSelectAllPaletteNodes = selectAllPaletteNodes as MockedFunction<
+    typeof selectAllPaletteNodes
 >;
-const mockedSelectNodeById = selectNodeById as MockedFunction<
-    typeof selectNodeById
+const mockedSelectPaletteNodeById = selectPaletteNodeById as MockedFunction<
+    typeof selectPaletteNodeById
 >;
-const mockedSelectEntityById = selectEntityById as MockedFunction<
-    typeof selectEntityById
+const mockedSelectFlowEntityById = selectFlowEntityById as MockedFunction<
+    typeof selectFlowEntityById
+>;
+const mockedSelectFlowNodeById = selectFlowNodeById as MockedFunction<
+    typeof selectFlowNodeById
 >;
 const mockedSelectFlowNodesByFlowId = selectFlowNodesByFlowId as MockedFunction<
     typeof selectFlowNodesByFlowId
 >;
-const mockedSelectFlows = selectFlows as MockedFunction<typeof selectFlows>;
-const mockedSelectSubflows = selectSubflows as MockedFunction<
-    typeof selectSubflows
+const mockedSelectAllFlowEntities = selectAllFlowEntities as MockedFunction<
+    typeof selectAllFlowEntities
 >;
-const mockedSelectDirectories = selectDirectories as MockedFunction<
-    typeof selectDirectories
+const mockedSelectAllDirectories = selectAllDirectories as MockedFunction<
+    typeof selectAllDirectories
 >;
 
 describe('flow.logic', () => {
@@ -203,10 +205,10 @@ describe('flow.logic', () => {
             );
 
             expect(mockDispatch).toHaveBeenCalledWith(
-                flowActions.upsertEntity(
+                flowActions.upsertFlowEntity(
                     expect.objectContaining({
                         id: 'flow1',
-                        type: 'tab',
+                        type: 'flow',
                         // Other properties as they should be in the action payload
                     })
                 )
@@ -216,8 +218,8 @@ describe('flow.logic', () => {
         it('should not override existing flow properties with new ones', async () => {
             const existingFlow = {
                 id: 'flow1',
-                label: 'Existing Flow Label',
-                type: 'tab',
+                name: 'Existing Flow Label',
+                type: 'flow',
                 extras: { detail: 'Existing details' },
                 disabled: false,
                 info: '',
@@ -236,7 +238,7 @@ describe('flow.logic', () => {
                 selected: false,
             } as SerializedGraph;
 
-            mockedSelectEntityById.mockReturnValue(existingFlow);
+            mockedSelectFlowEntityById.mockReturnValue(existingFlow);
 
             await flowLogic.updateFlowFromSerializedGraph(serializedGraph)(
                 mockDispatch,
@@ -244,10 +246,10 @@ describe('flow.logic', () => {
             );
 
             expect(mockDispatch).toHaveBeenCalledWith(
-                flowActions.upsertEntity(
+                flowActions.upsertFlowEntity(
                     expect.objectContaining({
                         id: 'flow1',
-                        label: 'Existing Flow Label', // Ensure the label is not overridden
+                        name: 'Existing Flow Label', // Ensure the label is not overridden
                         extras: { detail: 'Existing details' }, // Ensure extras are not overridden
                     })
                 )
@@ -285,7 +287,7 @@ describe('flow.logic', () => {
             );
 
             expect(mockDispatch).toHaveBeenCalledWith(
-                flowActions.upsertEntities(
+                flowActions.upsertFlowNodes(
                     expect.arrayContaining([
                         expect.objectContaining({
                             id: 'node1',
@@ -325,7 +327,7 @@ describe('flow.logic', () => {
                             locked: false,
                             selected: false,
                             extras: {
-                                entity: {} as NodeEntity,
+                                entity: {} as PaletteNodeEntity,
                             },
                             ports: [
                                 {
@@ -352,7 +354,7 @@ describe('flow.logic', () => {
                             locked: false,
                             selected: false,
                             extras: {
-                                entity: {} as NodeEntity,
+                                entity: {} as PaletteNodeEntity,
                             },
                             ports: [
                                 {
@@ -410,7 +412,7 @@ describe('flow.logic', () => {
 
             // Verify that the dispatch was called with actions that reflect the correct wiring
             expect(mockDispatch).toHaveBeenCalledWith(
-                flowActions.upsertEntities(
+                flowActions.upsertFlowNodes(
                     expect.arrayContaining([
                         expect.objectContaining({
                             id: 'node1',
@@ -427,7 +429,7 @@ describe('flow.logic', () => {
     });
 
     describe('updateFlowNode', () => {
-        const testNodeEntity: NodeEntity = {
+        const testNodeEntity: PaletteNodeEntity = {
             id: 'node1',
             type: 'custom-node',
             nodeRedId: 'node1',
@@ -484,18 +486,18 @@ describe('flow.logic', () => {
             outputs: numOutputs,
         };
         beforeEach(() => {
-            mockedSelectEntityById.mockImplementation((state, id) => {
+            mockedSelectFlowNodeById.mockImplementation((state, id) => {
                 if (id === 'node1') {
                     return testFlowNodeEntity;
                 }
                 return null as unknown as FlowNodeEntity;
             });
 
-            mockedSelectNodeById.mockImplementation((state, id) => {
+            mockedSelectPaletteNodeById.mockImplementation((state, id) => {
                 if (id === 'custom-node') {
                     return testNodeEntity;
                 }
-                return null as unknown as NodeEntity;
+                return null as unknown as PaletteNodeEntity;
             });
         });
 
@@ -511,7 +513,7 @@ describe('flow.logic', () => {
             );
 
             expect(mockDispatch).toHaveBeenCalledWith(
-                flowActions.updateEntity({
+                flowActions.updateFlowNode({
                     id: 'node1',
                     changes: expect.objectContaining({
                         inputs: 0,
@@ -533,7 +535,7 @@ describe('flow.logic', () => {
             );
 
             expect(mockDispatch).toHaveBeenCalledWith(
-                flowActions.updateEntity({
+                flowActions.updateFlowNode({
                     id: 'node1',
                     changes: expect.objectContaining({
                         outputs: 1,
@@ -563,7 +565,7 @@ describe('flow.logic', () => {
 
             // Assuming the getNodeInputsOutputs method generates labels "Input 1" and "Output 1"
             expect(mockDispatch).toHaveBeenCalledWith(
-                flowActions.updateEntity({
+                flowActions.updateFlowNode({
                     id: 'node1',
                     changes: expect.objectContaining({
                         inPorts: expect.arrayContaining([
@@ -596,7 +598,7 @@ describe('flow.logic', () => {
             );
 
             expect(mockDispatch).toHaveBeenCalledWith(
-                flowActions.updateEntity({
+                flowActions.updateFlowNode({
                     id: 'node1',
                     changes: expect.objectContaining({
                         inPorts: [], // Expecting no input ports
@@ -618,7 +620,7 @@ describe('flow.logic', () => {
         });
 
         it('correctly serializes a flow with nodes and links', () => {
-            const mockNodeEntity: NodeEntity = {
+            const mockNodeEntity: PaletteNodeEntity = {
                 id: 'node2',
                 nodeRedId: 'node2',
                 name: 'Node 2',
@@ -639,8 +641,8 @@ describe('flow.logic', () => {
 
             const mockFlow = {
                 id: 'flow1',
-                type: 'tab',
-                label: 'My Flow',
+                type: 'flow',
+                name: 'My Flow',
                 disabled: false,
                 info: '',
                 env: [],
@@ -679,8 +681,10 @@ describe('flow.logic', () => {
             ];
 
             // Mock the selector responses
-            mockedSelectAllNodes.mockImplementation(() => [mockNodeEntity]);
-            mockedSelectEntityById.mockImplementation(() => mockFlow);
+            mockedSelectAllPaletteNodes.mockImplementation(() => [
+                mockNodeEntity,
+            ]);
+            mockedSelectFlowEntityById.mockImplementation(() => mockFlow);
             mockedSelectFlowNodesByFlowId.mockImplementation(() => mockNodes);
 
             const result = flowLogic.selectSerializedGraphByFlowId.resultFunc(
@@ -795,18 +799,18 @@ describe('flow.logic', () => {
             const customFlows: FlowEntity[] = [
                 {
                     id: 'flow3',
-                    label: 'Custom Flow 1',
+                    name: 'Custom Flow 1',
                     directory: 'custom1',
-                    type: 'tab',
+                    type: 'flow',
                     disabled: false,
                     info: '',
                     env: [],
                 },
                 {
                     id: 'flow4',
-                    label: 'Custom Flow 2',
+                    name: 'Custom Flow 2',
                     directory: 'custom2',
-                    type: 'tab',
+                    type: 'flow',
                     disabled: false,
                     info: '',
                     env: [],
@@ -836,9 +840,12 @@ describe('flow.logic', () => {
             ];
 
             // Mock the selectors
-            mockedSelectDirectories.mockReturnValue(customDirectories);
-            mockedSelectFlows.mockReturnValue(customFlows);
-            mockedSelectSubflows.mockReturnValue(customSubflows);
+            mockedSelectAllDirectories.mockReturnValue(customDirectories);
+            mockedSelectAllFlowEntities.mockReturnValue(
+                (customFlows as (FlowEntity | SubflowEntity)[]).concat(
+                    customSubflows
+                )
+            );
 
             const result = flowLogic.selectFlowTree(mockGetState());
 
@@ -899,18 +906,18 @@ describe('flow.logic', () => {
             const flows: FlowEntity[] = [
                 {
                     id: 'flow1',
-                    label: 'Main Flow',
+                    name: 'Main Flow',
                     directory: 'flows',
-                    type: 'tab',
+                    type: 'flow',
                     disabled: false,
                     info: '',
                     env: [],
                 },
                 {
                     id: 'flow2',
-                    label: 'Secondary Flow',
+                    name: 'Secondary Flow',
                     directory: 'flows',
-                    type: 'tab',
+                    type: 'flow',
                     disabled: false,
                     info: '',
                     env: [],
@@ -940,9 +947,10 @@ describe('flow.logic', () => {
             ];
 
             // Mock the selectors
-            mockedSelectDirectories.mockReturnValue([]); // No custom directories are provided
-            mockedSelectFlows.mockReturnValue(flows);
-            mockedSelectSubflows.mockReturnValue(subflows);
+            mockedSelectAllDirectories.mockReturnValue([]); // No custom directories are provided
+            mockedSelectAllFlowEntities.mockReturnValue(
+                (flows as (FlowEntity | SubflowEntity)[]).concat(subflows)
+            );
 
             const result = flowLogic.selectFlowTree(mockGetState());
 
@@ -998,9 +1006,8 @@ describe('flow.logic', () => {
 
         it('should handle empty directories correctly', () => {
             // Mock empty responses
-            mockedSelectDirectories.mockReturnValue([]);
-            mockedSelectFlows.mockReturnValue([]);
-            mockedSelectSubflows.mockReturnValue([]);
+            mockedSelectAllDirectories.mockReturnValue([]);
+            mockedSelectAllFlowEntities.mockReturnValue([]);
 
             const result = flowLogic.selectFlowTree(mockGetState());
 

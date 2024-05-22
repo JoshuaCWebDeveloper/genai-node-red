@@ -1,28 +1,26 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { v4 as uuidv4 } from 'uuid';
+import { PortModelAlignment } from '@projectstorm/react-diagrams';
 
+import { executeNodeFn } from '../../../red/execute-script';
 import { AppDispatch, RootState } from '../../store';
 import {
-    NodeEntity,
-    selectAllNodes,
-    selectNodeById,
+    PaletteNodeEntity,
+    selectAllPaletteNodes,
+    selectPaletteNodeById,
 } from '../palette/node.slice';
 import {
     DirectoryEntity,
-    FlowEntity,
     FlowNodeEntity,
     LinkModel,
     PortModel,
-    SubflowEntity,
     flowActions,
-    selectDirectories,
-    selectEntityById,
+    selectAllDirectories,
+    selectAllFlowEntities,
+    selectFlowEntityById,
+    selectFlowNodeById,
     selectFlowNodesByFlowId,
-    selectFlows,
-    selectSubflows,
 } from './flow.slice';
-import { executeNodeFn } from '../../../red/execute-script';
-import { PortModelAlignment } from '@projectstorm/react-diagrams';
 
 export type SerializedGraph = {
     id: string;
@@ -68,7 +66,7 @@ export type NodeModel = {
     locked: boolean;
     selected: boolean;
     extras: {
-        entity: NodeEntity;
+        entity: PaletteNodeEntity;
         [key: string]: unknown;
     };
 };
@@ -103,7 +101,7 @@ export class FlowLogic {
     // Method to extract inputs and outputs from a NodeEntity, including deserializing inputLabels and outputLabels
     getNodeInputsOutputs(
         nodeInstance: FlowNodeEntity,
-        nodeEntity: NodeEntity
+        nodeEntity: PaletteNodeEntity
     ): {
         inputs: string[];
         outputs: string[];
@@ -164,17 +162,17 @@ export class FlowLogic {
             );
 
             // get existing flow entity or create new one
-            const flowEntity = selectEntityById(getState(), graph.id) ?? {
+            const flowEntity = selectFlowEntityById(getState(), graph.id) ?? {
                 id: graph.id,
-                type: 'tab',
-                label: 'My Flow', // Example label, could be dynamic
+                type: 'flow',
+                name: 'My Flow', // Example label, could be dynamic
                 disabled: false,
                 info: '', // Additional info about the flow
                 env: [], // Environment variables or other settings
             };
 
             // Dispatch an action to add the flow entity to the Redux state
-            dispatch(flowActions.upsertEntity(flowEntity));
+            dispatch(flowActions.upsertFlowEntity(flowEntity));
 
             // Step 1: Fetch current nodes of the flow
             const currentNodes = selectFlowNodesByFlowId(getState(), graph.id);
@@ -187,7 +185,7 @@ export class FlowLogic {
 
             // Step 3: Remove the identified nodes
             dispatch(
-                flowActions.removeEntities(nodesToRemove.map(it => it.id))
+                flowActions.removeFlowNodes(nodesToRemove.map(it => it.id))
             );
 
             // Map all links by their out port to organize connections from out -> in
@@ -243,7 +241,7 @@ export class FlowLogic {
             );
 
             // Dispatch an action to add the transformed nodes to the Redux state
-            dispatch(flowActions.upsertEntities(nodes));
+            dispatch(flowActions.upsertFlowNodes(nodes));
         };
     }
 
@@ -358,7 +356,7 @@ export class FlowLogic {
 
     private updateNodeInputsOutputs(
         nodeInstance: FlowNodeEntity,
-        nodeEntity: NodeEntity,
+        nodeEntity: PaletteNodeEntity,
         changes: DirtyNodeChanges
     ): Partial<FlowNodeEntity> {
         // build new changes
@@ -491,14 +489,14 @@ export class FlowLogic {
     updateFlowNode = (nodeId: string, changes: DirtyNodeChanges) => {
         return async (dispatch: AppDispatch, getState: () => RootState) => {
             // update node inputs and outputs
-            const nodeInstance = selectEntityById(
+            const nodeInstance = selectFlowNodeById(
                 getState(),
                 nodeId
             ) as FlowNodeEntity;
-            const nodeEntity = selectNodeById(
+            const nodeEntity = selectPaletteNodeById(
                 getState(),
                 nodeInstance.type
-            ) as NodeEntity;
+            ) as PaletteNodeEntity;
 
             const newChanges = {
                 ...changes,
@@ -510,20 +508,20 @@ export class FlowLogic {
             } as Partial<FlowNodeEntity>;
 
             dispatch(
-                flowActions.updateEntity({ id: nodeId, changes: newChanges })
+                flowActions.updateFlowNode({ id: nodeId, changes: newChanges })
             );
         };
     };
 
     selectSerializedGraphByFlowId = createSelector(
-        [state => state, selectEntityById, selectFlowNodesByFlowId],
+        [state => state, selectFlowEntityById, selectFlowNodesByFlowId],
         (state, flow, flowNodes) => {
             if (!flow) {
                 return null;
             }
 
             const nodeEntities = Object.fromEntries(
-                selectAllNodes(state).map(it => [it.id, it])
+                selectAllPaletteNodes(state).map(it => [it.id, it])
             );
 
             // Construct NodeModels from flow nodes
@@ -693,8 +691,8 @@ export class FlowLogic {
     }
 
     selectFlowTree = createSelector(
-        [state => state, selectDirectories, selectFlows, selectSubflows],
-        (state, directories, flows, subflows) => {
+        [state => state, selectAllDirectories, selectAllFlowEntities],
+        (state, directories, flowEntities) => {
             // collect tree hierarchy
             const rootDirectory = {
                 id: '',
@@ -726,6 +724,7 @@ export class FlowLogic {
                 [flowsDirectory.id]: flowsDirectory,
                 [subflowsDirectory.id]: subflowsDirectory,
             } as Record<string, TreeItemData>;
+
             // loop directories
             directories.forEach(directory => {
                 // if we've already created it
@@ -741,32 +740,24 @@ export class FlowLogic {
                     directory
                 );
             });
-            // loop flows and subflows with default paths
-            [
-                {
-                    defaultDirectory: flowsDirectory.id,
-                    entities: flows,
-                },
-                {
-                    defaultDirectory: subflowsDirectory.id,
-                    entities: subflows,
-                },
-            ].forEach(({ defaultDirectory, entities }) => {
-                entities.forEach(entity => {
-                    const directoryId = entity.directory ?? defaultDirectory;
-                    const directory = treeItems[directoryId] as TreeDirectory;
-                    const item = {
-                        id: entity.id,
-                        name:
-                            (entity as SubflowEntity).name ??
-                            (entity as FlowEntity).label,
-                        type: 'file',
-                        directory: directoryId,
-                        directoryPath: `${directory.directoryPath}/${directory.name}`,
-                    } as TreeFile;
-                    directory.children.push(item);
-                    treeItems[item.id] = item;
-                });
+
+            // loop flows and subflows
+            flowEntities.forEach(entity => {
+                const directoryId =
+                    entity.directory ??
+                    (entity.type === 'flow'
+                        ? flowsDirectory.id
+                        : subflowsDirectory.id);
+                const directory = treeItems[directoryId] as TreeDirectory;
+                const item = {
+                    id: entity.id,
+                    name: entity.name,
+                    type: 'file',
+                    directory: directoryId,
+                    directoryPath: `${directory.directoryPath}/${directory.name}`,
+                } as TreeFile;
+                directory.children.push(item);
+                treeItems[item.id] = item;
             });
 
             return { tree: rootDirectory.children, items: treeItems };
