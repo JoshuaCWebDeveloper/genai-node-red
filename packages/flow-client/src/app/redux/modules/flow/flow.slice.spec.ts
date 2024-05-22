@@ -13,13 +13,16 @@ import {
     selectAllFlows,
     selectAllSubflows,
     selectDirectoryById,
+    selectDirectoryEntities,
     selectDirectoryIds,
-    selectFlowDirectoryEntities,
+    selectFlowDirectoryEntityState,
     selectFlowEntities,
     selectFlowEntityById,
     selectFlowEntityIds,
+    selectFlowEntityState,
     selectFlowNodeById,
     selectFlowNodeEntities,
+    selectFlowNodeEntityState,
     selectFlowNodeIds,
     selectFlowNodesByFlowId,
     selectFlowState,
@@ -976,7 +979,7 @@ describe('Flow Slice', () => {
                 },
             };
 
-            expect(selectFlowEntities(customState)).toEqual(
+            expect(selectFlowEntityState(customState)).toEqual(
                 customState.flow.flowEntities
             );
         });
@@ -1008,7 +1011,7 @@ describe('Flow Slice', () => {
                 },
             };
 
-            expect(selectFlowNodeEntities(customState)).toEqual(
+            expect(selectFlowNodeEntityState(customState)).toEqual(
                 customState.flow.flowNodes
             );
         });
@@ -1032,7 +1035,7 @@ describe('Flow Slice', () => {
                 },
             };
 
-            expect(selectFlowDirectoryEntities(customState)).toEqual(
+            expect(selectFlowDirectoryEntityState(customState)).toEqual(
                 customState.flow.directories
             );
         });
@@ -1087,6 +1090,15 @@ describe('Flow Slice', () => {
         it('selectFlowEntityIds()', () => {
             const ids = selectFlowEntityIds(state);
             expect(ids).toEqual(['flow1', 'subflow1']);
+        });
+
+        it('selectFlowEntities()', () => {
+            const entities = selectFlowEntities(state);
+            expect(Object.keys(entities).length).toEqual(2);
+            expect(Object.values(entities)).toEqual([
+                state.flow.flowEntities.entities['flow1'],
+                state.flow.flowEntities.entities['subflow1'],
+            ]);
         });
 
         it('selectAllFlows()', () => {
@@ -1166,6 +1178,15 @@ describe('Flow Slice', () => {
             expect(ids).toEqual(['node1', 'node2']);
         });
 
+        it('selectFlowNodeEntities()', () => {
+            const entities = selectFlowNodeEntities(state);
+            expect(Object.keys(entities).length).toEqual(2);
+            expect(Object.values(entities)).toEqual([
+                state.flow.flowNodes.entities['node1'],
+                state.flow.flowNodes.entities['node2'],
+            ]);
+        });
+
         it('selectFlowNodesByFlowId()', () => {
             const nodes = selectFlowNodesByFlowId(state, 'flow1');
             expect(nodes.length).toEqual(1);
@@ -1217,6 +1238,15 @@ describe('Flow Slice', () => {
         it('selectDirectoryIds()', () => {
             const ids = selectDirectoryIds(state);
             expect(ids).toEqual(['dir1', 'dir2']);
+        });
+
+        it('selectDirectoryEntities()', () => {
+            const entities = selectDirectoryEntities(state);
+            expect(Object.keys(entities).length).toEqual(2);
+            expect(Object.values(entities)).toEqual([
+                state.flow.directories.entities['dir1'],
+                state.flow.directories.entities['dir2'],
+            ]);
         });
     });
 });

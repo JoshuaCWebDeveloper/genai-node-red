@@ -224,15 +224,15 @@ export const flowActions = flowSlice.actions;
 export const selectFlowState = (state: RootState) => state[FLOW_FEATURE_KEY];
 
 // entities
-export const selectFlowEntities = createSelector(
+export const selectFlowEntityState = createSelector(
     selectFlowState,
     state => state.flowEntities
 );
-export const selectFlowNodeEntities = createSelector(
+export const selectFlowNodeEntityState = createSelector(
     selectFlowState,
     state => state.flowNodes
 );
-export const selectFlowDirectoryEntities = createSelector(
+export const selectFlowDirectoryEntityState = createSelector(
     selectFlowState,
     state => state.directories
 );
@@ -242,20 +242,24 @@ export const {
     selectAll: selectAllFlowEntities,
     selectById: selectFlowEntityById,
     selectIds: selectFlowEntityIds,
-} = flowAdapter.getSelectors(selectFlowEntities);
+    selectEntities: selectFlowEntities,
+} = flowAdapter.getSelectors(selectFlowEntityState);
 
 export const {
     selectAll: selectAllFlowNodes,
     selectById: selectFlowNodeById,
     selectIds: selectFlowNodeIds,
-} = nodeAdapter.getSelectors(selectFlowNodeEntities);
+    selectEntities: selectFlowNodeEntities,
+} = nodeAdapter.getSelectors(selectFlowNodeEntityState);
 
 export const {
     selectAll: selectAllDirectories,
     selectById: selectDirectoryById,
     selectIds: selectDirectoryIds,
-} = directoryAdapter.getSelectors(selectFlowDirectoryEntities);
+    selectEntities: selectDirectoryEntities,
+} = directoryAdapter.getSelectors(selectFlowDirectoryEntityState);
 
+// additional selectors
 export const selectAllFlows = createSelector(
     selectAllFlowEntities,
     entities =>
