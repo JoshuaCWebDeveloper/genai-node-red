@@ -1,11 +1,11 @@
 import styled from 'styled-components';
 
-import { NodeEntity } from '../../redux/modules/palette/node.slice';
 import environment from '../../../environment';
 import { FlowNodeEntity } from '../../redux/modules/flow/flow.slice';
+import { PaletteNodeEntity } from '../../redux/modules/palette/node.slice';
 
 // Styled component for the node item
-const StyledNode = styled.div<{ node: NodeEntity }>`
+const StyledNode = styled.div<{ node: PaletteNodeEntity }>`
     align-items: center;
     background-color: ${props =>
         props.node.color ? props.node.color : '#fff'};
@@ -30,7 +30,7 @@ const StyledNode = styled.div<{ node: NodeEntity }>`
 `;
 
 export type NodeRedNodeProps = {
-    entity: NodeEntity;
+    entity: PaletteNodeEntity;
     instance?: FlowNodeEntity;
     children?: React.ReactNode;
 };

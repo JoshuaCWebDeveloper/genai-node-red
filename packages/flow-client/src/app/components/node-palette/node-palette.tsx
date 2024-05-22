@@ -2,7 +2,7 @@ import styled from 'styled-components';
 
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import {
-    nodeActions,
+    paletteNodeActions,
     selectFilteredNodes,
 } from '../../redux/modules/palette/node.slice';
 import NodeList from './node-list';
@@ -35,7 +35,7 @@ export const NodePalette = () => {
 
     const nodes = useAppSelector(selectFilteredNodes);
     const handleSearch = (query: string) => {
-        dispatch(nodeActions.setSearchQuery(query));
+        dispatch(paletteNodeActions.setSearchQuery(query));
     };
 
     return (

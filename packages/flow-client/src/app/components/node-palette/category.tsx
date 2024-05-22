@@ -1,12 +1,12 @@
 import React from 'react';
 import styled from 'styled-components';
-import { NodeEntity } from '../../redux/modules/palette/node.slice';
 import Node from './node';
 import DraggableNodeWrapper from './draggable-node-wrapper'; // Import the DraggableNodeWrapper
+import { PaletteNodeEntity } from '../../redux/modules/palette/node.slice';
 
 export type CategoryProps = {
     title: string;
-    nodes: Array<NodeEntity>;
+    nodes: Array<PaletteNodeEntity>;
 };
 
 const StyledCategory = styled.div`

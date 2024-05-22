@@ -1,11 +1,11 @@
 import React from 'react';
 import { useDrag } from 'react-dnd';
 
-import { NodeEntity } from '../../redux/modules/palette/node.slice';
 import { ItemTypes } from '../node/draggable-item-types'; // Adjust the path as necessary
+import { PaletteNodeEntity } from '../../redux/modules/palette/node.slice';
 
 export type DraggableNodeWrapperProps = {
-    node: NodeEntity;
+    node: PaletteNodeEntity;
     children: React.ReactNode;
 };
 

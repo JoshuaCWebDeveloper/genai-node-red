@@ -9,8 +9,8 @@ import {
     selectNewFlowCounter,
     selectNewFolderCounter,
 } from '../../redux/modules/builder/builder.slice';
-import { TreeItemData } from '../../redux/modules/flow/flow.logic';
 import { flowActions } from '../../redux/modules/flow/flow.slice';
+import { TreeItemData } from '../../redux/modules/flow/tree.logic';
 import { TreeItem } from './tree-item';
 
 const StyledFlowTree = styled.div`
@@ -49,7 +49,7 @@ const StyledFlowTree = styled.div`
 export const FlowTree = () => {
     const dispatch = useAppDispatch();
     const flowLogic = useAppLogic().flow;
-    const { tree, items } = useAppSelector(flowLogic.selectFlowTree);
+    const { tree, items } = useAppSelector(flowLogic.tree.selectFlowTree);
     const activeFlow = useAppSelector(selectActiveFlow);
     const flowCounter = useAppSelector(selectNewFlowCounter);
     const folderCounter = useAppSelector(selectNewFolderCounter);
@@ -74,7 +74,7 @@ export const FlowTree = () => {
     const handleNewFolder = useCallback(() => {
         const folderId = uuidv4();
         dispatch(
-            flowActions.addEntity({
+            flowActions.addDirectory({
                 id: folderId,
                 type: 'directory',
                 name: `New Folder ${folderCounter}`,
@@ -89,10 +89,10 @@ export const FlowTree = () => {
         const flowId = uuidv4();
 
         dispatch(
-            flowActions.addEntity({
+            flowActions.addFlowEntity({
                 id: flowId,
-                type: 'tab',
-                label: `New Flow${flowCounter ? ` ${flowCounter}` : ''}`,
+                type: 'flow',
+                name: `New Flow${flowCounter ? ` ${flowCounter}` : ''}`,
                 disabled: false,
                 info: '',
                 env: [],
@@ -100,7 +100,6 @@ export const FlowTree = () => {
             })
         );
         dispatch(builderActions.addNewFlow(flowId));
-        dispatch(builderActions.openFlow(flowId));
         dispatch(builderActions.setActiveFlow(flowId));
     }, [dispatch, flowCounter, getSelectedDirectory]);
 
