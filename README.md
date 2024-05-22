@@ -212,8 +212,7 @@ The backlog is organized by epic, with each task having a unique ID, description
 | ----- | ----------- | --------- | ---- |
 | SF-01 |             |           |      |
 | SF-02 |             |           |      |
-| SF-03 |             |           |      |
-| SF-04 |             |           |      |
+| SF-03 | SF-04       |           |      |
 
 ### Progress Tracking
 
