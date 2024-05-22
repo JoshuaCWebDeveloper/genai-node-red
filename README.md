@@ -75,21 +75,34 @@ The backlog is organized by epic, with each task having a unique ID, description
 
 #### Epic: Subflows
 
--   **SF-01**: Implement flow/subflow organization mechanisms.
-    -   **Objective**: Provide mechanisms for organizing and managing subflows.
-    -   **Technical Requirements**: Develop features that allow users to segment their work into manageable, modular subflows.
+-   **SF-01**: Implement Flow/Subflow Organization and Creation Mechanisms
+    -   **Objective**: Provide mechanisms for organizing, managing, and creating subflows.
+    -   **Technical Requirements**: Develop features that allow users to segment their work into manageable, modular subflows and create new subflows via a user interface.
+    -   **Note**: Ensure the node palette displays available subflows for easy access.
+-   **SF-02**: Subflow Instance Management
+    -   **Objective**: Allow users to instantiate and manage subflows within main flows.
+    -   **Technical Requirements**: Develop functionality to drag and drop subflows from the node palette into the main flow canvas as nodes, and edit properties of a subflow instance node in the node editor dialog.
+    -   **Note**: Support nesting of subflows within other subflows.
+-   **SF-03**: Edit and Update Subflows
+    -   **Objective**: Provide functionality for editing existing subflows, including interface customization.
+    -   **Technical Requirements**: Implement an editing interface that allows users to modify subflows and propagate changes to all instances of the subflow. Include capabilities to customize the user interface of subflows, allowing for adjustments in how subflows are presented and interacted with.
+-   **SF-04**: Refactor Flow Slice to Manage Entity Collections
+    -   **Objective**: Enhance data management by refactoring the flow slice to handle separate entity collections of flows/subflows, nodes, and directories.
+    -   **Technical Requirements**: Redesign the state management to segregate and manage distinct collections for better modularity and maintainability.
 
 #### Epic: Backend Integration and Data Management
 
 -   **IR-01**: Establish API communication for flow management.
     -   **Objective**: Enable communication between the frontend client and the Node-RED backend for flow management.
     -   **Technical Requirements**: Design and implement a service layer in the frontend that communicates with Node-RED's backend APIs.
--   **IR-02**: Implement import/export functionality for flows.
+-   **IR-02**: Implement Import/Export Functionality for Flows
     -   **Objective**: Allow users to import and export their flows in JSON format.
     -   **Technical Requirements**: Develop functionality within the frontend client that enables users to easily import and export their flows, facilitating sharing, backup, and migration of work.
--   **IR-03**: Ensure authentication and authorization mechanisms.
+    -   **Additional Details**: Extend the import/export functionality to include subflows, allowing users to manage subflow data alongside main flows.
+-   **IR-03**: Ensure Authentication and Authorization Mechanisms
     -   **Objective**: Implement security measures for accessing and managing flows.
     -   **Technical Requirements**: Design and integrate authentication and authorization mechanisms to protect user data and flows.
+    -   **Additional Details**: Update the authentication and authorization mechanisms to include access control for subflows, ensuring secure management of subflow data.
 -   **IR-04**: Saving Flows to `flows.json`
     -   **Description**: Integrate with the Node-RED API to save the current state of flows to a `flows.json` file.
     -   **Priority**: High
@@ -173,18 +186,25 @@ The backlog is organized by epic, with each task having a unique ID, description
     -   **Priority**: Medium
     -   **Technical Requirements**: Implement UI components that allow users to access and modify node settings through a context-sensitive menu.
 
+-   **ENI-13**: Implement Subflow Templates and Reusability
+    -   **Description**: Develop tools that support the creation and management of subflow templates, enhancing the reusability of subflows across different projects or flows.
+    -   **Priority**: Medium
+    -   **Technical Requirements**: Implement a template system for subflows that can be saved and reused.
+    -   **Status**: Backlog
+
 #### Epic: Collaboration and Version Control
 
 -   **CV-01**: Implement Collaboration Tools
 
--   **Description**: Develop tools that support multiple users working on the same flow simultaneously.
--   **Priority**: High
--   **Technical Requirements**: Integrate real-time editing capabilities, user presence indicators, and section locking mechanisms.
+    -   **Description**: Develop tools that support multiple users working on the same flow simultaneously.
+    -   **Priority**: High
+    -   **Technical Requirements**: Integrate real-time editing capabilities, user presence indicators, and section locking mechanisms.
 
 -   **CV-02**: Integrate Version Control
--   **Description**: Integrate version control mechanisms to manage and track changes in flow designs.
--   **Priority**: High
--   **Technical Requirements**: Implement or integrate with a version control system to allow users to manage versions of their flows, including viewing, reverting, and managing changes.
+    -   **Description**: Integrate version control mechanisms to manage and track changes in flow designs.
+    -   **Priority**: High
+    -   **Technical Requirements**: Implement or integrate with a version control system to allow users to manage versions of their flows, including viewing, reverting, and managing changes.
+    -   **Additional Details**: Ensure the version control system accommodates subflows, allowing users to track changes and manage versions effectively.
 
 ### Scrum Board
 
@@ -204,4 +224,4 @@ Use the Scrum Board to visually track the progress of tasks through the To Do, I
 -   Display comments
 -   Support for Complete, catch, status nodes
 -   Support for Link in, link cal, and link out nodes
--   Config node support
+-   Config node support - including in subflows
