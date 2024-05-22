@@ -7,6 +7,8 @@
     "oneditprepare",
     "oneditresize",
     "oneditsave",
+    "onpaletteadd",
+    "onpaletteremove",
     "projectstorm",
     "ptype",
     "PWRD"
