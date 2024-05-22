@@ -1,6 +1,6 @@
 import environment from '../../environment';
 import { FlowNodeEntity } from '../redux/modules/flow/flow.slice';
-import { NodeEntity } from '../redux/modules/palette/node.slice';
+import { PaletteNodeEntity } from '../redux/modules/palette/node.slice';
 import { JqueryContext } from './mock-jquery';
 import { createMockRed } from './mock-red';
 
@@ -78,13 +78,13 @@ export const deserializeFunction = <T = (...args: unknown[]) => unknown>(
 export const executeRegisterType = (definitionScript: string) => {
     const registeredTypes = [] as Array<{
         type: string;
-        definition: Partial<NodeEntity>;
+        definition: Partial<PaletteNodeEntity>;
     }>;
 
     const RED = createMockRed();
     RED.nodes.registerType = (
         type: string,
-        definition: Partial<NodeEntity>
+        definition: Partial<PaletteNodeEntity>
     ) => {
         // recursively iterate through definition and serialize any functions
         const serializeFunctions = (obj: Record<string, unknown>) => {
@@ -121,7 +121,7 @@ type UnknownFn = (...args: any[]) => unknown;
 
 export const extractNodePropertyFn = <T = UnknownFn>(
     propertyPath: string,
-    nodeEntity: NodeEntity,
+    nodeEntity: PaletteNodeEntity,
     nodeInstance: NodeConfigOrInstance = createNodeInstance(
         {} as FlowNodeEntity
     ),
@@ -135,7 +135,7 @@ export const extractNodePropertyFn = <T = UnknownFn>(
 
     RED.nodes.registerType = (
         type: string,
-        definition: Partial<NodeEntity>
+        definition: Partial<PaletteNodeEntity>
     ) => {
         const getPropertyByPath = (
             obj: Record<string, unknown>,
@@ -172,7 +172,7 @@ export const extractNodePropertyFn = <T = UnknownFn>(
 
 export const executeNodeFn = <T extends UnknownFn = UnknownFn>(
     fnCallSpec: [string, ...Parameters<T>],
-    nodeEntity: NodeEntity,
+    nodeEntity: PaletteNodeEntity,
     nodeInstance?: NodeConfigOrInstance,
     rootDomNode?: JqueryContext
 ): ReturnType<T> | void => {
