@@ -1,3 +1,4 @@
+import { RootState } from '../../store';
 import { flowActions } from '../flow/flow.slice';
 import {
     builderActions,
@@ -12,6 +13,7 @@ import {
     selectNewFlowCounter,
     selectNewFolderCounter,
     selectNewTreeItem,
+    BuilderState,
 } from './builder.slice';
 
 describe('builder.slice', () => {
@@ -220,7 +222,7 @@ describe('builder.slice', () => {
     });
 
     describe('extra reducers', () => {
-        it('flowActions.removeEntity() should trigger closeFlow if the entity is an open flow', () => {
+        it('flowActions.removeFlowEntity() should trigger closeFlow if the entity is an open flow', () => {
             const initialState = {
                 ...baseInitialState,
                 openFlows: ['flow1', 'flow2'],
@@ -228,7 +230,7 @@ describe('builder.slice', () => {
             };
 
             const action = {
-                type: flowActions.removeEntity.type,
+                type: flowActions.removeFlowEntity.type,
                 payload: 'flow1',
             };
 
@@ -239,7 +241,7 @@ describe('builder.slice', () => {
             expect(state.openFlows).toEqual(['flow2']);
         });
 
-        it('flowActions.removeEntity() should not affect state if the entity is not an open flow', () => {
+        it('flowActions.removeFlowEntity() should not affect state if the entity is not an open flow', () => {
             const initialState = {
                 ...baseInitialState,
                 openFlows: ['flow1', 'flow2'],
@@ -247,7 +249,7 @@ describe('builder.slice', () => {
             };
 
             const action = {
-                type: flowActions.removeEntity.type,
+                type: flowActions.removeFlowEntity.type,
                 payload: 'flow3', // flow3 is not in openFlows
             };
 
@@ -264,8 +266,8 @@ describe('builder.slice', () => {
                 builder: {
                     ...baseInitialState,
                     theme: 'dark' as const,
-                },
-            };
+                } as BuilderState,
+            } as RootState;
 
             expect(selectTheme(state)).toEqual('dark');
         });
@@ -275,8 +277,8 @@ describe('builder.slice', () => {
                 builder: {
                     ...baseInitialState,
                     showPrimarySidebar: true,
-                },
-            };
+                } as BuilderState,
+            } as RootState;
 
             expect(selectShowPrimarySidebar(state)).toEqual(true);
         });
@@ -286,8 +288,8 @@ describe('builder.slice', () => {
                 builder: {
                     ...baseInitialState,
                     showSecondarySidebar: false,
-                },
-            };
+                } as BuilderState,
+            } as RootState;
 
             expect(selectShowSecondarySidebar(state)).toEqual(false);
         });
@@ -297,8 +299,8 @@ describe('builder.slice', () => {
                 builder: {
                     ...baseInitialState,
                     showConsolePanel: true,
-                },
-            };
+                } as BuilderState,
+            } as RootState;
 
             expect(selectShowConsolePanel(state)).toEqual(true);
         });
@@ -308,8 +310,8 @@ describe('builder.slice', () => {
                 builder: {
                     ...baseInitialState,
                     editing: 'node1',
-                },
-            };
+                } as BuilderState,
+            } as RootState;
 
             expect(selectEditing(state)).toEqual('node1');
         });
@@ -319,8 +321,8 @@ describe('builder.slice', () => {
                 builder: {
                     ...baseInitialState,
                     openFlows: ['flow1', 'flow2'],
-                },
-            };
+                } as BuilderState,
+            } as RootState;
 
             expect(selectOpenFlows(state)).toEqual(['flow1', 'flow2']);
         });
@@ -330,8 +332,8 @@ describe('builder.slice', () => {
                 builder: {
                     ...baseInitialState,
                     activeFlow: 'flow1',
-                },
-            };
+                } as BuilderState,
+            } as RootState;
 
             expect(selectActiveFlow(state)).toEqual('flow1');
         });
@@ -341,8 +343,8 @@ describe('builder.slice', () => {
                 builder: {
                     ...baseInitialState,
                     newFlowCounter: 5,
-                },
-            };
+                } as BuilderState,
+            } as RootState;
 
             expect(selectNewFlowCounter(state)).toEqual(5);
         });
@@ -352,8 +354,8 @@ describe('builder.slice', () => {
                 builder: {
                     ...baseInitialState,
                     newFolderCounter: 3,
-                },
-            };
+                } as BuilderState,
+            } as RootState;
 
             expect(selectNewFolderCounter(state)).toEqual(3);
         });
@@ -363,8 +365,8 @@ describe('builder.slice', () => {
                 builder: {
                     ...baseInitialState,
                     newTreeItem: 'newItem1',
-                },
-            };
+                } as BuilderState,
+            } as RootState;
 
             expect(selectNewTreeItem(state)).toEqual('newItem1');
         });

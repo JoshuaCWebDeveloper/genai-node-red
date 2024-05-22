@@ -1,6 +1,7 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Theme } from '../../../themes';
 import { flowActions } from '../flow/flow.slice';
+import { RootState } from '../../store';
 
 export const BUILDER_FEATURE_KEY = 'builder';
 
@@ -77,6 +78,12 @@ export const builderSlice = createSlice({
         },
         // Action to set the active flow
         setActiveFlow: (state, action: PayloadAction<string | null>) => {
+            if (action.payload) {
+                builderSlice.caseReducers.openFlow(
+                    state,
+                    action as PayloadAction<string>
+                );
+            }
             state.activeFlow = action.payload;
         },
         addNewFlow: (state, action: PayloadAction<string>) => {
@@ -93,7 +100,7 @@ export const builderSlice = createSlice({
     },
     extraReducers(builder) {
         builder.addCase(
-            flowActions.removeEntity,
+            flowActions.removeFlowEntity,
             (state, action: PayloadAction<string>) => {
                 if (state.openFlows.includes(action.payload)) {
                     builderSlice.caseReducers.closeFlow(state, action);
@@ -108,31 +115,57 @@ export const builderReducer = builderSlice.reducer;
 export const builderActions = builderSlice.actions;
 
 // Selectors
-export const selectTheme = (state: { [BUILDER_FEATURE_KEY]: BuilderState }) =>
-    state[BUILDER_FEATURE_KEY].theme;
-export const selectShowPrimarySidebar = (state: {
-    [BUILDER_FEATURE_KEY]: BuilderState;
-}) => state[BUILDER_FEATURE_KEY].showPrimarySidebar;
-export const selectShowSecondarySidebar = (state: {
-    [BUILDER_FEATURE_KEY]: BuilderState;
-}) => state[BUILDER_FEATURE_KEY].showSecondarySidebar;
-export const selectShowConsolePanel = (state: {
-    [BUILDER_FEATURE_KEY]: BuilderState;
-}) => state[BUILDER_FEATURE_KEY].showConsolePanel;
-export const selectEditing = (state: { [BUILDER_FEATURE_KEY]: BuilderState }) =>
-    state[BUILDER_FEATURE_KEY].editing;
-export const selectOpenFlows = (state: {
-    [BUILDER_FEATURE_KEY]: BuilderState;
-}) => state[BUILDER_FEATURE_KEY].openFlows;
-export const selectActiveFlow = (state: {
-    [BUILDER_FEATURE_KEY]: BuilderState;
-}) => state[BUILDER_FEATURE_KEY].activeFlow;
-export const selectNewFlowCounter = (state: {
-    [BUILDER_FEATURE_KEY]: BuilderState;
-}) => state[BUILDER_FEATURE_KEY].newFlowCounter;
-export const selectNewFolderCounter = (state: {
-    [BUILDER_FEATURE_KEY]: BuilderState;
-}) => state[BUILDER_FEATURE_KEY].newFolderCounter;
-export const selectNewTreeItem = (state: {
-    [BUILDER_FEATURE_KEY]: BuilderState;
-}) => state[BUILDER_FEATURE_KEY].newTreeItem;
+
+// builder state
+export const selectBuilderState = (state: RootState) =>
+    state[BUILDER_FEATURE_KEY];
+
+export const selectTheme = createSelector(
+    selectBuilderState,
+    (builderState: BuilderState) => builderState.theme
+);
+
+export const selectShowPrimarySidebar = createSelector(
+    selectBuilderState,
+    (builderState: BuilderState) => builderState.showPrimarySidebar
+);
+
+export const selectShowSecondarySidebar = createSelector(
+    selectBuilderState,
+    (builderState: BuilderState) => builderState.showSecondarySidebar
+);
+
+export const selectShowConsolePanel = createSelector(
+    selectBuilderState,
+    (builderState: BuilderState) => builderState.showConsolePanel
+);
+
+export const selectEditing = createSelector(
+    selectBuilderState,
+    (builderState: BuilderState) => builderState.editing
+);
+
+export const selectOpenFlows = createSelector(
+    selectBuilderState,
+    (builderState: BuilderState) => builderState.openFlows
+);
+
+export const selectActiveFlow = createSelector(
+    selectBuilderState,
+    (builderState: BuilderState) => builderState.activeFlow
+);
+
+export const selectNewFlowCounter = createSelector(
+    selectBuilderState,
+    (builderState: BuilderState) => builderState.newFlowCounter
+);
+
+export const selectNewFolderCounter = createSelector(
+    selectBuilderState,
+    (builderState: BuilderState) => builderState.newFolderCounter
+);
+
+export const selectNewTreeItem = createSelector(
+    selectBuilderState,
+    (builderState: BuilderState) => builderState.newTreeItem
+);
