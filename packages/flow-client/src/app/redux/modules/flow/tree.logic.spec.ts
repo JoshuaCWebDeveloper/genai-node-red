@@ -232,7 +232,6 @@ describe('tree.logic', () => {
                 {
                     id: 'flow1',
                     name: 'Main Flow',
-                    directory: 'flows',
                     type: 'flow',
                     disabled: false,
                     info: '',
@@ -241,7 +240,7 @@ describe('tree.logic', () => {
                 {
                     id: 'flow2',
                     name: 'Secondary Flow',
-                    directory: 'flows',
+                    directory: '',
                     type: 'flow',
                     disabled: false,
                     info: '',
@@ -252,7 +251,7 @@ describe('tree.logic', () => {
                 {
                     id: 'subflow1',
                     name: 'Subflow A',
-                    directory: 'subflows',
+                    directory: '',
                     type: 'subflow',
                     info: '',
                     category: '',
@@ -262,7 +261,6 @@ describe('tree.logic', () => {
                 {
                     id: 'subflow2',
                     name: 'Subflow B',
-                    directory: 'subflows',
                     type: 'subflow',
                     info: '',
                     category: '',

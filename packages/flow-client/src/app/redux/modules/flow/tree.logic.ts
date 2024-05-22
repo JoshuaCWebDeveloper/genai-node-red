@@ -133,7 +133,7 @@ export class TreeLogic {
             // loop flows and subflows
             flowEntities.forEach(entity => {
                 const directoryId =
-                    entity.directory ??
+                    entity.directory ||
                     (entity.type === 'flow'
                         ? flowsDirectory.id
                         : subflowsDirectory.id);
