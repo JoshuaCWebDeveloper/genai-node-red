@@ -117,6 +117,14 @@ const StyledTooltip = styled(Tooltip)`
 
 const TreeItemType = 'TREE_ITEM';
 
+const usePrevious = <T,>(value: T) => {
+    const ref = useRef<T>(value);
+    useEffect(() => {
+        ref.current = value;
+    }, [value]);
+    return ref.current;
+};
+
 export type TreeItemProps = {
     selectedItem?: TreeItemData;
     item: TreeItemData;
@@ -328,12 +336,18 @@ export const TreeItem = ({
     // open when a child is added
     const numberChildren =
         item.type === 'directory' ? (item as TreeDirectory).children.length : 0;
+    const prevNumberChildren = usePrevious(numberChildren);
     useEffect(() => {
+        if (numberChildren <= prevNumberChildren) {
+            return;
+        }
+
         if (item.type !== 'directory') {
             return;
         }
+
         setIsCollapsed(false);
-    }, [item.type, numberChildren]);
+    }, [item.type, numberChildren, prevNumberChildren]);
 
     // scroll to when we become selected
     useEffect(() => {
