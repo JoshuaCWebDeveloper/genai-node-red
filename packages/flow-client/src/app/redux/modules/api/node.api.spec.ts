@@ -1,6 +1,6 @@
 import * as apiModule from '@reduxjs/toolkit/query/react';
 import { MockedFunction } from 'vitest';
-import { nodeActions } from '../palette/node.slice';
+import { paletteNodeActions } from '../palette/node.slice';
 
 // Mock the createApi and fetchBaseQuery functions from RTK Query
 vi.mock('@reduxjs/toolkit/query/react', () => {
@@ -141,7 +141,7 @@ describe('nodeApi', () => {
 
             // Check if the dispatch was called with the correct action and payload
             expect(dispatch).toHaveBeenCalledWith(
-                nodeActions.setNodes([testNode])
+                paletteNodeActions.setNodes([testNode])
             );
         });
     });
