@@ -5,8 +5,9 @@ import {
     EntityState,
     PayloadAction,
 } from '@reduxjs/toolkit';
+import { RootState } from '../../store';
 
-export const NODE_FEATURE_KEY = 'node';
+export const PALETTE_NODE_FEATURE_KEY = 'paletteNode';
 
 type SerializedFunction = {
     type: 'serialized-function';
@@ -26,7 +27,7 @@ type NodeDefaults = {
     [key: string]: DefaultProperty<unknown>;
 };
 
-export type NodeEntity = {
+export type PaletteNodeEntity = {
     // Core properties
     id: string;
     nodeRedId: string;
@@ -77,32 +78,38 @@ export type NodeEntity = {
     definitionScript?: string;
 };
 
-export interface NodeState extends EntityState<NodeEntity, string> {
+export interface PaletteNodeState
+    extends EntityState<PaletteNodeEntity, string> {
     loadingStatus: 'not loaded' | 'loading' | 'loaded' | 'error';
     error?: string | null;
     searchQuery: string; // Add searchQuery to the state
 }
 
-export const nodeAdapter = createEntityAdapter<NodeEntity>();
+export const paletteNodeAdapter = createEntityAdapter<PaletteNodeEntity>();
 
-export const initialNodeState: NodeState = nodeAdapter.getInitialState({
-    loadingStatus: 'not loaded',
-    error: null,
-    searchQuery: '', // Initialize searchQuery as an empty string
-});
+export const initialPaletteNodeState: PaletteNodeState =
+    paletteNodeAdapter.getInitialState({
+        loadingStatus: 'not loaded',
+        error: null,
+        searchQuery: '', // Initialize searchQuery as an empty string
+    });
 
-export const nodeSlice = createSlice({
-    name: NODE_FEATURE_KEY,
-    initialState: initialNodeState,
+export const paletteNodeSlice = createSlice({
+    name: PALETTE_NODE_FEATURE_KEY,
+    initialState: initialPaletteNodeState,
     reducers: {
         // Existing reducers for CRUD operations
-        addOne: nodeAdapter.addOne,
-        addMany: nodeAdapter.addMany,
-        updateOne: nodeAdapter.updateOne,
-        removeOne: nodeAdapter.removeOne,
+        addOne: paletteNodeAdapter.addOne,
+        addMany: paletteNodeAdapter.addMany,
+        updateOne: paletteNodeAdapter.updateOne,
+        updateMany: paletteNodeAdapter.updateMany,
+        upsertOne: paletteNodeAdapter.upsertOne,
+        upsertMany: paletteNodeAdapter.upsertMany,
+        removeOne: paletteNodeAdapter.removeOne,
+        removeMany: paletteNodeAdapter.removeMany,
         setLoadingStatus: (
             state,
-            action: PayloadAction<NodeState['loadingStatus']>
+            action: PayloadAction<PaletteNodeState['loadingStatus']>
         ) => {
             state.loadingStatus = action.payload;
         },
@@ -114,41 +121,44 @@ export const nodeSlice = createSlice({
             state.searchQuery = action.payload;
         },
         // Custom action to set nodes
-        setNodes: (state, action: PayloadAction<NodeEntity[]>) => {
-            nodeAdapter.setAll(state, action.payload);
-        },
+        setNodes: paletteNodeAdapter.setAll,
     },
     // No extraReducers if fetching is handled by RTK Query
 });
 
 // Export reducer and actions
-export const nodeReducer = nodeSlice.reducer;
-export const nodeActions = nodeSlice.actions;
+export const paletteNodeReducer = paletteNodeSlice.reducer;
+export const paletteNodeActions = paletteNodeSlice.actions;
 
-// Export selectors
-const { selectAll, selectById } = nodeAdapter.getSelectors();
-export const getNodeState = (rootState: {
-    [NODE_FEATURE_KEY]: NodeState;
-}): NodeState => rootState[NODE_FEATURE_KEY];
-export const selectAllNodes = createSelector(getNodeState, selectAll);
-export const selectNodeById = createSelector(
-    [getNodeState, (state, nodeId: string) => nodeId],
-    (state, nodeId) => selectById(state, nodeId)
-);
+// Selectors
+
+// node state
+export const selectPaletteNodeState = (rootState: RootState) =>
+    rootState[PALETTE_NODE_FEATURE_KEY];
+
+// entities
+export const {
+    selectAll: selectAllPaletteNodes,
+    selectById: selectPaletteNodeById,
+    selectIds: selectPaletteNodeIds,
+    selectEntities: selectPaletteNodeEntities,
+} = paletteNodeAdapter.getSelectors(selectPaletteNodeState);
+
+// select by node red id
 export const selectNodesByNodeRedId = createSelector(
-    [selectAllNodes, (state, nodeRedId: string) => nodeRedId],
+    [selectAllPaletteNodes, (state, nodeRedId: string) => nodeRedId],
     (nodes, nodeRedId) => nodes.filter(node => node.nodeRedId === nodeRedId)
 );
 
 // Selector for searchQuery
 export const selectSearchQuery = createSelector(
-    getNodeState,
+    selectPaletteNodeState,
     state => state.searchQuery
 );
 
 // Selector to get filtered nodes based on searchQuery
 export const selectFilteredNodes = createSelector(
-    [selectAllNodes, selectSearchQuery],
+    [selectAllPaletteNodes, selectSearchQuery],
     (nodes, searchQuery) => {
         if (!searchQuery.trim()) return nodes; // Return all nodes if searchQuery is empty
         return nodes.filter(

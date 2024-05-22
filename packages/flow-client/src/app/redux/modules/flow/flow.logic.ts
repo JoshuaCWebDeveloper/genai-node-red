@@ -2,7 +2,11 @@ import { createSelector } from '@reduxjs/toolkit';
 import { v4 as uuidv4 } from 'uuid';
 
 import { AppDispatch, RootState } from '../../store';
-import { NodeEntity, selectAllNodes, selectNodeById } from '../node/node.slice';
+import {
+    NodeEntity,
+    selectAllNodes,
+    selectNodeById,
+} from '../palette/node.slice';
 import {
     DirectoryEntity,
     FlowEntity,

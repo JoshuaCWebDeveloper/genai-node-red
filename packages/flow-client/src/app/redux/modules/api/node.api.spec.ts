@@ -1,6 +1,6 @@
 import * as apiModule from '@reduxjs/toolkit/query/react';
 import { MockedFunction } from 'vitest';
-import { nodeActions } from '../node/node.slice';
+import { nodeActions } from '../palette/node.slice';
 
 // Mock the createApi and fetchBaseQuery functions from RTK Query
 vi.mock('@reduxjs/toolkit/query/react', () => {

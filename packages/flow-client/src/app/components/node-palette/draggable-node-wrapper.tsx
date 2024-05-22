@@ -1,7 +1,7 @@
 import React from 'react';
 import { useDrag } from 'react-dnd';
 
-import { NodeEntity } from '../../redux/modules/node/node.slice';
+import { NodeEntity } from '../../redux/modules/palette/node.slice';
 import { ItemTypes } from '../node/draggable-item-types'; // Adjust the path as necessary
 
 export type DraggableNodeWrapperProps = {

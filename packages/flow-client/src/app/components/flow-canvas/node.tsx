@@ -12,7 +12,7 @@ import styled from 'styled-components';
 
 import { useAppDispatch } from '../../redux/hooks';
 import { builderActions } from '../../redux/modules/builder/builder.slice';
-import { NodeEntity } from '../../redux/modules/node/node.slice';
+import { NodeEntity } from '../../redux/modules/palette/node.slice';
 import NodeRedNode from '../node/node-red-node';
 import { CustomEngine } from './engine';
 import { FlowNodeEntity } from '../../redux/modules/flow/flow.slice';

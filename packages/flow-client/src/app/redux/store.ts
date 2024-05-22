@@ -11,6 +11,7 @@ import {
 } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 
+import type { AppLogic } from './logic';
 import { featureApi } from './modules/api/feature.api';
 import { nodeApi } from './modules/api/node.api'; // Import the nodeApi
 import {
@@ -27,15 +28,17 @@ import {
     flowReducer,
     FlowState,
 } from './modules/flow/flow.slice';
-import { NODE_FEATURE_KEY, nodeReducer } from './modules/node/node.slice';
-import type { AppLogic } from './logic';
+import {
+    PALETTE_NODE_FEATURE_KEY,
+    paletteNodeReducer,
+} from './modules/palette/node.slice';
 
 export const createStore = (logic: AppLogic) => {
     const store = configureStore({
         reducer: {
             [FEATURE_FEATURE_KEY]: featureReducer,
             [featureApi.reducerPath]: featureApi.reducer,
-            [NODE_FEATURE_KEY]: nodeReducer,
+            [PALETTE_NODE_FEATURE_KEY]: paletteNodeReducer,
             [nodeApi.reducerPath]: nodeApi.reducer, // Add the nodeApi reducer
             // Add more reducers here as needed
             [FLOW_FEATURE_KEY]: persistReducer<FlowState>(

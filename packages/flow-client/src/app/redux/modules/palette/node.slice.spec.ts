@@ -1,27 +1,28 @@
+import { RootState } from '../../store';
 import {
-    NODE_FEATURE_KEY,
-    NodeEntity,
-    NodeState,
-    nodeActions,
-    nodeAdapter,
-    nodeReducer,
-    selectNodeById,
+    PALETTE_NODE_FEATURE_KEY,
+    PaletteNodeEntity,
+    PaletteNodeState,
+    paletteNodeActions,
+    paletteNodeAdapter,
+    paletteNodeReducer,
     selectNodesByNodeRedId,
+    selectPaletteNodeById,
 } from './node.slice';
 
 describe('node reducer', () => {
     it('should handle initial state', () => {
-        const expected = nodeAdapter.getInitialState({
+        const expected = paletteNodeAdapter.getInitialState({
             loadingStatus: 'not loaded',
             error: null,
             searchQuery: '',
         });
 
-        expect(nodeReducer(undefined, { type: '' })).toEqual(expected);
+        expect(paletteNodeReducer(undefined, { type: '' })).toEqual(expected);
     });
 
     it('should handle setNodes', () => {
-        const initialState = nodeAdapter.getInitialState({
+        const initialState = paletteNodeAdapter.getInitialState({
             loadingStatus: 'not loaded' as const,
             error: null,
             searchQuery: '',
@@ -42,7 +43,10 @@ describe('node reducer', () => {
             },
         ];
 
-        const state = nodeReducer(initialState, nodeActions.setNodes(nodes));
+        const state = paletteNodeReducer(
+            initialState,
+            paletteNodeActions.setNodes(nodes)
+        );
 
         expect(state).toEqual(
             expect.objectContaining({
@@ -57,14 +61,14 @@ describe('node reducer', () => {
     });
 
     it('should handle updateNodeProperties', () => {
-        let initialState = nodeAdapter.getInitialState({
+        let initialState = paletteNodeAdapter.getInitialState({
             loadingStatus: 'loaded' as const,
             error: null,
             // Assuming additional properties in the initial state
             searchQuery: '',
         });
 
-        initialState = nodeAdapter.setAll(initialState, [
+        initialState = paletteNodeAdapter.setAll(initialState, [
             {
                 id: 'node1',
                 editorTemplate: '',
@@ -79,9 +83,9 @@ describe('node reducer', () => {
             },
         ]);
 
-        const state = nodeReducer(
+        const state = paletteNodeReducer(
             initialState,
-            nodeActions.updateOne({
+            paletteNodeActions.updateOne({
                 id: 'node1',
                 changes: {
                     editorTemplate: '<div>Updated</div>',
@@ -135,21 +139,23 @@ describe('node reducer', () => {
                 },
             ];
 
-            const initialState: NodeState = {
+            const initialState: PaletteNodeState = {
                 ids: nodes.map(node => node.id),
                 entities: nodes.reduce((acc, node) => {
                     acc[node.id] = node;
                     return acc;
-                }, {} as Record<string, NodeEntity>),
+                }, {} as Record<string, PaletteNodeEntity>),
                 loadingStatus: 'not loaded',
                 error: null,
                 searchQuery: '',
             };
 
-            const state = { [NODE_FEATURE_KEY]: initialState };
+            const state = {
+                [PALETTE_NODE_FEATURE_KEY]: initialState,
+            } as RootState;
 
-            const selectedNode1 = selectNodeById(state, 'node1');
-            const selectedNode2 = selectNodeById(state, 'node2');
+            const selectedNode1 = selectPaletteNodeById(state, 'node1');
+            const selectedNode2 = selectPaletteNodeById(state, 'node2');
 
             expect(selectedNode1).toEqual(nodes[0]);
             expect(selectedNode2).toEqual(nodes[1]);
@@ -169,20 +175,25 @@ describe('node reducer', () => {
                 },
             ];
 
-            const initialState = nodeAdapter.getInitialState({
+            const initialState = paletteNodeAdapter.getInitialState({
                 ids: nodes.map(node => node.id),
                 entities: nodes.reduce((acc, node) => {
                     acc[node.id] = node;
                     return acc;
-                }, {} as Record<string, NodeEntity>),
+                }, {} as Record<string, PaletteNodeEntity>),
                 loadingStatus: 'not loaded',
                 error: null,
                 searchQuery: '',
-            }) as NodeState;
+            }) as PaletteNodeState;
 
-            const state = { [NODE_FEATURE_KEY]: initialState };
+            const state = {
+                [PALETTE_NODE_FEATURE_KEY]: initialState,
+            } as RootState;
 
-            const selectedNode = selectNodeById(state, 'nonExistentNodeId');
+            const selectedNode = selectPaletteNodeById(
+                state,
+                'nonExistentNodeId'
+            );
 
             expect(selectedNode).toBeUndefined();
         });
@@ -192,7 +203,7 @@ describe('node reducer', () => {
         it('should return nodes that match the specified nodeRedId', () => {
             // Mock state
             const state = {
-                node: {
+                [PALETTE_NODE_FEATURE_KEY]: {
                     ids: ['node1', 'node2', 'node3'],
                     entities: {
                         node1: {
@@ -237,7 +248,7 @@ describe('node reducer', () => {
 
         it('should return an empty array if no nodes match the specified nodeRedId', () => {
             const state = {
-                node: {
+                [PALETTE_NODE_FEATURE_KEY]: {
                     ids: ['node1', 'node2', 'node3'],
                     entities: {
                         node1: {

@@ -22,7 +22,7 @@ import {
     flowActions,
     selectEntityById,
 } from '../../redux/modules/flow/flow.slice';
-import { selectNodeById } from '../../redux/modules/node/node.slice';
+import { selectNodeById } from '../../redux/modules/palette/node.slice';
 import environment from '../../../environment';
 
 const StyledEditor = styled.div`

@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-import { NodeEntity } from '../../redux/modules/node/node.slice';
+import { NodeEntity } from '../../redux/modules/palette/node.slice';
 import environment from '../../../environment';
 import { FlowNodeEntity } from '../../redux/modules/flow/flow.slice';
 

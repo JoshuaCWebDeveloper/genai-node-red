@@ -18,7 +18,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { useAppDispatch, useAppLogic, useAppSelector } from '../../redux/hooks';
 import { SerializedGraph } from '../../redux/modules/flow/flow.logic';
 import { selectAllEntities } from '../../redux/modules/flow/flow.slice';
-import { NodeEntity } from '../../redux/modules/node/node.slice';
+import { NodeEntity } from '../../redux/modules/palette/node.slice';
 import { ItemTypes } from '../node/draggable-item-types'; // Assuming ItemTypes is defined elsewhere
 import { createEngine } from './engine';
 import { CustomDiagramModel } from './model';

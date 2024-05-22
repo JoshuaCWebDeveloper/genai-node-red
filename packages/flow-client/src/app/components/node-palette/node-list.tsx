@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { NodeEntity } from '../../redux/modules/node/node.slice';
+import { NodeEntity } from '../../redux/modules/palette/node.slice';
 import Category from './category'; // Ensure this is correctly imported
 
 export type NodeListProps = {

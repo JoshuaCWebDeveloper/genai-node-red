@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import environment from '../../../../environment';
-import { NodeEntity, nodeActions } from '../node/node.slice';
+import { NodeEntity, nodeActions } from '../palette/node.slice';
 import { AppLogic } from '../../logic';
 
 // Define a service using a base URL and expected endpoints for nodes

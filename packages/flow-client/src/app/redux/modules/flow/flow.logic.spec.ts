@@ -1,7 +1,11 @@
 import { MockedFunction } from 'vitest';
 import '../../../../../vitest-esbuild-compat';
 import { RootState } from '../../store';
-import { NodeEntity, selectAllNodes, selectNodeById } from '../node/node.slice';
+import {
+    NodeEntity,
+    selectAllNodes,
+    selectNodeById,
+} from '../palette/node.slice';
 import {
     FlowLogic,
     NodeModel,
@@ -24,7 +28,7 @@ import {
 
 vi.mock('../node/node.slice', async importOriginal => {
     const originalModule = await importOriginal<
-        typeof import('../node/node.slice')
+        typeof import('../palette/node.slice')
     >();
     return {
         ...originalModule,

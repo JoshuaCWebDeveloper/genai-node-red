@@ -4,7 +4,7 @@ import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import {
     nodeActions,
     selectFilteredNodes,
-} from '../../redux/modules/node/node.slice';
+} from '../../redux/modules/palette/node.slice';
 import NodeList from './node-list';
 import SearchBar from './search-bar';
 
