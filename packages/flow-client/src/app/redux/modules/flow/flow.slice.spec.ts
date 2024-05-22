@@ -135,7 +135,7 @@ describe('Flow Slice', () => {
                     info: 'Info for Flow Two',
                     env: [],
                 },
-            ];
+            ] as FlowEntity[];
 
             const state = flowReducer(
                 initialState,
@@ -166,7 +166,7 @@ describe('Flow Slice', () => {
                     info: 'Initial info',
                     env: [],
                 },
-            ];
+            ] as FlowEntity[];
             let state = flowReducer(
                 initialState,
                 flowActions.addFlowEntities(initialFlows)
@@ -210,7 +210,7 @@ describe('Flow Slice', () => {
                     info: 'Info for Flow Two',
                     env: [],
                 },
-            ];
+            ] as FlowEntity[];
             let state = flowReducer(
                 initialState,
                 flowActions.addFlowEntities(flows)
@@ -235,7 +235,7 @@ describe('Flow Slice', () => {
                 disabled: false,
                 info: 'Existing info',
                 env: [],
-            };
+            } as FlowEntity;
             let state = flowReducer(
                 initialState,
                 flowActions.addFlowEntity(flow)
@@ -248,7 +248,7 @@ describe('Flow Slice', () => {
                 disabled: true,
                 info: 'Upserted info',
                 env: [],
-            };
+            } as FlowEntity;
             state = flowReducer(
                 state,
                 flowActions.upsertFlowEntity(upsertFlow)
@@ -275,7 +275,7 @@ describe('Flow Slice', () => {
                     info: 'Initial info',
                     env: [],
                 },
-            ];
+            ] as FlowEntity[];
             let state = flowReducer(
                 initialState,
                 flowActions.addFlowEntities(initialFlows)
@@ -298,7 +298,7 @@ describe('Flow Slice', () => {
                     info: 'New flow info',
                     env: [],
                 },
-            ];
+            ] as FlowEntity[];
             state = flowReducer(
                 state,
                 flowActions.upsertFlowEntities(upsertFlows)
@@ -742,7 +742,7 @@ describe('Flow Slice', () => {
                     directory: '',
                     type: 'directory',
                 },
-            ];
+            ] as DirectoryEntity[];
 
             const state = flowReducer(
                 initialState,
@@ -797,7 +797,7 @@ describe('Flow Slice', () => {
                     directory: '',
                     type: 'directory',
                 },
-            ];
+            ] as DirectoryEntity[];
             let state = flowReducer(
                 initialState,
                 flowActions.addDirectories(initialDirectories)
@@ -852,7 +852,7 @@ describe('Flow Slice', () => {
                     directory: '',
                     type: 'directory',
                 },
-            ];
+            ] as DirectoryEntity[];
             let state = flowReducer(
                 initialState,
                 flowActions.addDirectories(directories)
@@ -875,7 +875,7 @@ describe('Flow Slice', () => {
                 name: 'Existing Directory',
                 directory: '',
                 type: 'directory',
-            };
+            } as DirectoryEntity;
             let state = flowReducer(
                 initialState,
                 flowActions.addDirectory(directory)
@@ -886,7 +886,7 @@ describe('Flow Slice', () => {
                 name: 'Upserted Directory',
                 directory: '',
                 type: 'directory',
-            };
+            } as DirectoryEntity;
             state = flowReducer(
                 state,
                 flowActions.upsertDirectory(upsertDirectory)
@@ -909,7 +909,7 @@ describe('Flow Slice', () => {
                     directory: '',
                     type: 'directory',
                 },
-            ];
+            ] as DirectoryEntity[];
             let state = flowReducer(
                 initialState,
                 flowActions.addDirectories(initialDirectories)
@@ -928,7 +928,7 @@ describe('Flow Slice', () => {
                     directory: '',
                     type: 'directory',
                 },
-            ];
+            ] as DirectoryEntity[];
             state = flowReducer(
                 state,
                 flowActions.upsertDirectories(upsertDirectories)

@@ -131,77 +131,149 @@ export const flowSlice = createSlice({
     name: FLOW_FEATURE_KEY,
     initialState: initialFlowState,
     reducers: {
-        addFlowEntity: (state, action) => {
-            flowAdapter.addOne(state.flowEntities, action.payload);
+        addFlowEntity: (
+            state,
+            action: Parameters<typeof flowAdapter.addOne>[1]
+        ) => {
+            flowAdapter.addOne(state.flowEntities, action);
         },
-        addFlowEntities: (state, action) => {
-            flowAdapter.addMany(state.flowEntities, action.payload);
+        addFlowEntities: (
+            state,
+            action: Parameters<typeof flowAdapter.addMany>[1]
+        ) => {
+            flowAdapter.addMany(state.flowEntities, action);
         },
-        updateFlowEntity: (state, action) => {
-            flowAdapter.updateOne(state.flowEntities, action.payload);
+        updateFlowEntity: (
+            state,
+            action: Parameters<typeof flowAdapter.updateOne>[1]
+        ) => {
+            flowAdapter.updateOne(state.flowEntities, action);
         },
-        updateFlowEntities: (state, action) => {
-            flowAdapter.updateMany(state.flowEntities, action.payload);
+        updateFlowEntities: (
+            state,
+            action: Parameters<typeof flowAdapter.updateMany>[1]
+        ) => {
+            flowAdapter.updateMany(state.flowEntities, action);
         },
-        upsertFlowEntity: (state, action) => {
-            flowAdapter.upsertOne(state.flowEntities, action.payload);
+        upsertFlowEntity: (
+            state,
+            action: Parameters<typeof flowAdapter.upsertOne>[1]
+        ) => {
+            flowAdapter.upsertOne(state.flowEntities, action);
         },
-        upsertFlowEntities: (state, action) => {
-            flowAdapter.upsertMany(state.flowEntities, action.payload);
+        upsertFlowEntities: (
+            state,
+            action: Parameters<typeof flowAdapter.upsertMany>[1]
+        ) => {
+            flowAdapter.upsertMany(state.flowEntities, action);
         },
-        removeFlowEntity: (state, action) => {
-            flowAdapter.removeOne(state.flowEntities, action.payload);
+        removeFlowEntity: (
+            state,
+            action: Parameters<typeof flowAdapter.removeOne>[1]
+        ) => {
+            flowAdapter.removeOne(state.flowEntities, action);
         },
-        removeFlowEntities: (state, action) => {
+        removeFlowEntities: (
+            state,
+            action: Parameters<typeof flowAdapter.removeMany>[1]
+        ) => {
             flowAdapter.removeMany(state.flowEntities, action.payload);
         },
-        addFlowNode: (state, action) => {
-            nodeAdapter.addOne(state.flowNodes, action.payload);
+        addFlowNode: (
+            state,
+            action: Parameters<typeof nodeAdapter.addOne>[1]
+        ) => {
+            nodeAdapter.addOne(state.flowNodes, action);
         },
-        addFlowNodes: (state, action) => {
-            nodeAdapter.addMany(state.flowNodes, action.payload);
+        addFlowNodes: (
+            state,
+            action: Parameters<typeof nodeAdapter.addMany>[1]
+        ) => {
+            nodeAdapter.addMany(state.flowNodes, action);
         },
-        updateFlowNode: (state, action) => {
-            nodeAdapter.updateOne(state.flowNodes, action.payload);
+        updateFlowNode: (
+            state,
+            action: Parameters<typeof nodeAdapter.updateOne>[1]
+        ) => {
+            nodeAdapter.updateOne(state.flowNodes, action);
         },
-        updateFlowNodes: (state, action) => {
-            nodeAdapter.updateMany(state.flowNodes, action.payload);
+        updateFlowNodes: (
+            state,
+            action: Parameters<typeof nodeAdapter.updateMany>[1]
+        ) => {
+            nodeAdapter.updateMany(state.flowNodes, action);
         },
-        upsertFlowNode: (state, action) => {
-            nodeAdapter.upsertOne(state.flowNodes, action.payload);
+        upsertFlowNode: (
+            state,
+            action: Parameters<typeof nodeAdapter.upsertOne>[1]
+        ) => {
+            nodeAdapter.upsertOne(state.flowNodes, action);
         },
-        upsertFlowNodes: (state, action) => {
-            nodeAdapter.upsertMany(state.flowNodes, action.payload);
+        upsertFlowNodes: (
+            state,
+            action: Parameters<typeof nodeAdapter.upsertMany>[1]
+        ) => {
+            nodeAdapter.upsertMany(state.flowNodes, action);
         },
-        removeFlowNode: (state, action) => {
-            nodeAdapter.removeOne(state.flowNodes, action.payload);
+        removeFlowNode: (
+            state,
+            action: Parameters<typeof nodeAdapter.removeOne>[1]
+        ) => {
+            nodeAdapter.removeOne(state.flowNodes, action);
         },
-        removeFlowNodes: (state, action) => {
-            nodeAdapter.removeMany(state.flowNodes, action.payload);
+        removeFlowNodes: (
+            state,
+            action: Parameters<typeof nodeAdapter.removeMany>[1]
+        ) => {
+            nodeAdapter.removeMany(state.flowNodes, action);
         },
-        addDirectory: (state, action) => {
-            directoryAdapter.addOne(state.directories, action.payload);
+        addDirectory: (
+            state,
+            action: Parameters<typeof directoryAdapter.addOne>[1]
+        ) => {
+            directoryAdapter.addOne(state.directories, action);
         },
-        addDirectories: (state, action) => {
-            directoryAdapter.addMany(state.directories, action.payload);
+        addDirectories: (
+            state,
+            action: Parameters<typeof directoryAdapter.addMany>[1]
+        ) => {
+            directoryAdapter.addMany(state.directories, action);
         },
-        updateDirectory: (state, action) => {
-            directoryAdapter.updateOne(state.directories, action.payload);
+        updateDirectory: (
+            state,
+            action: Parameters<typeof directoryAdapter.updateOne>[1]
+        ) => {
+            directoryAdapter.updateOne(state.directories, action);
         },
-        updateDirectories: (state, action) => {
-            directoryAdapter.updateMany(state.directories, action.payload);
+        updateDirectories: (
+            state,
+            action: Parameters<typeof directoryAdapter.updateMany>[1]
+        ) => {
+            directoryAdapter.updateMany(state.directories, action);
         },
-        upsertDirectory: (state, action) => {
-            directoryAdapter.upsertOne(state.directories, action.payload);
+        upsertDirectory: (
+            state,
+            action: Parameters<typeof directoryAdapter.upsertOne>[1]
+        ) => {
+            directoryAdapter.upsertOne(state.directories, action);
         },
-        upsertDirectories: (state, action) => {
-            directoryAdapter.upsertMany(state.directories, action.payload);
+        upsertDirectories: (
+            state,
+            action: Parameters<typeof directoryAdapter.upsertMany>[1]
+        ) => {
+            directoryAdapter.upsertMany(state.directories, action);
         },
-        removeDirectory: (state, action) => {
-            directoryAdapter.removeOne(state.directories, action.payload);
+        removeDirectory: (
+            state,
+            action: Parameters<typeof directoryAdapter.removeOne>[1]
+        ) => {
+            directoryAdapter.removeOne(state.directories, action);
         },
-        removeDirectories: (state, action) => {
-            directoryAdapter.removeMany(state.directories, action.payload);
+        removeDirectories: (
+            state,
+            action: Parameters<typeof directoryAdapter.removeMany>[1]
+        ) => {
+            directoryAdapter.removeMany(state.directories, action);
         },
         setLoadingStatus: (
             state,
