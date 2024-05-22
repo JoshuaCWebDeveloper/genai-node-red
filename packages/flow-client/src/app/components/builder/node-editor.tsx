@@ -20,9 +20,9 @@ import redTypedInputCssUrl from '../../red/red-typed-input.css?url';
 import {
     FlowNodeEntity,
     flowActions,
-    selectEntityById,
+    selectFlowNodeById,
 } from '../../redux/modules/flow/flow.slice';
-import { selectNodeById } from '../../redux/modules/node/node.slice';
+import { selectPaletteNodeById } from '../../redux/modules/palette/node.slice';
 import environment from '../../../environment';
 
 const StyledEditor = styled.div`
@@ -187,10 +187,10 @@ export const NodeEditor = () => {
     );
     const editing = useAppSelector(selectEditing);
     const editingNode = useAppSelector(state =>
-        selectEntityById(state, editing ?? '')
+        selectFlowNodeById(state, editing ?? '')
     ) as FlowNodeEntity;
     const editingNodeEntity = useAppSelector(state =>
-        selectNodeById(state, editingNode?.type)
+        selectPaletteNodeById(state, editingNode?.type)
     );
 
     const propertiesFormRefCallback = useCallback(
@@ -251,7 +251,7 @@ export const NodeEditor = () => {
             (propertiesForm?.getRootNode() as ShadowRoot) ?? undefined
         );
         // TODO: Implement logic method for removing any old input links (if necessary)
-        dispatch(flowActions.removeEntity(editingNode.id));
+        dispatch(flowActions.removeFlowNode(editingNode.id));
         closeEditor();
     }, [
         closeEditor,
@@ -321,7 +321,7 @@ export const NodeEditor = () => {
             });
         }
         // update node
-        dispatch(flowLogic.updateFlowNode(editingNode.id, nodeUpdates));
+        dispatch(flowLogic.node.updateFlowNode(editingNode.id, nodeUpdates));
         // close editor
         closeEditor();
     }, [

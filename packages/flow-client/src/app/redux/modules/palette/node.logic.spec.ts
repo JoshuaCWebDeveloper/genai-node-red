@@ -2,7 +2,12 @@ import '../../../../../vitest-esbuild-compat';
 import { RootState } from '../../store';
 import { FlowNodeEntity } from '../flow/flow.slice';
 import { NodeLogic } from './node.logic';
-import { NodeEntity, NodeState, nodeActions } from './node.slice';
+import {
+    PALETTE_NODE_FEATURE_KEY,
+    PaletteNodeEntity,
+    PaletteNodeState,
+    paletteNodeActions,
+} from './node.slice';
 
 describe('NodeLogic', () => {
     // Mock dispatch function using Vitest's built-in mocking functions
@@ -11,7 +16,7 @@ describe('NodeLogic', () => {
     const mockGetState = vi.fn(
         () =>
             ({
-                node: {
+                [PALETTE_NODE_FEATURE_KEY]: {
                     entities: {
                         'mqtt-node1': {
                             id: 'mqtt-node1',
@@ -34,7 +39,7 @@ describe('NodeLogic', () => {
                     loadingStatus: 'not loaded',
                     error: null,
                     searchQuery: '',
-                } as NodeState,
+                } as PaletteNodeState,
             } as RootState)
     );
 
@@ -57,7 +62,7 @@ describe('NodeLogic', () => {
             );
 
             expect(mockDispatch).toHaveBeenCalledWith(
-                nodeActions.updateOne({
+                paletteNodeActions.updateOne({
                     id: 'test-node',
                     changes: expect.objectContaining({ category: 'function' }),
                 })
@@ -80,7 +85,7 @@ describe('NodeLogic', () => {
             expect(mockDispatch).toHaveBeenCalledTimes(2);
             expect(mockDispatch).toHaveBeenNthCalledWith(
                 1,
-                nodeActions.updateOne({
+                paletteNodeActions.updateOne({
                     id: 'multi-type-node1',
                     changes: expect.objectContaining({
                         category: 'function',
@@ -90,7 +95,7 @@ describe('NodeLogic', () => {
             );
             expect(mockDispatch).toHaveBeenNthCalledWith(
                 2,
-                nodeActions.updateOne({
+                paletteNodeActions.updateOne({
                     id: 'multi-type-node2',
                     changes: expect.objectContaining({
                         category: 'input',
@@ -113,7 +118,7 @@ describe('NodeLogic', () => {
             );
 
             expect(mockDispatch).toHaveBeenCalledWith(
-                nodeActions.updateOne({
+                paletteNodeActions.updateOne({
                     id: 'test-node',
                     changes: { editorTemplate: '<div>Editor Template</div>' },
                 })
@@ -133,7 +138,7 @@ describe('NodeLogic', () => {
             );
 
             expect(mockDispatch).toHaveBeenCalledWith(
-                nodeActions.updateOne({
+                paletteNodeActions.updateOne({
                     id: 'test-node',
                     changes: { helpTemplate: '<p>Help Template</p>' },
                 })
@@ -153,7 +158,7 @@ describe('NodeLogic', () => {
             );
 
             expect(mockDispatch).toHaveBeenCalledWith(
-                nodeActions.updateOne({
+                paletteNodeActions.updateOne({
                     id: 'x-red-test-node',
                     changes: {
                         editorTemplate: '<div>X-Red Editor Template</div>',
@@ -175,7 +180,7 @@ describe('NodeLogic', () => {
             );
 
             expect(mockDispatch).toHaveBeenCalledWith(
-                nodeActions.updateOne({
+                paletteNodeActions.updateOne({
                     id: 'x-red-test-node',
                     changes: { helpTemplate: '<p>X-Red Help Template</p>' },
                 })
@@ -202,7 +207,7 @@ describe('NodeLogic', () => {
             expect(mockDispatch).toHaveBeenCalledTimes(2);
             expect(mockDispatch).toHaveBeenNthCalledWith(
                 1,
-                nodeActions.updateOne({
+                paletteNodeActions.updateOne({
                     id: 'mqtt-node1',
                     changes: {
                         editorTemplate:
@@ -212,7 +217,7 @@ describe('NodeLogic', () => {
             );
             expect(mockDispatch).toHaveBeenNthCalledWith(
                 2,
-                nodeActions.updateOne({
+                paletteNodeActions.updateOne({
                     id: 'mqtt-node2',
                     changes: {
                         editorTemplate:
@@ -250,7 +255,7 @@ describe('NodeLogic', () => {
                     property2: { value: 42 },
                 },
                 // Other properties as required by your NodeEntity type
-            } as NodeEntity;
+            } as PaletteNodeEntity;
 
             const result = nodeLogic.applyConfigDefaults(node, entity);
 
@@ -295,7 +300,7 @@ describe('NodeLogic', () => {
                     property2: { value: 42 },
                 },
                 // Other properties as required by your NodeEntity type
-            } as NodeEntity;
+            } as PaletteNodeEntity;
 
             const result = nodeLogic.applyConfigDefaults(node, entity);
 
@@ -323,7 +328,7 @@ describe('NodeLogic', () => {
                 id: 'node1',
                 // No defaults defined
                 // Other properties as required by your NodeEntity type
-            } as NodeEntity;
+            } as PaletteNodeEntity;
 
             const result = nodeLogic.applyConfigDefaults(node, entity);
 

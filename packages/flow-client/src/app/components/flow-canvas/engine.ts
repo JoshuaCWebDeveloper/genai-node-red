@@ -17,9 +17,9 @@ import {
 } from '@projectstorm/react-diagrams';
 import { DropTargetMonitor } from 'react-dnd';
 
+import { SerializedGraph } from '../../redux/modules/flow/graph.logic';
 import { CustomDiagramModel } from './model';
 import { CustomNodeFactory } from './node';
-import { SerializedGraph } from '../../redux/modules/flow/flow.logic';
 
 export class CustomEngine extends DiagramEngine {
     constructor(options?: CanvasEngineOptions) {
@@ -201,7 +201,7 @@ export const createEngine = (options = {}) => {
     engine.getLinkFactories().registerFactory(new DefaultLinkFactory());
     engine.getLinkFactories().registerFactory(new PathFindingLinkFactory());
     engine.getPortFactories().registerFactory(new DefaultPortFactory());
-    // register the default interaction behaviours
+    // register the default interaction behaviors
     engine.getStateMachine().pushState(new DefaultDiagramState());
     return engine;
 };

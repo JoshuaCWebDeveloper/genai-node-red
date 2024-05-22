@@ -12,10 +12,10 @@ import styled from 'styled-components';
 
 import { useAppDispatch } from '../../redux/hooks';
 import { builderActions } from '../../redux/modules/builder/builder.slice';
-import { NodeEntity } from '../../redux/modules/node/node.slice';
 import NodeRedNode from '../node/node-red-node';
 import { CustomEngine } from './engine';
 import { FlowNodeEntity } from '../../redux/modules/flow/flow.slice';
+import { PaletteNodeEntity } from '../../redux/modules/palette/node.slice';
 
 // Styled components for the node and its elements
 const StyledNode = styled.div<{
@@ -198,7 +198,7 @@ export const Node: React.FC<NodeProps> = ({ node, engine }) => {
         dispatch(builderActions.setEditing(node.getID()));
     };
 
-    const entity = node.entity ?? ({} as NodeEntity);
+    const entity = node.entity ?? ({} as PaletteNodeEntity);
 
     return (
         <StyledNode
@@ -240,12 +240,12 @@ export const Node: React.FC<NodeProps> = ({ node, engine }) => {
 
 // Assuming createCustomNodeModel exists, and you're adding to this file
 export class CustomNodeModel extends DefaultNodeModel {
-    public entity?: NodeEntity;
+    public entity?: PaletteNodeEntity;
     public config?: FlowNodeEntity;
 
     constructor(options: {
         extras: {
-            entity: NodeEntity;
+            entity: PaletteNodeEntity;
             config: FlowNodeEntity;
             [index: string]: unknown;
         };

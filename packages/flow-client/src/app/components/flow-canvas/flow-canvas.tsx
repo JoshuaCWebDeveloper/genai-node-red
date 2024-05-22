@@ -16,9 +16,13 @@ import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
 
 import { useAppDispatch, useAppLogic, useAppSelector } from '../../redux/hooks';
-import { SerializedGraph } from '../../redux/modules/flow/flow.logic';
-import { selectAllEntities } from '../../redux/modules/flow/flow.slice';
-import { NodeEntity } from '../../redux/modules/node/node.slice';
+import {
+    selectAllDirectories,
+    selectAllFlowEntities,
+    selectAllFlowNodes,
+} from '../../redux/modules/flow/flow.slice';
+import { SerializedGraph } from '../../redux/modules/flow/graph.logic';
+import { PaletteNodeEntity } from '../../redux/modules/palette/node.slice';
 import { ItemTypes } from '../node/draggable-item-types'; // Assuming ItemTypes is defined elsewhere
 import { createEngine } from './engine';
 import { CustomDiagramModel } from './model';
@@ -98,11 +102,13 @@ const debounce = (func: (...args: unknown[]) => void, wait: number) => {
 };
 
 const LogFlowSlice = () => {
-    const flowSlice = useAppSelector(selectAllEntities);
+    const flowEntities = useAppSelector(selectAllFlowEntities);
+    const flowNodes = useAppSelector(selectAllFlowNodes);
+    const directories = useAppSelector(selectAllDirectories);
 
     useEffect(() => {
-        console.log('Flow state: ', flowSlice);
-    }, [flowSlice]);
+        console.log('Flow state: ', { flowEntities, flowNodes, directories });
+    }, [flowEntities, flowNodes, directories]);
 
     return null; // This component does not render anything
 };
@@ -145,7 +151,10 @@ export const FlowCanvas: React.FC<FlowCanvasProps> = ({ flowId }) => {
     }, [flowId, engine]);
 
     const serializedGraph = useAppSelector(state =>
-        flowLogic.selectSerializedGraphByFlowId(state, model?.getID() ?? '')
+        flowLogic.graph.selectSerializedGraphByFlowId(
+            state,
+            model?.getID() ?? ''
+        )
     );
 
     const registerModelChangeListener = useCallback(() => {
@@ -160,7 +169,9 @@ export const FlowCanvas: React.FC<FlowCanvasProps> = ({ flowId }) => {
             const serializedModel =
                 model.serialize() as unknown as SerializedGraph;
             // Dispatch an action to update the Redux state with the serialized model
-            dispatch(flowLogic.updateFlowFromSerializedGraph(serializedModel));
+            dispatch(
+                flowLogic.graph.updateFlowFromSerializedGraph(serializedModel)
+            );
         }, 500);
 
         // Register event listeners and store the handle in the ref
@@ -250,7 +261,7 @@ export const FlowCanvas: React.FC<FlowCanvasProps> = ({ flowId }) => {
 
     const [, drop] = useDrop(() => ({
         accept: ItemTypes.NODE,
-        drop: (entity: NodeEntity, monitor) => {
+        drop: (entity: PaletteNodeEntity, monitor) => {
             // Find the canvas widget element
             const canvasElement = document.querySelector(
                 '.flow-canvas > svg'
@@ -302,7 +313,7 @@ export const FlowCanvas: React.FC<FlowCanvasProps> = ({ flowId }) => {
 
             node.setPosition(nodePosition);
 
-            const ports = flowLogic.getNodeInputsOutputs(config, entity);
+            const ports = flowLogic.node.getNodeInputsOutputs(config, entity);
             ports.inputs.forEach(input => {
                 node.addPort(
                     new DefaultPortModel({

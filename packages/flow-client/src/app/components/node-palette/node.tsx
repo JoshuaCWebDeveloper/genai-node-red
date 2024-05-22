@@ -1,15 +1,15 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { NodeEntity } from '../../redux/modules/node/node.slice';
+import { PaletteNodeEntity } from '../../redux/modules/palette/node.slice';
 import NodeRedNode from '../node/node-red-node';
 
 export type NodeProps = {
-    node: NodeEntity; // Extend this interface based on your node's properties
+    node: PaletteNodeEntity; // Extend this interface based on your node's properties
 };
 
 // Styled component for the node item
-const StyledNodeItem = styled.li<{ node: NodeEntity }>`
+const StyledNodeItem = styled.li<{ node: PaletteNodeEntity }>`
     &.node-item {
     }
 `;

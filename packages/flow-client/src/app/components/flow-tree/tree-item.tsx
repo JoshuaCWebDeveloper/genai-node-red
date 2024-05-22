@@ -8,21 +8,21 @@ import React, {
     useState,
 } from 'react';
 import { useDrag, useDrop } from 'react-dnd';
-import { Tooltip } from 'react-tooltip';
-import styled from 'styled-components';
 import ReactDOM from 'react-dom';
 import { useDispatch } from 'react-redux';
+import { Tooltip } from 'react-tooltip';
+import styled from 'styled-components';
 
 import { useAppLogic, useAppSelector } from '../../redux/hooks';
 import {
     builderActions,
     selectNewTreeItem,
 } from '../../redux/modules/builder/builder.slice';
+import { flowActions } from '../../redux/modules/flow/flow.slice';
 import {
     TreeDirectory,
     TreeItemData,
-} from '../../redux/modules/flow/flow.logic';
-import { FlowEntity, flowActions } from '../../redux/modules/flow/flow.slice';
+} from '../../redux/modules/flow/tree.logic';
 import { RenameForm } from './rename-form';
 
 const StyledTreeItem = styled.div<{ level: number }>`
@@ -117,6 +117,14 @@ const StyledTooltip = styled(Tooltip)`
 
 const TreeItemType = 'TREE_ITEM';
 
+const usePrevious = <T,>(value: T) => {
+    const ref = useRef<T>(value);
+    useEffect(() => {
+        ref.current = value;
+    }, [value]);
+    return ref.current;
+};
+
 export type TreeItemProps = {
     selectedItem?: TreeItemData;
     item: TreeItemData;
@@ -142,7 +150,7 @@ export const TreeItem = ({
     const isSelected = selectedItem?.id === item.id;
     const canDelete =
         item.type !== 'directory' ||
-        (!item.children.length && !flowLogic.directoryIsDefault(item));
+        (!item.children.length && !flowLogic.tree.directoryIsDefault(item));
     const treeItemId = `tree-item-${item.id.replaceAll(/[/\s]/g, '-')}`;
 
     const [{ isDragging }, drag] = useDrag(
@@ -170,17 +178,20 @@ export const TreeItem = ({
             },
             drop: draggedItem => {
                 // Handle the drop logic here, e.g., moving the dragged item into this item's children
+                const actionPayload = {
+                    id: draggedItem.id,
+                    changes: {
+                        directory: flowLogic.tree.directoryIsDefault(
+                            item as TreeDirectory
+                        )
+                            ? undefined
+                            : item.id,
+                    },
+                };
                 dispatch(
-                    flowActions.updateEntity({
-                        id: draggedItem.id,
-                        changes: {
-                            directory: flowLogic.directoryIsDefault(
-                                item as TreeDirectory
-                            )
-                                ? undefined
-                                : item.id,
-                        },
-                    })
+                    draggedItem.type === 'directory'
+                        ? flowActions.updateDirectory(actionPayload)
+                        : flowActions.updateFlowEntity(actionPayload)
                 );
                 return draggedItem;
             },
@@ -208,7 +219,6 @@ export const TreeItem = ({
         if (item.type === 'directory') {
             setIsCollapsed(!isCollapsed);
         } else {
-            dispatch(builderActions.openFlow(item.id));
             dispatch(builderActions.setActiveFlow(item.id));
         }
 
@@ -243,25 +253,22 @@ export const TreeItem = ({
                 return;
             }
 
-            const changes = {
-                name: newName,
-                label: newName,
-            } as Partial<FlowEntity>;
-
-            if (item.id === item.name) {
-                changes.id = newName;
-            }
+            const actionPayload = {
+                id: item.id,
+                changes: {
+                    name: newName,
+                },
+            };
 
             dispatch(
-                flowActions.updateEntity({
-                    id: item.id,
-                    changes,
-                })
+                item.type === 'directory'
+                    ? flowActions.updateDirectory(actionPayload)
+                    : flowActions.updateFlowEntity(actionPayload)
             );
 
             stopRename();
         },
-        [isRenaming, item.id, item.name, dispatch, stopRename]
+        [isRenaming, item.id, item.type, dispatch, stopRename]
     );
 
     const handleDeleteClick = useCallback(
@@ -282,10 +289,14 @@ export const TreeItem = ({
                     clearTimeout(deleteConfirmTimeout.current);
                     deleteConfirmTimeout.current = null;
                 }
-                dispatch(flowActions.removeEntity(item.id));
+                dispatch(
+                    item.type === 'directory'
+                        ? flowActions.removeDirectory(item.id)
+                        : flowActions.removeFlowEntity(item.id)
+                );
             }
         },
-        [canDelete, dispatch, isDeleteConfirming, item.id]
+        [canDelete, dispatch, isDeleteConfirming, item.id, item.type]
     );
 
     const handleNameKeydown = useCallback(
@@ -306,7 +317,9 @@ export const TreeItem = ({
         }
 
         if (
-            selectedItem?.directoryPath.startsWith(flowLogic.getFilePath(item))
+            selectedItem?.directoryPath.startsWith(
+                flowLogic.tree.getFilePath(item)
+            )
         ) {
             setIsCollapsed(false);
         }
@@ -328,12 +341,18 @@ export const TreeItem = ({
     // open when a child is added
     const numberChildren =
         item.type === 'directory' ? (item as TreeDirectory).children.length : 0;
+    const prevNumberChildren = usePrevious(numberChildren);
     useEffect(() => {
+        if (numberChildren <= prevNumberChildren) {
+            return;
+        }
+
         if (item.type !== 'directory') {
             return;
         }
+
         setIsCollapsed(false);
-    }, [item.type, numberChildren]);
+    }, [item.type, numberChildren, prevNumberChildren]);
 
     // scroll to when we become selected
     useEffect(() => {
@@ -390,7 +409,7 @@ export const TreeItem = ({
                     <p
                         className="title"
                         onClick={handleTitleClick}
-                        data-tooltip-content={flowLogic.getFilePath(item)}
+                        data-tooltip-content={flowLogic.tree.getFilePath(item)}
                         data-tooltip-id={treeItemId + '-tooltip'}
                         data-tooltip-place="bottom-start"
                         data-tooltip-position-strategy="fixed"

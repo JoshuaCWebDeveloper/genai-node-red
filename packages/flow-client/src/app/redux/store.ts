@@ -11,7 +11,7 @@ import {
 } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 
-import { featureApi } from './modules/api/feature.api';
+import type { AppLogic } from './logic';
 import { nodeApi } from './modules/api/node.api'; // Import the nodeApi
 import {
     BUILDER_FEATURE_KEY,
@@ -19,23 +19,19 @@ import {
     BuilderState,
 } from './modules/builder/builder.slice';
 import {
-    FEATURE_FEATURE_KEY,
-    featureReducer,
-} from './modules/feature/feature.slice';
-import {
     FLOW_FEATURE_KEY,
     flowReducer,
     FlowState,
 } from './modules/flow/flow.slice';
-import { NODE_FEATURE_KEY, nodeReducer } from './modules/node/node.slice';
-import type { AppLogic } from './logic';
+import {
+    PALETTE_NODE_FEATURE_KEY,
+    paletteNodeReducer,
+} from './modules/palette/node.slice';
 
 export const createStore = (logic: AppLogic) => {
     const store = configureStore({
         reducer: {
-            [FEATURE_FEATURE_KEY]: featureReducer,
-            [featureApi.reducerPath]: featureApi.reducer,
-            [NODE_FEATURE_KEY]: nodeReducer,
+            [PALETTE_NODE_FEATURE_KEY]: paletteNodeReducer,
             [nodeApi.reducerPath]: nodeApi.reducer, // Add the nodeApi reducer
             // Add more reducers here as needed
             [FLOW_FEATURE_KEY]: persistReducer<FlowState>(
@@ -69,7 +65,7 @@ export const createStore = (logic: AppLogic) => {
                 thunk: {
                     extraArgument: logic,
                 },
-            }).concat(featureApi.middleware, nodeApi.middleware),
+            }).concat(nodeApi.middleware),
         devTools: process.env.NODE_ENV !== 'production',
     });
 

@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import environment from '../../../../environment';
-import { NodeEntity, nodeActions } from '../node/node.slice';
+import { PaletteNodeEntity, paletteNodeActions } from '../palette/node.slice';
 import { AppLogic } from '../../logic';
 
 // Define a service using a base URL and expected endpoints for nodes
@@ -13,7 +13,7 @@ export const nodeApi = createApi({
     tagTypes: ['Node'], // For automatic cache invalidation and refetching
     endpoints: builder => ({
         // Endpoint to fetch the list of nodes as JSON
-        getNodes: builder.query<NodeEntity[], void>({
+        getNodes: builder.query<PaletteNodeEntity[], void>({
             query: () => ({
                 url: 'nodes',
                 headers: {
@@ -47,7 +47,7 @@ export const nodeApi = createApi({
             async onQueryStarted(_args, { dispatch, queryFulfilled }) {
                 try {
                     const { data: rawNodes } = await queryFulfilled;
-                    dispatch(nodeActions.setNodes(rawNodes));
+                    dispatch(paletteNodeActions.setNodes(rawNodes));
                 } catch (error) {
                     /* ignore errors - handled by caller */
                 }

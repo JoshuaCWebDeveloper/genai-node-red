@@ -11,11 +11,8 @@ import {
     selectOpenFlows,
 } from '../../redux/modules/builder/builder.slice';
 import {
-    FlowEntity,
-    SubflowEntity,
     flowActions,
-    selectFlows,
-    selectSubflows,
+    selectFlowEntities,
 } from '../../redux/modules/flow/flow.slice';
 import { FlowCanvas } from '../flow-canvas/flow-canvas';
 
@@ -126,8 +123,7 @@ const StyledTabManager = styled.div`
 
 export const TabManager = () => {
     const dispatch = useDispatch();
-    const flows = useAppSelector(selectFlows);
-    const subflows = useAppSelector(selectSubflows);
+    const flowEntities = useAppSelector(selectFlowEntities);
     const openFlows = useAppSelector(selectOpenFlows);
     const activeFlow = useAppSelector(selectActiveFlow);
     const flowCounter = useAppSelector(selectNewFlowCounter);
@@ -151,17 +147,16 @@ export const TabManager = () => {
     const createNewTab = useCallback(() => {
         const flowId = uuidv4();
         dispatch(
-            flowActions.addEntity({
+            flowActions.addFlowEntity({
                 id: flowId,
-                type: 'tab',
-                label: `New Flow${flowCounter ? ` ${flowCounter}` : ''}`,
+                type: 'flow',
+                name: `New Flow${flowCounter ? ` ${flowCounter}` : ''}`,
                 disabled: false,
                 info: '',
                 env: [],
             })
         );
         dispatch(builderActions.addNewFlow(flowId));
-        dispatch(builderActions.openFlow(flowId));
         dispatch(builderActions.setActiveFlow(flowId));
     }, [dispatch, flowCounter]);
 
@@ -187,38 +182,32 @@ export const TabManager = () => {
                     ref={tabContentRef}
                 >
                     <div className="tab-list">
-                        {openFlows.map(flowId => {
-                            const flowOrSubflow = [...flows, ...subflows].find(
-                                it => it.id === flowId
-                            );
-                            const name =
-                                (flowOrSubflow as SubflowEntity)?.name ??
-                                (flowOrSubflow as FlowEntity)?.label ??
-                                '...';
-                            return (
+                        {openFlows
+                            .map(flowId => flowEntities[flowId])
+                            .filter(it => it)
+                            .map(flowEntity => (
                                 <div
-                                    key={flowId}
-                                    id={`tab-${flowId}`}
+                                    key={flowEntity.id}
+                                    id={`tab-${flowEntity.id}`}
                                     className={`tab-item ${
-                                        flowId === activeFlow
+                                        flowEntity.id === activeFlow
                                             ? 'active-tab'
                                             : ''
                                     }`}
-                                    onClick={() => switchTab(flowId)}
+                                    onClick={() => switchTab(flowEntity.id)}
                                 >
-                                    <p>{name}</p>
+                                    <p>{flowEntity.name}</p>
                                     <span
                                         className="close-btn"
                                         onClick={e => {
                                             e.stopPropagation(); // Prevent tab switch when closing
-                                            closeTab(flowId);
+                                            closeTab(flowEntity.id);
                                         }}
                                     >
                                         <i className="fa fa-times"></i>
                                     </span>
                                 </div>
-                            );
-                        })}
+                            ))}
                     </div>
                 </div>
 

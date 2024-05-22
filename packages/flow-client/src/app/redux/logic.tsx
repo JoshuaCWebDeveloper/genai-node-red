@@ -3,13 +3,11 @@ import { Provider } from 'react-redux';
 import { persistStore } from 'redux-persist';
 import { PersistGate } from 'redux-persist/integration/react';
 
-import { FeatureLogic } from './modules/feature/feature.logic';
 import { FlowLogic } from './modules/flow/flow.logic';
-import { NodeLogic } from './modules/node/node.logic';
+import { NodeLogic } from './modules/palette/node.logic';
 import { AppStore } from './store';
 
 export const createLogic = () => ({
-    feature: new FeatureLogic(),
     node: new NodeLogic(),
     flow: new FlowLogic(),
 });

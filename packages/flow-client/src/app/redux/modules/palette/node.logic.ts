@@ -1,7 +1,11 @@
 import { executeRegisterType } from '../../../red/execute-script';
 import { AppDispatch, RootState } from '../../store';
 import { FlowNodeEntity } from '../flow/flow.slice';
-import { NodeEntity, nodeActions, selectNodesByNodeRedId } from './node.slice';
+import {
+    PaletteNodeEntity,
+    paletteNodeActions,
+    selectNodesByNodeRedId,
+} from './node.slice';
 
 export class NodeLogic {
     // Define a plain thunk method that accepts nodeScripts data as an argument
@@ -58,7 +62,7 @@ export class NodeLogic {
                     // Logic to handle the node registration
                     registeredTypes.forEach(registeredType => {
                         dispatch(
-                            nodeActions.updateOne({
+                            paletteNodeActions.updateOne({
                                 id: registeredType.type,
                                 changes: {
                                     ...registeredType.definition,
@@ -81,7 +85,7 @@ export class NodeLogic {
                     editorTemplate = moduleStyles[nodeName] + editorTemplate;
                 }
                 dispatch(
-                    nodeActions.updateOne({
+                    paletteNodeActions.updateOne({
                         id: nodeName,
                         changes: { editorTemplate },
                     })
@@ -96,7 +100,7 @@ export class NodeLogic {
                 const nodeName = script.getAttribute('data-help-name')!;
                 const helpTemplate = script.innerHTML.trim();
                 dispatch(
-                    nodeActions.updateOne({
+                    paletteNodeActions.updateOne({
                         id: nodeName,
                         changes: { helpTemplate },
                     })
@@ -107,7 +111,7 @@ export class NodeLogic {
 
     // Helper method to extract default values from NodeDefaults
     private extractDefaultNodeValues(
-        defaults: NonNullable<NodeEntity['defaults']>
+        defaults: NonNullable<PaletteNodeEntity['defaults']>
     ) {
         const config: Record<string, unknown> = {};
         Object.keys(defaults).forEach(key => {
@@ -126,7 +130,7 @@ export class NodeLogic {
     // Method to generate a default config for a DiagramNode based on its NodeEntity
     public applyConfigDefaults(
         node: FlowNodeEntity,
-        entity: NodeEntity
+        entity: PaletteNodeEntity
     ): FlowNodeEntity {
         // Generate default config based on the NodeEntity's defaults
         // Now we need to extract the value from each DefaultProperty

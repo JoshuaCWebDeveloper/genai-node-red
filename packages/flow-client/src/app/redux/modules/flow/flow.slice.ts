@@ -78,8 +78,8 @@ export interface FlowNodeEntity {
 
 export interface FlowEntity {
     id: string;
-    type: 'tab'; // Distinguishing flows from nodes
-    label: string;
+    type: 'flow';
+    name: string;
     disabled: boolean;
     info: string;
     env: unknown[];
@@ -107,36 +107,174 @@ export interface DirectoryEntity {
     directory: string;
 }
 
-// Union type for all possible entities in the flow state
-export type FlowStateEntity =
-    | FlowNodeEntity
-    | FlowEntity
-    | SubflowEntity
-    | DirectoryEntity;
-
-export interface FlowState extends EntityState<FlowStateEntity, string> {
+export interface FlowState {
     loadingStatus: 'not loaded' | 'loading' | 'loaded' | 'error';
     error?: string | null;
+    flowEntities: EntityState<FlowEntity | SubflowEntity, string>;
+    flowNodes: EntityState<FlowNodeEntity, string>;
+    directories: EntityState<DirectoryEntity, string>;
 }
 
-export const flowAdapter = createEntityAdapter<FlowStateEntity>();
+export const flowAdapter = createEntityAdapter<FlowEntity | SubflowEntity>();
+export const nodeAdapter = createEntityAdapter<FlowNodeEntity>();
+export const directoryAdapter = createEntityAdapter<DirectoryEntity>();
 
-export const initialFlowState: FlowState = flowAdapter.getInitialState({
+export const initialFlowState: FlowState = {
     loadingStatus: 'not loaded',
     error: null,
-});
+    flowEntities: flowAdapter.getInitialState(),
+    flowNodes: nodeAdapter.getInitialState(),
+    directories: directoryAdapter.getInitialState(),
+};
 
 export const flowSlice = createSlice({
     name: FLOW_FEATURE_KEY,
     initialState: initialFlowState,
     reducers: {
-        addEntity: flowAdapter.addOne,
-        addEntities: flowAdapter.addMany,
-        updateEntity: flowAdapter.updateOne,
-        upsertEntity: flowAdapter.upsertOne,
-        upsertEntities: flowAdapter.upsertMany,
-        removeEntity: flowAdapter.removeOne,
-        removeEntities: flowAdapter.removeMany,
+        addFlowEntity: (
+            state,
+            action: Parameters<typeof flowAdapter.addOne>[1]
+        ) => {
+            flowAdapter.addOne(state.flowEntities, action);
+        },
+        addFlowEntities: (
+            state,
+            action: Parameters<typeof flowAdapter.addMany>[1]
+        ) => {
+            flowAdapter.addMany(state.flowEntities, action);
+        },
+        updateFlowEntity: (
+            state,
+            action: Parameters<typeof flowAdapter.updateOne>[1]
+        ) => {
+            flowAdapter.updateOne(state.flowEntities, action);
+        },
+        updateFlowEntities: (
+            state,
+            action: Parameters<typeof flowAdapter.updateMany>[1]
+        ) => {
+            flowAdapter.updateMany(state.flowEntities, action);
+        },
+        upsertFlowEntity: (
+            state,
+            action: Parameters<typeof flowAdapter.upsertOne>[1]
+        ) => {
+            flowAdapter.upsertOne(state.flowEntities, action);
+        },
+        upsertFlowEntities: (
+            state,
+            action: Parameters<typeof flowAdapter.upsertMany>[1]
+        ) => {
+            flowAdapter.upsertMany(state.flowEntities, action);
+        },
+        removeFlowEntity: (
+            state,
+            action: Parameters<typeof flowAdapter.removeOne>[1]
+        ) => {
+            flowAdapter.removeOne(state.flowEntities, action);
+        },
+        removeFlowEntities: (
+            state,
+            action: Parameters<typeof flowAdapter.removeMany>[1]
+        ) => {
+            flowAdapter.removeMany(state.flowEntities, action.payload);
+        },
+        addFlowNode: (
+            state,
+            action: Parameters<typeof nodeAdapter.addOne>[1]
+        ) => {
+            nodeAdapter.addOne(state.flowNodes, action);
+        },
+        addFlowNodes: (
+            state,
+            action: Parameters<typeof nodeAdapter.addMany>[1]
+        ) => {
+            nodeAdapter.addMany(state.flowNodes, action);
+        },
+        updateFlowNode: (
+            state,
+            action: Parameters<typeof nodeAdapter.updateOne>[1]
+        ) => {
+            nodeAdapter.updateOne(state.flowNodes, action);
+        },
+        updateFlowNodes: (
+            state,
+            action: Parameters<typeof nodeAdapter.updateMany>[1]
+        ) => {
+            nodeAdapter.updateMany(state.flowNodes, action);
+        },
+        upsertFlowNode: (
+            state,
+            action: Parameters<typeof nodeAdapter.upsertOne>[1]
+        ) => {
+            nodeAdapter.upsertOne(state.flowNodes, action);
+        },
+        upsertFlowNodes: (
+            state,
+            action: Parameters<typeof nodeAdapter.upsertMany>[1]
+        ) => {
+            nodeAdapter.upsertMany(state.flowNodes, action);
+        },
+        removeFlowNode: (
+            state,
+            action: Parameters<typeof nodeAdapter.removeOne>[1]
+        ) => {
+            nodeAdapter.removeOne(state.flowNodes, action);
+        },
+        removeFlowNodes: (
+            state,
+            action: Parameters<typeof nodeAdapter.removeMany>[1]
+        ) => {
+            nodeAdapter.removeMany(state.flowNodes, action);
+        },
+        addDirectory: (
+            state,
+            action: Parameters<typeof directoryAdapter.addOne>[1]
+        ) => {
+            directoryAdapter.addOne(state.directories, action);
+        },
+        addDirectories: (
+            state,
+            action: Parameters<typeof directoryAdapter.addMany>[1]
+        ) => {
+            directoryAdapter.addMany(state.directories, action);
+        },
+        updateDirectory: (
+            state,
+            action: Parameters<typeof directoryAdapter.updateOne>[1]
+        ) => {
+            directoryAdapter.updateOne(state.directories, action);
+        },
+        updateDirectories: (
+            state,
+            action: Parameters<typeof directoryAdapter.updateMany>[1]
+        ) => {
+            directoryAdapter.updateMany(state.directories, action);
+        },
+        upsertDirectory: (
+            state,
+            action: Parameters<typeof directoryAdapter.upsertOne>[1]
+        ) => {
+            directoryAdapter.upsertOne(state.directories, action);
+        },
+        upsertDirectories: (
+            state,
+            action: Parameters<typeof directoryAdapter.upsertMany>[1]
+        ) => {
+            directoryAdapter.upsertMany(state.directories, action);
+        },
+        removeDirectory: (
+            state,
+            action: Parameters<typeof directoryAdapter.removeOne>[1]
+        ) => {
+            directoryAdapter.removeOne(state.directories, action);
+        },
+        removeDirectories: (
+            state,
+            action: Parameters<typeof directoryAdapter.removeMany>[1]
+        ) => {
+            directoryAdapter.removeMany(state.directories, action);
+        },
         setLoadingStatus: (
             state,
             action: PayloadAction<FlowState['loadingStatus']>
@@ -153,42 +291,60 @@ export const flowReducer = flowSlice.reducer;
 export const flowActions = flowSlice.actions;
 
 // Selectors
+
+// flow state
+export const selectFlowState = (state: RootState) => state[FLOW_FEATURE_KEY];
+
+// entities
+export const selectFlowEntityState = createSelector(
+    selectFlowState,
+    state => state.flowEntities
+);
+export const selectFlowNodeEntityState = createSelector(
+    selectFlowState,
+    state => state.flowNodes
+);
+export const selectFlowDirectoryEntityState = createSelector(
+    selectFlowState,
+    state => state.directories
+);
+
+// entity selectors
 export const {
-    selectAll: selectAllEntities,
-    selectById: selectEntityById,
-    selectIds: selectEntityIds,
-} = flowAdapter.getSelectors(
-    (state: { [FLOW_FEATURE_KEY]: FlowState }) => state[FLOW_FEATURE_KEY]
-);
+    selectAll: selectAllFlowEntities,
+    selectById: selectFlowEntityById,
+    selectIds: selectFlowEntityIds,
+    selectEntities: selectFlowEntities,
+} = flowAdapter.getSelectors(selectFlowEntityState);
 
-export const selectDirectories = createSelector(
-    selectAllEntities,
+export const {
+    selectAll: selectAllFlowNodes,
+    selectById: selectFlowNodeById,
+    selectIds: selectFlowNodeIds,
+    selectEntities: selectFlowNodeEntities,
+} = nodeAdapter.getSelectors(selectFlowNodeEntityState);
+
+export const {
+    selectAll: selectAllDirectories,
+    selectById: selectDirectoryById,
+    selectIds: selectDirectoryIds,
+    selectEntities: selectDirectoryEntities,
+} = directoryAdapter.getSelectors(selectFlowDirectoryEntityState);
+
+// additional selectors
+export const selectAllFlows = createSelector(
+    selectAllFlowEntities,
     entities =>
-        entities.filter(
-            entity => entity.type === 'directory'
-        ) as DirectoryEntity[]
+        entities.filter(entity => entity.type === 'flow') as FlowEntity[]
 );
 
-export const selectFlows = createSelector(
-    selectAllEntities,
-    entities => entities.filter(entity => entity.type === 'tab') as FlowEntity[]
-);
-
-export const selectSubflows = createSelector(
-    selectAllEntities,
+export const selectAllSubflows = createSelector(
+    selectAllFlowEntities,
     entities =>
         entities.filter(entity => entity.type === 'subflow') as SubflowEntity[]
 );
 
-export const selectFlowNodes = createSelector(
-    selectAllEntities,
-    entities =>
-        entities.filter(
-            entity => entity.type !== 'tab' && entity.type !== 'subflow'
-        ) as FlowNodeEntity[]
-);
-
 export const selectFlowNodesByFlowId = createSelector(
-    [selectFlowNodes, (state: RootState, flowId: string) => flowId],
+    [selectAllFlowNodes, (state: RootState, flowId: string) => flowId],
     (nodes, flowId) => nodes.filter(node => node.z === flowId)
 );
