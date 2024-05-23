@@ -384,8 +384,10 @@ export const TreeItem = ({
                     ) : (
                         <i className="fas fa-chevron-down"></i>
                     )
+                ) : item.type === 'flow' ? (
+                    <i className="fas fa-map"></i>
                 ) : (
-                    <i className="fas fa-sitemap"></i> // Icon indicating a flow
+                    <i className="fas fa-sitemap"></i>
                 )}
 
                 {isRenaming ? (

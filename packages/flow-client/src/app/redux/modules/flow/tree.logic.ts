@@ -1,6 +1,8 @@
 import { createSelector } from '@reduxjs/toolkit';
 import {
     DirectoryEntity,
+    FlowEntity,
+    SubflowEntity,
     selectAllDirectories,
     selectAllFlowEntities,
 } from './flow.slice';
@@ -18,7 +20,7 @@ export type TreeDirectory = TreeItem & {
 };
 
 export type TreeFile = TreeItem & {
-    type: 'file';
+    type: FlowEntity['type'] | SubflowEntity['type'];
 };
 
 export type TreeItemData = TreeDirectory | TreeFile;
@@ -141,7 +143,7 @@ export class TreeLogic {
                 const item = {
                     id: entity.id,
                     name: entity.name,
-                    type: 'file',
+                    type: entity.type,
                     directory: directoryId,
                     directoryPath: `${directory.directoryPath}/${directory.name}`,
                 } as TreeFile;
