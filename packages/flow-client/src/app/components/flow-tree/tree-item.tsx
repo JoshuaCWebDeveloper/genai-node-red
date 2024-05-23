@@ -291,13 +291,18 @@ export const TreeItem = ({
 
     const handleNameKeydown = useCallback(
         (e: KeyboardEvent) => {
+            // ignore if renaming
+            if (isRenaming) {
+                return;
+            }
+
             switch (e.key) {
                 case 'Delete':
                     handleDeleteClick(e);
                     break;
             }
         },
-        [handleDeleteClick]
+        [handleDeleteClick, isRenaming]
     );
 
     // open when descendent flow becomes selected
