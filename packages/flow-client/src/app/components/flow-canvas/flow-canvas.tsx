@@ -303,7 +303,7 @@ export const FlowCanvas: React.FC<FlowCanvasProps> = ({ flowId }) => {
             );
 
             const node = new CustomNodeModel({
-                name: entity.type,
+                name: entity.name,
                 color: entity.color,
                 extras: {
                     entity,

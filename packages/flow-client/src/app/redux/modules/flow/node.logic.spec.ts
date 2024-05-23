@@ -6,7 +6,13 @@ import {
     PaletteNodeEntity,
     selectPaletteNodeById,
 } from '../palette/node.slice';
-import { FlowNodeEntity, flowActions, selectFlowNodeById } from './flow.slice';
+import {
+    FlowNodeEntity,
+    SubflowEntity,
+    flowActions,
+    selectAllSubflows,
+    selectFlowNodeById,
+} from './flow.slice';
 import { NodeLogic } from './node.logic';
 
 vi.mock('../palette/node.slice', async importOriginal => {
@@ -29,6 +35,7 @@ vi.mock('./flow.slice', async importOriginal => {
         ...originalModule,
 
         selectFlowNodeById: vi.fn(() => null),
+        selectAllSubflows: vi.fn(() => []),
     };
 });
 
@@ -41,6 +48,10 @@ const mockedSelectPaletteNodeById = selectPaletteNodeById as MockedFunction<
 
 const mockedSelectFlowNodeById = selectFlowNodeById as MockedFunction<
     typeof selectFlowNodeById
+>;
+
+const mockedSelectAllSubflows = selectAllSubflows as MockedFunction<
+    typeof selectAllSubflows
 >;
 
 describe('node.logic', () => {
@@ -56,6 +67,7 @@ describe('node.logic', () => {
         const baseNodeProps = {
             id: 'test-node',
             nodeRedId: 'test-node',
+            nodeRedName: 'Test Node',
             module: 'module',
             version: 'version',
             name: 'name',
@@ -134,6 +146,7 @@ describe('node.logic', () => {
             id: 'node1',
             type: 'custom-node',
             nodeRedId: 'node1',
+            nodeRedName: 'Test Node',
             name: 'Test Node',
             module: 'test-module',
             version: '1.0.0',
@@ -306,6 +319,69 @@ describe('node.logic', () => {
                     }),
                 })
             );
+        });
+    });
+
+    describe('selectSubflowsAsPaletteNodes', () => {
+        it('should convert subflows to palette nodes correctly', () => {
+            const subflows = [
+                {
+                    id: 'subflow1',
+                    name: 'Subflow One',
+                    category: 'default',
+                    color: '#FF0000',
+                },
+                {
+                    id: 'subflow2',
+                    name: 'Subflow Two',
+                    category: 'custom',
+                    color: '#00FF00',
+                },
+            ] as SubflowEntity[];
+
+            const expectedPaletteNodes = [
+                {
+                    id: 'subflow1',
+                    nodeRedId: '',
+                    nodeRedName: 'Subflow One',
+                    name: 'Subflow One',
+                    type: 'subflow:subflow1',
+                    category: 'default',
+                    color: '#FF0000',
+                    module: 'subflows',
+                    version: '1.0.0',
+                },
+                {
+                    id: 'subflow2',
+                    nodeRedId: '',
+                    nodeRedName: 'Subflow Two',
+                    name: 'Subflow Two',
+                    type: 'subflow:subflow2',
+                    category: 'custom',
+                    color: '#00FF00',
+                    module: 'subflows',
+                    version: '1.0.0',
+                },
+            ];
+
+            mockedSelectAllSubflows.mockImplementation(() => subflows);
+
+            const result = nodeLogic.selectSubflowsAsPaletteNodes(
+                {} as RootState
+            );
+            expect(result).toEqual(expectedPaletteNodes);
+        });
+
+        it('should handle empty subflows array', () => {
+            const subflows: SubflowEntity[] = [];
+
+            mockedSelectAllSubflows.mockImplementation(() => subflows);
+
+            const result = nodeLogic.selectSubflowsAsPaletteNodes(
+                {} as RootState
+            );
+
+            expect(result).toEqual([]);
         });
     });
 });

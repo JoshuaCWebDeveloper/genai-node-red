@@ -67,9 +67,6 @@ export class GraphLogic {
     // Method to convert and update the flow based on the serialized graph from react-diagrams
     updateFlowFromSerializedGraph(graph: SerializedGraph) {
         return async (dispatch: AppDispatch, getState: () => RootState) => {
-            // const graph = JSON.parse(serializedGraph) as SerializedGraph;
-
-            // Assuming layers[1] contains nodes and layers[0] contains links
             const nodeModels =
                 (
                     graph.layers.find(

@@ -49,7 +49,7 @@ export const NodeRedNode = ({
                     alt="Node Icon"
                 />
             )}
-            <span className="name">{instance?.name || entity.type}</span>
+            <span className="name">{instance?.name || entity.name}</span>
             {children}
         </StyledNode>
     );

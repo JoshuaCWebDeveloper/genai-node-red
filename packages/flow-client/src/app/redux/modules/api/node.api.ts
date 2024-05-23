@@ -38,6 +38,8 @@ export const nodeApi = createApi({
                         ...node,
                         id: type,
                         nodeRedId: node.id,
+                        nodeRedName: node.name,
+                        name: type,
                         type, // Assign each type to a new node
                         types: undefined, // Remove the types array
                     }))

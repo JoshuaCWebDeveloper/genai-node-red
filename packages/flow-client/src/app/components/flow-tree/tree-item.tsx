@@ -8,9 +8,7 @@ import React, {
     useState,
 } from 'react';
 import { useDrag, useDrop } from 'react-dnd';
-import ReactDOM from 'react-dom';
 import { useDispatch } from 'react-redux';
-import { Tooltip } from 'react-tooltip';
 import styled from 'styled-components';
 
 import { useAppLogic, useAppSelector } from '../../redux/hooks';
@@ -24,6 +22,7 @@ import {
     TreeItemData,
 } from '../../redux/modules/flow/tree.logic';
 import { RenameForm } from './rename-form';
+import { Tooltip } from '../shared/tooltip';
 
 const StyledTreeItem = styled.div<{ level: number }>`
     padding: 0;
@@ -104,15 +103,6 @@ const StyledTreeItem = styled.div<{ level: number }>`
             background-color: #25375e;
         }
     }
-`;
-
-const StyledTooltip = styled(Tooltip)`
-    --rt-opacity: 1;
-    background-color: var(--color-background-plain);
-    color: var(--color-text-sharp);
-    padding: 2px 5px 3px;
-    border-radius: 2px;
-    font-size: 0.8em;
 `;
 
 const TreeItemType = 'TREE_ITEM';
@@ -301,13 +291,18 @@ export const TreeItem = ({
 
     const handleNameKeydown = useCallback(
         (e: KeyboardEvent) => {
+            // ignore if renaming
+            if (isRenaming) {
+                return;
+            }
+
             switch (e.key) {
                 case 'Delete':
                     handleDeleteClick(e);
                     break;
             }
         },
-        [handleDeleteClick]
+        [handleDeleteClick, isRenaming]
     );
 
     // open when descendent flow becomes selected
@@ -394,8 +389,10 @@ export const TreeItem = ({
                     ) : (
                         <i className="fas fa-chevron-down"></i>
                     )
+                ) : item.type === 'flow' ? (
+                    <i className="fas fa-map"></i>
                 ) : (
-                    <i className="fas fa-sitemap"></i> // Icon indicating a flow
+                    <i className="fas fa-sitemap"></i>
                 )}
 
                 {isRenaming ? (
@@ -411,9 +408,6 @@ export const TreeItem = ({
                         onClick={handleTitleClick}
                         data-tooltip-content={flowLogic.tree.getFilePath(item)}
                         data-tooltip-id={treeItemId + '-tooltip'}
-                        data-tooltip-place="bottom-start"
-                        data-tooltip-position-strategy="fixed"
-                        data-tooltip-delay-show={1000}
                     >
                         {item.name}
                     </p>
@@ -447,13 +441,7 @@ export const TreeItem = ({
                 </div>
             )}
 
-            {ReactDOM.createPortal(
-                <StyledTooltip
-                    id={treeItemId + '-tooltip'}
-                    disableStyleInjection={true}
-                />,
-                document.body
-            )}
+            <Tooltip id={treeItemId + '-tooltip'} />
         </StyledTreeItem>
     );
 };

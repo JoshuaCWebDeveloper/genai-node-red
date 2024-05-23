@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-import { useAppDispatch, useAppSelector } from '../../redux/hooks';
+import { useAppDispatch, useAppLogic, useAppSelector } from '../../redux/hooks';
 import {
     paletteNodeActions,
     selectFilteredNodes,
@@ -32,8 +32,12 @@ const StyledNodePalette = styled.div`
 
 export const NodePalette = () => {
     const dispatch = useAppDispatch();
-
+    const flowLogic = useAppLogic().flow;
     const nodes = useAppSelector(selectFilteredNodes);
+    const subflows = useAppSelector(
+        flowLogic.node.selectSubflowsAsPaletteNodes
+    );
+
     const handleSearch = (query: string) => {
         dispatch(paletteNodeActions.setSearchQuery(query));
     };
@@ -41,7 +45,7 @@ export const NodePalette = () => {
     return (
         <StyledNodePalette className="node-palette">
             <SearchBar onSearch={handleSearch} />
-            <NodeList nodes={nodes} />
+            <NodeList nodes={[...nodes, ...subflows]} />
         </StyledNodePalette>
     );
 };
