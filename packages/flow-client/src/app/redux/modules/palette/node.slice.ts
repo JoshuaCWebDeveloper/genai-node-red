@@ -5,6 +5,7 @@ import {
     EntityState,
     PayloadAction,
 } from '@reduxjs/toolkit';
+
 import { RootState } from '../../store';
 
 export const PALETTE_NODE_FEATURE_KEY = 'paletteNode';
@@ -31,6 +32,7 @@ export type PaletteNodeEntity = {
     // Core properties
     id: string;
     nodeRedId: string;
+    nodeRedName: string;
     name: string;
     type: string;
     category?: string;
@@ -123,7 +125,6 @@ export const paletteNodeSlice = createSlice({
         // Custom action to set nodes
         setNodes: paletteNodeAdapter.setAll,
     },
-    // No extraReducers if fetching is handled by RTK Query
 });
 
 // Export reducer and actions

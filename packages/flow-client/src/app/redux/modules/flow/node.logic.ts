@@ -1,7 +1,9 @@
-import { v4 as uuidv4 } from 'uuid';
 import { PortModelAlignment } from '@projectstorm/react-diagrams';
+import { createSelector } from '@reduxjs/toolkit';
+import { v4 as uuidv4 } from 'uuid';
 
 import { executeNodeFn } from '../../../red/execute-script';
+import { AppDispatch, RootState } from '../../store';
 import {
     PaletteNodeEntity,
     selectPaletteNodeById,
@@ -9,10 +11,11 @@ import {
 import {
     FlowNodeEntity,
     PortModel,
+    SubflowEntity,
     flowActions,
+    selectAllSubflows,
     selectFlowNodeById,
 } from './flow.slice';
-import { AppDispatch, RootState } from '../../store';
 
 type DirtyNodeChanges = Partial<
     Omit<FlowNodeEntity, 'outputs'> & {
@@ -329,4 +332,24 @@ export class NodeLogic {
             );
         };
     };
+
+    selectSubflowsAsPaletteNodes = createSelector(
+        [selectAllSubflows],
+        (subflows: SubflowEntity[]) => {
+            return subflows.map(
+                subflow =>
+                    ({
+                        id: subflow.id,
+                        nodeRedId: '',
+                        nodeRedName: subflow.name,
+                        name: subflow.name,
+                        type: `subflow:${subflow.id}`,
+                        category: subflow.category,
+                        color: subflow.color,
+                        module: 'subflows',
+                        version: '1.0.0',
+                    } as PaletteNodeEntity)
+            );
+        }
+    );
 }
