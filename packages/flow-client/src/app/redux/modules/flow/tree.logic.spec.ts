@@ -85,7 +85,7 @@ describe('tree.logic', () => {
             const treeFile: TreeFile = {
                 id: 'node123',
                 name: 'node123.json',
-                type: 'file',
+                type: 'flow',
                 directory: 'flows',
                 directoryPath: '/flows/nodes',
             };
@@ -97,7 +97,7 @@ describe('tree.logic', () => {
             const nullTreeItem: TreeFile = {
                 id: '',
                 name: '',
-                type: 'file',
+                type: 'flow',
                 directory: '',
                 directoryPath: '',
             };
@@ -186,14 +186,14 @@ describe('tree.logic', () => {
                             {
                                 id: 'flow3',
                                 name: 'Custom Flow 1',
-                                type: 'file',
+                                type: 'flow',
                                 directory: 'custom1',
                                 directoryPath: '/Custom Directory 1',
                             },
                             {
                                 id: 'subflow3',
                                 name: 'Custom Subflow 1',
-                                type: 'file',
+                                type: 'subflow',
                                 directory: 'custom1',
                                 directoryPath: '/Custom Directory 1',
                             },
@@ -209,14 +209,14 @@ describe('tree.logic', () => {
                             {
                                 id: 'flow4',
                                 name: 'Custom Flow 2',
-                                type: 'file',
+                                type: 'flow',
                                 directory: 'custom2',
                                 directoryPath: '/Custom Directory 2',
                             },
                             {
                                 id: 'subflow4',
                                 name: 'Custom Subflow 2',
-                                type: 'file',
+                                type: 'subflow',
                                 directory: 'custom2',
                                 directoryPath: '/Custom Directory 2',
                             },
@@ -288,14 +288,14 @@ describe('tree.logic', () => {
                         {
                             id: 'flow1',
                             name: 'Main Flow',
-                            type: 'file',
+                            type: 'flow',
                             directory: 'flows',
                             directoryPath: '/Flows',
                         },
                         {
                             id: 'flow2',
                             name: 'Secondary Flow',
-                            type: 'file',
+                            type: 'flow',
                             directory: 'flows',
                             directoryPath: '/Flows',
                         },
@@ -311,14 +311,14 @@ describe('tree.logic', () => {
                         {
                             id: 'subflow1',
                             name: 'Subflow A',
-                            type: 'file',
+                            type: 'subflow',
                             directory: 'subflows',
                             directoryPath: '/Subflows',
                         },
                         {
                             id: 'subflow2',
                             name: 'Subflow B',
-                            type: 'file',
+                            type: 'subflow',
                             directory: 'subflows',
                             directoryPath: '/Subflows',
                         },
