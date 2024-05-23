@@ -11,6 +11,7 @@ import {
 } from '../../redux/modules/builder/builder.slice';
 import { flowActions } from '../../redux/modules/flow/flow.slice';
 import { TreeItemData } from '../../redux/modules/flow/tree.logic';
+import { Tooltip } from '../shared/tooltip';
 import { TreeItem } from './tree-item';
 
 const StyledFlowTree = styled.div`
@@ -31,6 +32,7 @@ const StyledFlowTree = styled.div`
         button {
             background-color: inherit;
             color: inherit;
+            cursor: pointer;
             border: 0;
             outline: 0;
         }
@@ -136,10 +138,21 @@ export const FlowTree = () => {
     return (
         <StyledFlowTree className="flow-tree">
             <div className="actions">
-                <button className="new-folder" onClick={handleNewFolder}>
+                <button
+                    className="new-folder"
+                    onClick={handleNewFolder}
+                    data-tooltip-content="New Folder"
+                    data-tooltip-id="action-tooltip"
+                >
                     <i className="fas fa-folder-plus"></i>
                 </button>
-                <button className="new-flow" onClick={handleNewFlow}>
+
+                <button
+                    className="new-flow"
+                    onClick={handleNewFlow}
+                    data-tooltip-content="New Flow"
+                    data-tooltip-id="action-tooltip"
+                >
                     <i className="fas fa-file-circle-plus"></i>
                 </button>
             </div>
@@ -160,6 +173,8 @@ export const FlowTree = () => {
                         />
                     ))}
             </div>
+
+            <Tooltip id="action-tooltip" />
         </StyledFlowTree>
     );
 };
