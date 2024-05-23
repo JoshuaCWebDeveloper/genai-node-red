@@ -103,6 +103,8 @@ describe('nodeApi', () => {
                     ...node,
                     id: type,
                     nodeRedId: node.id,
+                    nodeRedName: node.name,
+                    name: type,
                     type,
                     types: undefined,
                 }))
@@ -115,6 +117,7 @@ describe('nodeApi', () => {
             const testNode = {
                 id: 'node1',
                 nodeRedId: 'node1',
+                nodeRedName: 'Node 1',
                 name: 'Node 1',
                 type: 'type2',
                 enabled: true,
