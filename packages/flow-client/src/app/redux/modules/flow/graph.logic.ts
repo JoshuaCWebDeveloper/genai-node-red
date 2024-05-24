@@ -3,7 +3,7 @@ import { createSelector } from '@reduxjs/toolkit';
 import { AppDispatch, RootState } from '../../store';
 import {
     PaletteNodeEntity,
-    selectAllPaletteNodes,
+    selectPaletteNodeEntities,
 } from '../palette/node.slice';
 import {
     FlowNodeEntity,
@@ -179,9 +179,10 @@ export class GraphLogic {
                 return null;
             }
 
-            const nodeEntities = Object.fromEntries(
-                selectAllPaletteNodes(state).map(it => [it.id, it])
-            );
+            const nodeEntities = {
+                ...selectPaletteNodeEntities(state),
+                ...this.nodeLogic.selectSubflowEntitiesAsPaletteNodes(state),
+            };
 
             // Construct NodeModels from flow nodes
             const nodeModels: { [key: string]: NodeModel } = {};
