@@ -35,7 +35,7 @@ export const NodePalette = () => {
     const flowLogic = useAppLogic().flow;
     const nodes = useAppSelector(selectFilteredNodes);
     const subflows = useAppSelector(
-        flowLogic.node.selectSubflowsAsPaletteNodes
+        flowLogic.node.selectAllSubflowsAsPaletteNodes
     );
 
     const handleSearch = (query: string) => {

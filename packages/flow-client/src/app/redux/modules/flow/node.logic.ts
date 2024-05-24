@@ -9,11 +9,14 @@ import {
     selectPaletteNodeById,
 } from '../palette/node.slice';
 import {
+    FlowEntity,
     FlowNodeEntity,
     PortModel,
     SubflowEntity,
     flowActions,
     selectAllSubflows,
+    selectFlowEntities,
+    selectFlowEntityById,
     selectFlowNodeById,
 } from './flow.slice';
 
@@ -333,22 +336,55 @@ export class NodeLogic {
         };
     };
 
-    selectSubflowsAsPaletteNodes = createSelector(
+    private convertSubflowToPaletteNode(
+        subflow: SubflowEntity
+    ): PaletteNodeEntity {
+        const id = `subflow:${subflow.id}`;
+        return {
+            id,
+            nodeRedId: '',
+            nodeRedName: subflow.name,
+            name: subflow.name,
+            type: id,
+            category: subflow.category,
+            icon: 'subflow.svg',
+            color: subflow.color,
+            module: 'subflows',
+            version: '1.0.0',
+        } as PaletteNodeEntity;
+    }
+
+    selectAllSubflowsAsPaletteNodes = createSelector(
         [selectAllSubflows],
         (subflows: SubflowEntity[]) => {
-            return subflows.map(
-                subflow =>
-                    ({
-                        id: subflow.id,
-                        nodeRedId: '',
-                        nodeRedName: subflow.name,
-                        name: subflow.name,
-                        type: `subflow:${subflow.id}`,
-                        category: subflow.category,
-                        color: subflow.color,
-                        module: 'subflows',
-                        version: '1.0.0',
-                    } as PaletteNodeEntity)
+            return subflows.map(subflow =>
+                this.convertSubflowToPaletteNode(subflow)
+            );
+        }
+    );
+
+    selectSubflowAsPaletteNodeById = createSelector(
+        [selectFlowEntityById],
+        (subflow: FlowEntity | SubflowEntity) => {
+            if (subflow.type === 'subflow') {
+                return this.convertSubflowToPaletteNode(subflow);
+            }
+            return undefined;
+        }
+    );
+
+    selectSubflowEntitiesAsPaletteNodes = createSelector(
+        [selectFlowEntities],
+        (entities: Record<string, FlowEntity | SubflowEntity>) => {
+            return Object.fromEntries(
+                Object.values(entities)
+                    .filter(entity => entity.type === 'subflow')
+                    .map(entity => {
+                        const paletteNode = this.convertSubflowToPaletteNode(
+                            entity as SubflowEntity
+                        );
+                        return [paletteNode.id, paletteNode];
+                    })
             );
         }
     );
