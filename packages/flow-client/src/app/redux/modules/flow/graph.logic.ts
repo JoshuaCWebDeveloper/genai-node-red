@@ -13,6 +13,7 @@ import {
     selectFlowEntityById,
     selectFlowNodesByFlowId,
 } from './flow.slice';
+import { NodeLogic } from './node.logic';
 
 export type SerializedGraph = {
     id: string;
@@ -64,6 +65,8 @@ export type NodeModel = {
 };
 
 export class GraphLogic {
+    constructor(private nodeLogic: NodeLogic) {}
+
     // Method to convert and update the flow based on the serialized graph from react-diagrams
     updateFlowFromSerializedGraph(graph: SerializedGraph) {
         return async (dispatch: AppDispatch, getState: () => RootState) => {
