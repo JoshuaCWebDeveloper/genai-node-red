@@ -226,3 +226,7 @@ Use the Scrum Board to visually track the progress of tasks through the To Do, I
 -   Support for Complete, catch, status nodes
 -   Support for Link in, link cal, and link out nodes
 -   Config node support - including in subflows
+-   Config nodes panel
+-   Context data panel
+-   Info panel
+-   Help browser
