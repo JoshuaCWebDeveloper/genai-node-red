@@ -22,7 +22,7 @@ const StyledBuilder = styled.div`
     overflow: hidden;
     width: 100%;
 
-    .primary-sidebar {
+    .sidebar.primary {
         border-right-style: solid;
         flex: 0 0 150px;
     }
@@ -39,7 +39,7 @@ const StyledBuilder = styled.div`
         border-top-style: solid;
     }
 
-    .secondary-sidebar {
+    .sidebar.secondary {
         border-left-style: solid;
         flex: 0 0 200px;
     }

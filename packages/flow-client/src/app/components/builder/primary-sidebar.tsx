@@ -15,7 +15,7 @@ const StyledPrimarySidebar = styled(TabbedSidebar)`
 export const PrimarySidebar = () => {
     return (
         <StyledPrimarySidebar
-            className="primary-sidebar"
+            className="primary"
             isVisibleSelector={selectShowPrimarySidebar}
             closeAction={builderActions.togglePrimarySidebar}
         >

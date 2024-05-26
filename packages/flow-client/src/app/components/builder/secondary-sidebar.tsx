@@ -29,7 +29,7 @@ const StyledSecondarySidebar = styled(TabbedSidebar)`
 export const SecondarySidebar = () => {
     return (
         <StyledSecondarySidebar
-            className="secondary-sidebar"
+            className="secondary"
             isVisibleSelector={selectShowSecondarySidebar}
             closeAction={builderActions.toggleSecondarySidebar}
         >
