@@ -5,10 +5,12 @@ import {
     selectShowSecondarySidebar,
 } from '../../redux/modules/builder/builder.slice';
 import { NodePalette } from '../node-palette/node-palette';
-import { Panel } from './panel';
+import { PanelSection, PanelSectionContainer } from './panel-section';
+import { SidebarTab, TabbedSidebar } from './tabbed-sidebar';
+import { Workspace } from './workspace';
 
 // StyledSecondarySidebar extends the Panel component with specific styles for the secondary sidebar
-const StyledSecondarySidebar = styled(Panel)`
+const StyledSecondarySidebar = styled(TabbedSidebar)`
     width: 250px; // Adjust width as needed
     display: flex;
     flex-direction: column;
@@ -23,8 +25,29 @@ export const SecondarySidebar = () => {
             isVisibleSelector={selectShowSecondarySidebar}
             closeAction={builderActions.toggleSecondarySidebar}
         >
-            <NodePalette />
-            {/* Additional components like HelpBrowser can be added here */}
+            <SidebarTab icon="screwdriver-wrench" name="Tools">
+                <PanelSectionContainer>
+                    <PanelSection
+                        className="workspace-section"
+                        title="Workspace"
+                        collapsible
+                    >
+                        <Workspace />
+                    </PanelSection>
+
+                    <PanelSection title="Node Palette" collapsible>
+                        <NodePalette />
+                    </PanelSection>
+                </PanelSectionContainer>
+            </SidebarTab>
+
+            <SidebarTab icon="question" name="Help">
+                <PanelSectionContainer>
+                    <PanelSection title="Help Browser">
+                        <div>Help Browser</div>
+                    </PanelSection>
+                </PanelSectionContainer>
+            </SidebarTab>
         </StyledSecondarySidebar>
     );
 };

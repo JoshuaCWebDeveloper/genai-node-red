@@ -5,9 +5,10 @@ import {
     selectShowPrimarySidebar,
 } from '../../redux/modules/builder/builder.slice';
 import FlowTree from '../flow-tree/flow-tree';
-import { Panel } from './panel';
+import { PanelSection, PanelSectionContainer } from './panel-section';
+import { SidebarTab, TabbedSidebar } from './tabbed-sidebar';
 
-const StyledPrimarySidebar = styled(Panel)`
+const StyledPrimarySidebar = styled(TabbedSidebar)`
     width: 250px;
 `;
 
@@ -18,7 +19,33 @@ export const PrimarySidebar = () => {
             isVisibleSelector={selectShowPrimarySidebar}
             closeAction={builderActions.togglePrimarySidebar}
         >
-            <FlowTree />
+            <SidebarTab icon="folder-closed" name="Flow Tree">
+                <PanelSectionContainer>
+                    <PanelSection title="Flow Tree" collapsible>
+                        <FlowTree />
+                    </PanelSection>
+
+                    <PanelSection title="Info" collapsible initialCollapsed>
+                        <div>Info</div>
+                    </PanelSection>
+                </PanelSectionContainer>
+            </SidebarTab>
+
+            <SidebarTab icon="database" name="Data">
+                <PanelSectionContainer>
+                    <PanelSection title="Context" collapsible>
+                        <div>Context</div>
+                    </PanelSection>
+
+                    <PanelSection
+                        title="Config Nodes"
+                        collapsible
+                        initialCollapsed
+                    >
+                        <div>Config Nodes</div>
+                    </PanelSection>
+                </PanelSectionContainer>
+            </SidebarTab>
         </StyledPrimarySidebar>
     );
 };
