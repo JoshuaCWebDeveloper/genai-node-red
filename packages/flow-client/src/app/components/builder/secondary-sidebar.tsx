@@ -15,6 +15,14 @@ const StyledSecondarySidebar = styled(TabbedSidebar)`
     display: flex;
     flex-direction: column;
     overflow: hidden; // Prevents overflow of child components
+
+    .workspace-section {
+        min-height: 50px;
+
+        &.collapsed {
+            min-height: 0;
+        }
+    }
 `;
 
 // SecondarySidebar component that includes NodePalette and potentially other tools
