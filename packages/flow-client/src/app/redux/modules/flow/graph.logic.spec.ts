@@ -4,7 +4,7 @@ import '../../../../../vitest-esbuild-compat';
 import { RootState } from '../../store';
 import {
     PaletteNodeEntity,
-    selectAllPaletteNodes,
+    selectPaletteNodeEntities,
 } from '../palette/node.slice';
 import {
     FlowEntity,
@@ -13,6 +13,7 @@ import {
     selectFlowNodesByFlowId,
 } from './flow.slice';
 import { GraphLogic, NodeModel, SerializedGraph } from './graph.logic';
+import { NodeLogic } from './node.logic';
 
 vi.mock('../palette/node.slice', async importOriginal => {
     const originalModule = await importOriginal<
@@ -21,6 +22,7 @@ vi.mock('../palette/node.slice', async importOriginal => {
     return {
         ...originalModule,
         selectAllPaletteNodes: vi.fn(() => []),
+        selectPaletteNodeEntities: vi.fn(() => []),
     };
 });
 
@@ -40,9 +42,10 @@ vi.mock('./flow.slice', async importOriginal => {
 const mockDispatch = vi.fn();
 const mockGetState = vi.fn(() => ({})) as unknown as () => RootState;
 
-const mockedSelectAllPaletteNodes = selectAllPaletteNodes as MockedFunction<
-    typeof selectAllPaletteNodes
->;
+const mockedSelectPaletteNodeEntities =
+    selectPaletteNodeEntities as MockedFunction<
+        typeof selectPaletteNodeEntities
+    >;
 
 const mockedSelectFlowEntityById = selectFlowEntityById as MockedFunction<
     typeof selectFlowEntityById
@@ -54,6 +57,8 @@ const mockedSelectFlowNodesByFlowId = selectFlowNodesByFlowId as MockedFunction<
 
 describe('graph.logic', () => {
     let graphLogic: GraphLogic;
+    let mockNodeLogic: NodeLogic;
+
     const testNode = {
         id: 'node1',
         type: 'default',
@@ -67,6 +72,7 @@ describe('graph.logic', () => {
                 type: 'nodeType',
                 id: 'node1',
                 nodeRedId: 'node1',
+                nodeRedName: 'node1',
                 name: 'Node 1',
                 module: 'node-module',
                 version: '1.0.0',
@@ -79,7 +85,8 @@ describe('graph.logic', () => {
     beforeEach(() => {
         // Reset mocks before each test
         vi.clearAllMocks();
-        graphLogic = new GraphLogic();
+        mockNodeLogic = {} as NodeLogic;
+        graphLogic = new GraphLogic(mockNodeLogic);
     });
 
     describe('updateFlowFromSerializedGraph', () => {
@@ -341,6 +348,7 @@ describe('graph.logic', () => {
             const mockNodeEntity: PaletteNodeEntity = {
                 id: 'node2',
                 nodeRedId: 'node2',
+                nodeRedName: 'node2',
                 name: 'Node 2',
                 type: 'custom-node',
                 module: 'node-module',
@@ -399,9 +407,12 @@ describe('graph.logic', () => {
             ];
 
             // Mock the selector responses
-            mockedSelectAllPaletteNodes.mockImplementation(() => [
-                mockNodeEntity,
-            ]);
+            mockedSelectPaletteNodeEntities.mockImplementation(() => ({
+                node2: mockNodeEntity,
+            }));
+            mockNodeLogic.selectSubflowEntitiesAsPaletteNodes = vi.fn(
+                () => ({})
+            ) as unknown as NodeLogic['selectSubflowEntitiesAsPaletteNodes'];
             mockedSelectFlowEntityById.mockImplementation(() => mockFlow);
             mockedSelectFlowNodesByFlowId.mockImplementation(() => mockNodes);
 
@@ -427,6 +438,105 @@ describe('graph.logic', () => {
                         expect.objectContaining({
                             type: 'diagram-links',
                             // Test for links if necessary
+                        }),
+                    ]),
+                })
+            );
+        });
+
+        it('includes subflows', () => {
+            const mockNodeEntity: PaletteNodeEntity = {
+                id: 'subflow:8e930d',
+                nodeRedId: 'node2',
+                nodeRedName: 'node2',
+                name: 'Node 2',
+                type: 'subflow:8e930d',
+                module: 'node-module',
+                version: '1.0.0',
+                defaults: {
+                    property1: { value: 'default1' },
+                    property2: { value: 42 },
+                },
+                inputs: 1,
+                outputs: 2,
+                color: 'rgb(255,0,0)',
+                icon: 'icon.png',
+                label: 'Node 2 Label',
+                labelStyle: 'node-label',
+            };
+
+            const mockFlow = {
+                id: 'flow1',
+                type: 'flow',
+                name: 'My Flow',
+                disabled: false,
+                info: '',
+                env: [],
+            } as FlowEntity;
+
+            const mockNodes = [
+                {
+                    id: 'node1',
+                    type: 'subflow:8e930d',
+                    x: 100,
+                    y: 200,
+                    ports: [],
+                    name: 'Node 1',
+                    color: 'rgb(0,192,255)',
+                    extras: {
+                        entity: {
+                            type: 'subflow:8e930d',
+                            id: 'subflow:8e930d',
+                            nodeRedId: 'node1',
+                            name: 'Node 1',
+                            module: 'node-module',
+                            version: '1.0.0',
+                        },
+                        config: {},
+                    },
+                    locked: false,
+                    selected: false,
+                    z: '123',
+                    inputs: 1,
+                    outputs: 1,
+                    wires: [],
+                    inPorts: [],
+                    outPorts: [],
+                    links: {},
+                },
+            ];
+
+            // Mock the selector responses
+            mockedSelectPaletteNodeEntities.mockImplementation(() => ({}));
+            mockNodeLogic.selectSubflowEntitiesAsPaletteNodes = vi.fn(() => ({
+                [mockNodeEntity.id]: mockNodeEntity,
+            })) as unknown as NodeLogic['selectSubflowEntitiesAsPaletteNodes'];
+            mockedSelectFlowEntityById.mockImplementation(() => mockFlow);
+            mockedSelectFlowNodesByFlowId.mockImplementation(() => mockNodes);
+
+            const result = graphLogic.selectSerializedGraphByFlowId.resultFunc(
+                {}, // Mock state
+                mockFlow, // Mock flow
+                mockNodes // Mock flowNodes
+            );
+
+            expect(result).toEqual(
+                expect.objectContaining({
+                    id: 'flow1',
+                    layers: expect.arrayContaining([
+                        expect.objectContaining({
+                            type: 'diagram-nodes',
+                            models: expect.objectContaining({
+                                node1: expect.objectContaining({
+                                    id: mockNodes[0].id,
+                                    name: mockNodes[0].name,
+                                    extras: expect.objectContaining({
+                                        entity: expect.objectContaining({
+                                            ...mockNodeEntity,
+                                        }),
+                                    }),
+                                }),
+                            }),
                         }),
                     ]),
                 })
