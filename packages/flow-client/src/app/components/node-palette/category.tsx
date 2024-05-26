@@ -14,7 +14,7 @@ const StyledCategory = styled.div`
 
     h3 {
         color: var(--color-text);
-        margin: 0 20px;
+        margin: 0 10px;
     }
 
     ul {
@@ -23,7 +23,7 @@ const StyledCategory = styled.div`
     }
 
     .draggable-wrapper {
-        margin: 0 20px 10px;
+        margin: 0 10px 10px;
     }
 
     li {

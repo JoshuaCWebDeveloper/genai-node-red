@@ -17,10 +17,10 @@ const StyledNodePalette = styled.div`
         background-color: var(--color-background-element-medium);
         color: var(--color-text-sharp);
         border: 0;
-        margin-bottom: 20px;
+        margin: 10px 0;
         display: block;
         width: 100%;
-        height: calc(var(--builder-tab-container-height) + 1px);
+        height: 30px;
         padding: 10px;
         border-bottom: 1px solid #ddd;
 
