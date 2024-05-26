@@ -8,8 +8,8 @@ export class FlowLogic {
     public readonly tree: TreeLogic;
 
     constructor() {
-        this.graph = new GraphLogic();
         this.node = new NodeLogic();
+        this.graph = new GraphLogic(this.node);
         this.tree = new TreeLogic();
     }
 }

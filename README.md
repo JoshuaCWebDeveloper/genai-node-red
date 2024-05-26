@@ -210,8 +210,8 @@ The backlog is organized by epic, with each task having a unique ID, description
 
 | To Do | In Progress | In Review | Done  |
 | ----- | ----------- | --------- | ----- |
-| SF-02 |             |           | SF-04 |
-| SF-03 |             |           | SF-01 |
+| SF-03 | SF-02       |           | SF-04 |
+|       |             |           | SF-01 |
 
 ### Progress Tracking
 
@@ -226,3 +226,7 @@ Use the Scrum Board to visually track the progress of tasks through the To Do, I
 -   Support for Complete, catch, status nodes
 -   Support for Link in, link cal, and link out nodes
 -   Config node support - including in subflows
+-   Config nodes panel
+-   Context data panel
+-   Info panel
+-   Help browser

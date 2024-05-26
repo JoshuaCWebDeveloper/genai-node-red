@@ -3,7 +3,7 @@ import { createSelector } from '@reduxjs/toolkit';
 import { AppDispatch, RootState } from '../../store';
 import {
     PaletteNodeEntity,
-    selectAllPaletteNodes,
+    selectPaletteNodeEntities,
 } from '../palette/node.slice';
 import {
     FlowNodeEntity,
@@ -13,6 +13,7 @@ import {
     selectFlowEntityById,
     selectFlowNodesByFlowId,
 } from './flow.slice';
+import { NodeLogic } from './node.logic';
 
 export type SerializedGraph = {
     id: string;
@@ -64,6 +65,8 @@ export type NodeModel = {
 };
 
 export class GraphLogic {
+    constructor(private nodeLogic: NodeLogic) {}
+
     // Method to convert and update the flow based on the serialized graph from react-diagrams
     updateFlowFromSerializedGraph(graph: SerializedGraph) {
         return async (dispatch: AppDispatch, getState: () => RootState) => {
@@ -176,9 +179,10 @@ export class GraphLogic {
                 return null;
             }
 
-            const nodeEntities = Object.fromEntries(
-                selectAllPaletteNodes(state).map(it => [it.id, it])
-            );
+            const nodeEntities = {
+                ...selectPaletteNodeEntities(state),
+                ...this.nodeLogic.selectSubflowEntitiesAsPaletteNodes(state),
+            };
 
             // Construct NodeModels from flow nodes
             const nodeModels: { [key: string]: NodeModel } = {};

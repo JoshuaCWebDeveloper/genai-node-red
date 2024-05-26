@@ -1,7 +1,12 @@
 import styled from 'styled-components';
 
-import { useAppDispatch } from '../../redux/hooks';
-import { builderActions } from '../../redux/modules/builder/builder.slice';
+import { useAppDispatch, useAppSelector } from '../../redux/hooks';
+import {
+    builderActions,
+    selectShowConsolePanel,
+    selectShowPrimarySidebar,
+    selectShowSecondarySidebar,
+} from '../../redux/modules/builder/builder.slice';
 
 // StyledHeader defines the styles for the header component
 const StyledTogglePanels = styled.div`
@@ -64,6 +69,10 @@ const StyledTogglePanels = styled.div`
         &.left:after {
             width: calc(50% - 2px);
         }
+
+        &.empty {
+            opacity: 0.3;
+        }
     }
 `;
 
@@ -73,28 +82,46 @@ export type TogglePanelsProps = Record<string, never>;
 // Header component with theme toggle functionality
 export const TogglePanels = () => {
     const dispatch = useAppDispatch();
+    const isPrimarySidebarOpen = useAppSelector(selectShowPrimarySidebar);
+    const isConsolePanelOpen = useAppSelector(selectShowConsolePanel);
+    const isSecondarySidebarOpen = useAppSelector(selectShowSecondarySidebar);
 
     return (
         <StyledTogglePanels className="toggle-panels">
             <button
                 onClick={() => dispatch(builderActions.togglePrimarySidebar())}
                 title="Toggle Primary Sidebar"
+                className={!isPrimarySidebarOpen ? 'empty' : ''}
             >
-                <i className="panel-icon left"></i>
+                <i
+                    className={`panel-icon left ${
+                        !isPrimarySidebarOpen ? 'empty' : ''
+                    }`}
+                ></i>
             </button>
             <button
                 onClick={() => dispatch(builderActions.toggleConsolePanel())}
                 title="Toggle Console Panel"
+                className={!isConsolePanelOpen ? 'empty' : ''}
             >
-                <i className="panel-icon bottom"></i>
+                <i
+                    className={`panel-icon bottom ${
+                        !isConsolePanelOpen ? 'empty' : ''
+                    }`}
+                ></i>
             </button>
             <button
                 onClick={() =>
                     dispatch(builderActions.toggleSecondarySidebar())
                 }
                 title="Toggle Secondary Sidebar"
+                className={!isSecondarySidebarOpen ? 'empty' : ''}
             >
-                <i className="panel-icon right"></i>
+                <i
+                    className={`panel-icon right ${
+                        !isSecondarySidebarOpen ? 'empty' : ''
+                    }`}
+                ></i>
             </button>
         </StyledTogglePanels>
     );

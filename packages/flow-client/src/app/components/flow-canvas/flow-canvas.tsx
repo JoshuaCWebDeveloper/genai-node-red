@@ -85,6 +85,7 @@ const StyledEmptyFlowMessage = styled.div`
 
     p {
         margin-bottom: 0;
+        text-wrap: pretty;
     }
 `;
 

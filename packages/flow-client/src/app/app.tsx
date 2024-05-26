@@ -17,6 +17,10 @@ const StyledApp = styled.div`
     header {
         height: 40px;
     }
+
+    .builder {
+        flex: 1;
+    }
 `;
 
 // App is the main functional component of the application.

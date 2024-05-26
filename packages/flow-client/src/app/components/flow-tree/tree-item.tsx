@@ -21,8 +21,9 @@ import {
     TreeDirectory,
     TreeItemData,
 } from '../../redux/modules/flow/tree.logic';
-import { RenameForm } from './rename-form';
+import { CollapsibleIcon } from '../shared/collapsible-icon';
 import { Tooltip } from '../shared/tooltip';
+import { RenameForm } from './rename-form';
 
 const StyledTreeItem = styled.div<{ level: number }>`
     padding: 0;
@@ -384,11 +385,7 @@ export const TreeItem = ({
                 tabIndex={0}
             >
                 {item.type === 'directory' ? (
-                    isCollapsed ? (
-                        <i className="fas fa-chevron-right"></i>
-                    ) : (
-                        <i className="fas fa-chevron-down"></i>
-                    )
+                    <CollapsibleIcon isCollapsed={isCollapsed} />
                 ) : item.type === 'flow' ? (
                     <i className="fas fa-map"></i>
                 ) : (

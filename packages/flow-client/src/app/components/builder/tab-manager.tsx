@@ -283,8 +283,14 @@ export const TabManager = () => {
                 >
                     <div className="tab-list">
                         {openFlows
-                            .map(flowId => flowEntities[flowId])
-                            .filter(it => it)
+                            .map(
+                                flowId =>
+                                    flowEntities[flowId] ?? {
+                                        id: flowId,
+                                        type: 'flow',
+                                        name: '...',
+                                    }
+                            )
                             .map(flowEntity => (
                                 <div
                                     key={flowEntity.id}
