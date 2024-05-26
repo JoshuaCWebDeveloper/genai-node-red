@@ -18,16 +18,20 @@ const StyledFlowTree = styled.div`
     color: var(--color-text-sharp);
     display: flex;
     flex-direction: column;
-    overflow: auto;
+    overflow: visible;
     padding: 0;
+    position: relative;
     width: 100%;
     height: 100%;
 
     .actions {
         display: flex;
         justify-content: end;
-        padding-right: 25px;
-        height: var(--builder-tab-container-height);
+
+        background-color: var(--color-background-main);
+        position: absolute;
+        top: -20px;
+        right: 0;
 
         button {
             background-color: inherit;
@@ -35,6 +39,10 @@ const StyledFlowTree = styled.div`
             cursor: pointer;
             border: 0;
             outline: 0;
+
+            &:last-child {
+                padding-right: 0;
+            }
         }
     }
 
