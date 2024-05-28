@@ -14,6 +14,7 @@ import {
     selectNewFolderCounter,
     selectNewTreeItem,
     BuilderState,
+    EDITING_TYPE,
 } from './builder.slice';
 
 describe('builder.slice', () => {
@@ -36,30 +37,91 @@ describe('builder.slice', () => {
             );
         });
 
-        it('setEditing() should handle setEditing', () => {
+        it('setEditing() should update the editing state correctly', () => {
             const initialState = {
                 ...baseInitialState,
                 editing: null,
             };
 
-            const editingNodeId = 'node1';
+            const editingState = {
+                type: EDITING_TYPE.NODE,
+                id: 'node1',
+                data: {
+                    propertiesFormHandle: 'form1',
+                    nodeInstanceHandle: 'instance1',
+                },
+            };
 
             const state = builderReducer(
                 initialState,
-                builderActions.setEditing(editingNodeId)
+                builderActions.setEditing(editingState)
             );
 
-            expect(state).toEqual(
-                expect.objectContaining({
-                    editing: editingNodeId,
-                })
-            );
+            expect(state.editing).toEqual(editingState);
+        });
+
+        describe('updateEditingData()', () => {
+            it('should update the editing data correctly when editing is not null', () => {
+                const initialState = {
+                    ...baseInitialState,
+                    editing: {
+                        type: EDITING_TYPE.NODE,
+                        id: 'node1',
+                        data: {
+                            propertiesFormHandle: 'form1',
+                            nodeInstanceHandle: 'instance1',
+                        },
+                    },
+                };
+
+                const updatedData = {
+                    propertiesFormHandle: 'form2', // updated property
+                };
+
+                const state = builderReducer(
+                    initialState,
+                    builderActions.updateEditingData(updatedData)
+                );
+
+                expect(state.editing).toEqual({
+                    ...initialState.editing,
+                    data: {
+                        ...initialState.editing.data,
+                        propertiesFormHandle: 'form2',
+                    },
+                });
+            });
+
+            it('should not modify editing data if editing is null', () => {
+                const initialState = {
+                    ...baseInitialState,
+                    editing: null,
+                };
+
+                const updatedData = {
+                    propertiesFormHandle: 'form2',
+                };
+
+                const state = builderReducer(
+                    initialState,
+                    builderActions.updateEditingData(updatedData)
+                );
+
+                expect(state.editing).toBeNull();
+            });
         });
 
         it('clearEditing() should handle clearEditing', () => {
             const initialState = {
                 ...baseInitialState,
-                editing: 'node1',
+                editing: {
+                    type: EDITING_TYPE.NODE,
+                    id: 'node1',
+                    data: {
+                        propertiesFormHandle: 'form1',
+                        nodeInstanceHandle: 'instance1',
+                    },
+                },
             };
 
             const state = builderReducer(
@@ -305,15 +367,30 @@ describe('builder.slice', () => {
             expect(selectShowConsolePanel(state)).toEqual(true);
         });
 
-        it('selectEditing() should select the editing node', () => {
+        it('selectEditing() should return the current editing state', () => {
             const state = {
                 builder: {
                     ...baseInitialState,
-                    editing: 'node1',
+                    editing: {
+                        type: EDITING_TYPE.NODE,
+                        id: 'node1',
+                        data: {
+                            propertiesFormHandle: 'form1',
+                            nodeInstanceHandle: 'instance1',
+                        },
+                    },
                 } as BuilderState,
             } as RootState;
 
-            expect(selectEditing(state)).toEqual('node1');
+            const selectedEditing = selectEditing(state);
+            expect(selectedEditing).toEqual({
+                type: EDITING_TYPE.NODE,
+                id: 'node1',
+                data: {
+                    propertiesFormHandle: 'form1',
+                    nodeInstanceHandle: 'instance1',
+                },
+            });
         });
 
         it('selectOpenFlows() should select open flows', () => {
