@@ -1,7 +1,12 @@
 import styled from 'styled-components';
-import { useAppSelector } from '../../redux/hooks';
-import { selectActiveFlow } from '../../redux/modules/builder/builder.slice';
+import { useAppDispatch, useAppSelector } from '../../redux/hooks';
+import {
+    EDITING_TYPE,
+    builderActions,
+    selectActiveFlow,
+} from '../../redux/modules/builder/builder.slice';
 import { selectFlowEntityById } from '../../redux/modules/flow/flow.slice';
+import { useCallback } from 'react';
 
 const StyledWorkspace = styled.div`
     display: flex;
@@ -31,10 +36,31 @@ const StyledWorkspace = styled.div`
 `;
 
 export const Workspace = () => {
+    const dispatch = useAppDispatch();
     const activeFlowId = useAppSelector(selectActiveFlow);
     const activeFlow = useAppSelector(state =>
         activeFlowId ? selectFlowEntityById(state, activeFlowId) : null
     );
+
+    const handleEditClick = useCallback(() => {
+        if (!activeFlowId || !activeFlow) {
+            return;
+        }
+
+        dispatch(
+            builderActions.setEditing({
+                id: activeFlowId,
+                type: {
+                    flow: EDITING_TYPE.FLOW,
+                    subflow: EDITING_TYPE.SUBFLOW,
+                }[activeFlow.type],
+                data: {
+                    info: activeFlow.info,
+                    name: activeFlow.name,
+                },
+            })
+        );
+    }, [dispatch, activeFlowId, activeFlow]);
 
     return (
         <StyledWorkspace className="workspace">
@@ -44,9 +70,7 @@ export const Workspace = () => {
                     {activeFlow.name}{' '}
                     <i
                         className="fa-solid fa-pencil"
-                        onClick={() => {
-                            // TODO: Open the flow editor
-                        }}
+                        onClick={handleEditClick}
                     />
                 </p>
             ) : (
