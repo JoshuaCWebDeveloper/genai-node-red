@@ -1,57 +1,19 @@
+import { useCallback, useEffect, useRef, useState } from 'react';
 import root from 'react-shadow/styled-components';
 import styled from 'styled-components';
-
-import { useCallback, useEffect, useRef, useState } from 'react';
-import {
-    createNodeInstance,
-    executeNodeFn,
-    finalizeNodeEditor,
-} from '../../red/execute-script';
-import { useAppDispatch, useAppLogic, useAppSelector } from '../../redux/hooks';
-import {
-    builderActions,
-    selectEditing,
-} from '../../redux/modules/builder/builder.slice';
-
 import faCssUrl from '@fortawesome/fontawesome-free/css/all.css?url';
+
+import environment from '../../../environment';
 import jqueryUiCssUrl from '../../red/jquery-ui.css?url';
 import redCssUrl from '../../red/red-style.css?url';
 import redTypedInputCssUrl from '../../red/red-typed-input.css?url';
+import { useAppDispatch, useAppLogic, useAppSelector } from '../../redux/hooks';
+import { selectEditing } from '../../redux/modules/builder/builder.slice';
 import {
     FlowNodeEntity,
-    flowActions,
     selectFlowNodeById,
 } from '../../redux/modules/flow/flow.slice';
 import { selectPaletteNodeById } from '../../redux/modules/palette/node.slice';
-import environment from '../../../environment';
-
-const StyledEditor = styled.div`
-    position: absolute;
-    width: 100%;
-    height: 100%;
-
-    .overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
-        display: flex;
-        justify-content: flex-end;
-    }
-
-    .editor-pane {
-        position: absolute;
-        right: 0;
-        width: 30%;
-        height: 100%;
-        background-color: white;
-        box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
-        overflow-y: auto;
-        min-width: 505px;
-    }
-`;
 
 const StyledRedUi = styled.div`
     .ui-icon,
@@ -147,31 +109,22 @@ const StyledRedUi = styled.div`
     }
 `;
 
-type FormField = HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
+export type NodeEditorProps = Record<string, never>;
 
-const selectNodeFormFields = (form: HTMLFormElement) => {
-    // Select all form field elements (input, select, textarea) that have an id starting with 'node-input' or 'node-config-input'
-    const elementTypes = ['input', 'select', 'textarea'];
-    const idPrefixes = ['node-input', 'node-config-input'];
-    const selector = elementTypes
-        .flatMap(type => idPrefixes.map(prefix => `${type}[id^="${prefix}"]`))
-        .join(', ');
-    const prefixRegex = new RegExp(`^(${idPrefixes.join('|')})-`);
-    const formFields: NodeListOf<FormField> = form.querySelectorAll(selector);
-    const fieldsMap: Record<string, FormField> = {};
-    formFields.forEach(field => {
-        const key = field.id.replace(prefixRegex, '');
-        fieldsMap[key] = field;
-    });
-    return fieldsMap;
-};
-
-export const NodeEditor = () => {
+// eslint-disable-next-line no-empty-pattern
+export const NodeEditor = ({}: NodeEditorProps) => {
     const dispatch = useAppDispatch();
     const flowLogic = useAppLogic().flow;
+    const editing = useAppSelector(selectEditing);
+    const editingNode = useAppSelector(state =>
+        selectFlowNodeById(state, editing?.id ?? '')
+    ) as FlowNodeEntity;
+    const editingNodeEntity = useAppSelector(state =>
+        selectPaletteNodeById(state, editingNode?.type)
+    );
+    const { propertiesForm } =
+        useAppSelector(flowLogic.node.editor.selectEditorState) ?? {};
 
-    const [propertiesForm, setPropertiesForm] =
-        useState<HTMLFormElement | null>(null);
     const [loadedCss, setLoadedCss] = useState<{
         'jquery-ui.css': boolean;
         'red-style.css': boolean;
@@ -182,23 +135,6 @@ export const NodeEditor = () => {
         'red-typed-input.css': false,
     });
     const loaded = useRef(false);
-    const [nodeInstance, setNodeInstance] = useState<FlowNodeEntity | null>(
-        null
-    );
-    const editing = useAppSelector(selectEditing);
-    const editingNode = useAppSelector(state =>
-        selectFlowNodeById(state, editing ?? '')
-    ) as FlowNodeEntity;
-    const editingNodeEntity = useAppSelector(state =>
-        selectPaletteNodeById(state, editingNode?.type)
-    );
-
-    const propertiesFormRefCallback = useCallback(
-        (formElement: HTMLFormElement | null) => {
-            setPropertiesForm(formElement);
-        },
-        []
-    );
 
     const handleCssOnLoad = useCallback(
         (e: React.SyntheticEvent<HTMLLinkElement>) => {
@@ -210,129 +146,19 @@ export const NodeEditor = () => {
         []
     );
 
-    const closeEditor = useCallback(() => {
-        setNodeInstance(createNodeInstance({} as FlowNodeEntity));
-        dispatch(builderActions.clearEditing());
-        loaded.current = false;
-        setLoadedCss({
-            'jquery-ui.css': false,
-            'red-style.css': false,
-            'red-typed-input.css': false,
-        });
-        setPropertiesForm(null);
-    }, [dispatch]);
-
-    const handleCancel = useCallback(
-        (e: React.MouseEvent) => {
-            e.stopPropagation();
-            if (!nodeInstance) {
-                return;
-            }
-            executeNodeFn(
-                ['oneditcancel'],
-                editingNodeEntity,
-                nodeInstance as FlowNodeEntity,
-                (propertiesForm?.getRootNode() as ShadowRoot) ?? undefined
-            );
-            closeEditor();
+    const propertiesFormRefCallback = useCallback(
+        (formElement: HTMLFormElement | null) => {
+            dispatch(flowLogic.node.editor.setPropertiesForm(formElement));
         },
-        [closeEditor, editingNodeEntity, nodeInstance, propertiesForm]
+        [dispatch, flowLogic]
     );
 
-    const handleDelete = useCallback(() => {
-        if (!nodeInstance) {
-            return;
-        }
-        // exec oneditsave
-        executeNodeFn(
-            ['oneditdelete'],
-            editingNodeEntity,
-            nodeInstance as FlowNodeEntity,
-            (propertiesForm?.getRootNode() as ShadowRoot) ?? undefined
-        );
-        // TODO: Implement logic method for removing any old input links (if necessary)
-        dispatch(flowActions.removeFlowNode(editingNode.id));
-        closeEditor();
-    }, [
-        closeEditor,
-        dispatch,
-        editingNode?.id,
-        editingNodeEntity,
-        nodeInstance,
-        propertiesForm,
-    ]);
-
-    const handleSave = useCallback(() => {
-        const form = propertiesForm;
-        if (!form || !nodeInstance) {
-            return;
-        }
-        // exec oneditsave
-        executeNodeFn(
-            ['oneditsave'],
-            editingNodeEntity,
-            nodeInstance as FlowNodeEntity,
-            (propertiesForm?.getRootNode() as ShadowRoot) ?? undefined
-        );
-        // get our form data
-        const formData = Object.fromEntries(
-            Object.entries(selectNodeFormFields(form)).map(([key, field]) => {
-                if (field.type === 'checkbox') {
-                    return [key, (field as HTMLInputElement).checked];
-                } else if (field.type === 'select-multiple') {
-                    return [
-                        key,
-                        Array.from(
-                            (field as HTMLSelectElement).selectedOptions
-                        ).map(option => option.value),
-                    ];
-                } else {
-                    return [key, field.value];
-                }
-            })
-        );
-        // collect node updates
-        const nodeUpdates: Partial<FlowNodeEntity> = {};
-        Object.keys(editingNodeEntity.defaults ?? {}).forEach(key => {
-            if (Object.prototype.hasOwnProperty.call(nodeInstance, key)) {
-                nodeUpdates[key] =
-                    nodeInstance[key as keyof typeof nodeInstance];
-            }
-            if (Object.prototype.hasOwnProperty.call(formData, key)) {
-                nodeUpdates[key] = formData[key];
-            }
-        });
-        // collect credentials
-        if (editingNodeEntity.credentials) {
-            nodeUpdates.credentials = {};
-            Object.keys(editingNodeEntity.credentials).forEach(key => {
-                if (!formData[key]) {
-                    return;
-                }
-                if (editingNodeEntity.credentials?.[key].type === 'password') {
-                    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                    nodeUpdates.credentials![`has_${key}`] = !!formData[key];
-                    if (formData[key] === '__PWRD__') {
-                        return;
-                    }
-                }
-                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                nodeUpdates.credentials![key] = formData[key];
-            });
-        }
-        // update node
-        dispatch(flowLogic.node.updateFlowNode(editingNode.id, nodeUpdates));
+    useEffect(() => {
         // close editor
-        closeEditor();
-    }, [
-        closeEditor,
-        dispatch,
-        editingNode?.id,
-        editingNodeEntity,
-        flowLogic,
-        nodeInstance,
-        propertiesForm,
-    ]);
+        return () => {
+            dispatch(flowLogic.node.editor.close());
+        };
+    }, [dispatch, flowLogic.node.editor]);
 
     useEffect(() => {
         if (
@@ -344,281 +170,184 @@ export const NodeEditor = () => {
         ) {
             return;
         }
-        // apply node values to form fields
-        const formFields = selectNodeFormFields(propertiesForm);
-        Object.entries(editingNode).forEach(([key, value]) => {
-            if (!Object.prototype.hasOwnProperty.call(formFields, key)) {
-                return;
-            }
-            const field = formFields[key];
-            if (field.type === 'checkbox') {
-                (field as HTMLInputElement).checked = Boolean(value);
-            } else if (field.type === 'select-multiple') {
-                const arrayValue = Array.isArray(value) ? value : [value];
-                Array.from((field as HTMLSelectElement).options).forEach(
-                    option => {
-                        option.selected = arrayValue.includes(option.value);
-                    }
-                );
-            } else {
-                field.value = value as string;
-            }
-        });
-        // apply credentials
-        if (editingNodeEntity.credentials) {
-            const credentials = editingNode.credentials ?? {};
-            Object.keys(editingNodeEntity.credentials).forEach(key => {
-                if (!Object.prototype.hasOwnProperty.call(formFields, key)) {
-                    return;
-                }
-                const value = credentials[key];
-                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                if (editingNodeEntity.credentials![key].type !== 'password') {
-                    formFields[key].value = value as string;
-                    return;
-                }
-                if (value) {
-                    formFields[key].value = value as string;
-                    return;
-                }
-                if (credentials[`has_${key}`]) {
-                    formFields[key].value = '__PWRD__';
-                    return;
-                }
-                formFields[key].value = '';
-            });
-        }
-        // exec oneditprepare
-        const nodeInstance = createNodeInstance(editingNode);
-        const context =
-            (propertiesForm.getRootNode() as ShadowRoot) ?? undefined;
-        executeNodeFn(
-            ['oneditprepare'],
-            editingNodeEntity,
-            nodeInstance,
-            context
-        );
-        finalizeNodeEditor(propertiesForm, context);
-        const formSize = propertiesForm.getBoundingClientRect();
-        executeNodeFn(
-            ['oneditresize', formSize],
-            editingNodeEntity,
-            nodeInstance,
-            context
-        );
-        setNodeInstance(nodeInstance);
+
+        // load editor
+        dispatch(flowLogic.node.editor.load());
+
         // set loaded
         loaded.current = true;
-    }, [editingNode, editingNodeEntity, loadedCss, propertiesForm]);
+    }, [dispatch, flowLogic.node.editor, loadedCss, propertiesForm]);
 
     if (!editingNode) return null;
 
     return (
-        <StyledEditor>
-            <div className="overlay" onClick={handleSave}></div>
-            <div className="editor-pane">
-                <root.div className="editor-template">
-                    <link rel="stylesheet" href={faCssUrl} />
-                    <link
-                        rel="stylesheet"
-                        href={jqueryUiCssUrl}
-                        onLoad={handleCssOnLoad}
-                    />
-                    <link
-                        rel="stylesheet"
-                        href={redCssUrl}
-                        onLoad={handleCssOnLoad}
-                    />
-                    <link
-                        rel="stylesheet"
-                        href={redTypedInputCssUrl}
-                        onLoad={handleCssOnLoad}
-                    />
+        <root.div className="editor-template">
+            <link rel="stylesheet" href={faCssUrl} />
+            <link
+                rel="stylesheet"
+                href={jqueryUiCssUrl}
+                onLoad={handleCssOnLoad}
+            />
+            <link rel="stylesheet" href={redCssUrl} onLoad={handleCssOnLoad} />
+            <link
+                rel="stylesheet"
+                href={redTypedInputCssUrl}
+                onLoad={handleCssOnLoad}
+            />
 
-                    <StyledRedUi className="red-ui-editor">
-                        <div className="red-ui-tray ui-draggable">
-                            <div className="red-ui-tray-header editor-tray-header">
-                                <div className="red-ui-tray-titlebar">
-                                    <ul className="red-ui-tray-breadcrumbs">
-                                        <li>
-                                            Edit {editingNodeEntity.type} node
+            <StyledRedUi className="red-ui-editor">
+                <div className="red-ui-tray ui-draggable">
+                    <div className="red-ui-tray-header editor-tray-header">
+                        <div className="red-ui-tray-titlebar">
+                            <ul className="red-ui-tray-breadcrumbs">
+                                <li>Edit {editingNodeEntity.type} node</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div
+                        className="red-ui-tray-body-wrapper"
+                        style={{ overflow: 'hidden' }}
+                    >
+                        <div className="red-ui-tray-body editor-tray-body">
+                            <div className="red-ui-tabs red-ui-tabs-collapsible">
+                                <div>
+                                    <ul>
+                                        <li
+                                            className="red-ui-tab red-ui-tab-pinned active"
+                                            id="red-ui-tab-editor-tab-properties"
+                                        >
+                                            <a
+                                                href="#editor-tab-properties"
+                                                className="red-ui-tab-label"
+                                            >
+                                                <i className="red-ui-tab-icon fa fa-cog"></i>
+                                                <span
+                                                    className="red-ui-text-bidi-aware"
+                                                    dir=""
+                                                >
+                                                    Properties
+                                                </span>
+                                            </a>
+                                            <span className="red-ui-tabs-fade"></span>
+                                            <span className="red-ui-tabs-badges"></span>
+                                        </li>
+                                        <li
+                                            className="red-ui-tab red-ui-tab-pinned"
+                                            id="red-ui-tab-editor-tab-description"
+                                        >
+                                            <a
+                                                href="#editor-tab-description"
+                                                className="red-ui-tab-label"
+                                            >
+                                                <i className="red-ui-tab-icon fa fa-file-lines"></i>
+                                                <span
+                                                    className="red-ui-text-bidi-aware"
+                                                    dir=""
+                                                >
+                                                    Description
+                                                </span>
+                                            </a>
+                                            <span className="red-ui-tabs-fade"></span>
+                                            <span className="red-ui-tabs-badges"></span>
+                                        </li>
+                                        <li
+                                            className="red-ui-tab red-ui-tab-pinned"
+                                            id="red-ui-tab-editor-tab-appearance"
+                                        >
+                                            <a
+                                                href="#editor-tab-appearance"
+                                                className="red-ui-tab-label"
+                                            >
+                                                <i className="red-ui-tab-icon fa fa-object-group"></i>
+                                                <span
+                                                    className="red-ui-text-bidi-aware"
+                                                    dir=""
+                                                >
+                                                    Appearance
+                                                </span>
+                                            </a>
+                                            <span className="red-ui-tabs-fade"></span>
+                                            <span className="red-ui-tabs-badges"></span>
                                         </li>
                                     </ul>
                                 </div>
-                                <div className="red-ui-tray-toolbar">
-                                    <button
-                                        className="ui-button ui-corner-all ui-widget leftButton"
-                                        id="node-dialog-delete"
-                                        onClick={handleDelete}
+                                <div className="red-ui-tab-link-buttons">
+                                    <a
+                                        href="#editor-tab-properties"
+                                        className="red-ui-tab-link-button active selected"
+                                        id="red-ui-tab-editor-tab-properties-link-button"
                                     >
-                                        Delete
-                                    </button>
-                                    <button
-                                        className="ui-button ui-corner-all ui-widget"
-                                        id="node-dialog-cancel"
-                                        onClick={handleCancel}
+                                        <i className="fa fa-cog"></i>
+                                    </a>
+                                    <a
+                                        href="#editor-tab-description"
+                                        className="red-ui-tab-link-button"
+                                        id="red-ui-tab-editor-tab-description-link-button"
                                     >
-                                        Cancel
-                                    </button>
-                                    <button
-                                        className="ui-button ui-corner-all ui-widget primary"
-                                        id="node-dialog-ok"
-                                        onClick={handleSave}
+                                        <i className="fa fa-file-lines"></i>
+                                    </a>
+                                    <a
+                                        href="#editor-tab-appearance"
+                                        className="red-ui-tab-link-button"
+                                        id="red-ui-tab-editor-tab-appearance-link-button"
                                     >
-                                        Done
-                                    </button>
+                                        <i className="fa fa-object-group"></i>
+                                    </a>
                                 </div>
                             </div>
-                            <div
-                                className="red-ui-tray-body-wrapper"
-                                style={{ overflow: 'hidden' }}
-                            >
-                                <div className="red-ui-tray-body editor-tray-body">
-                                    <div className="red-ui-tabs red-ui-tabs-collapsible">
-                                        <div>
-                                            <ul>
-                                                <li
-                                                    className="red-ui-tab red-ui-tab-pinned active"
-                                                    id="red-ui-tab-editor-tab-properties"
-                                                >
-                                                    <a
-                                                        href="#editor-tab-properties"
-                                                        className="red-ui-tab-label"
-                                                    >
-                                                        <i className="red-ui-tab-icon fa fa-cog"></i>
-                                                        <span
-                                                            className="red-ui-text-bidi-aware"
-                                                            dir=""
-                                                        >
-                                                            Properties
-                                                        </span>
-                                                    </a>
-                                                    <span className="red-ui-tabs-fade"></span>
-                                                    <span className="red-ui-tabs-badges"></span>
-                                                </li>
-                                                <li
-                                                    className="red-ui-tab red-ui-tab-pinned"
-                                                    id="red-ui-tab-editor-tab-description"
-                                                >
-                                                    <a
-                                                        href="#editor-tab-description"
-                                                        className="red-ui-tab-label"
-                                                    >
-                                                        <i className="red-ui-tab-icon fa fa-file-lines"></i>
-                                                        <span
-                                                            className="red-ui-text-bidi-aware"
-                                                            dir=""
-                                                        >
-                                                            Description
-                                                        </span>
-                                                    </a>
-                                                    <span className="red-ui-tabs-fade"></span>
-                                                    <span className="red-ui-tabs-badges"></span>
-                                                </li>
-                                                <li
-                                                    className="red-ui-tab red-ui-tab-pinned"
-                                                    id="red-ui-tab-editor-tab-appearance"
-                                                >
-                                                    <a
-                                                        href="#editor-tab-appearance"
-                                                        className="red-ui-tab-label"
-                                                    >
-                                                        <i className="red-ui-tab-icon fa fa-object-group"></i>
-                                                        <span
-                                                            className="red-ui-text-bidi-aware"
-                                                            dir=""
-                                                        >
-                                                            Appearance
-                                                        </span>
-                                                    </a>
-                                                    <span className="red-ui-tabs-fade"></span>
-                                                    <span className="red-ui-tabs-badges"></span>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                        <div className="red-ui-tab-link-buttons">
-                                            <a
-                                                href="#editor-tab-properties"
-                                                className="red-ui-tab-link-button active selected"
-                                                id="red-ui-tab-editor-tab-properties-link-button"
-                                            >
-                                                <i className="fa fa-cog"></i>
-                                            </a>
-                                            <a
-                                                href="#editor-tab-description"
-                                                className="red-ui-tab-link-button"
-                                                id="red-ui-tab-editor-tab-description-link-button"
-                                            >
-                                                <i className="fa fa-file-lines"></i>
-                                            </a>
-                                            <a
-                                                href="#editor-tab-appearance"
-                                                className="red-ui-tab-link-button"
-                                                id="red-ui-tab-editor-tab-appearance-link-button"
-                                            >
-                                                <i className="fa fa-object-group"></i>
-                                            </a>
-                                        </div>
-                                    </div>
-                                    <div className="tray-content-wrapper">
-                                        <div className="red-ui-tray-content">
-                                            <form
-                                                id="dialog-form"
-                                                className="dialog-form form-horizontal"
-                                                ref={propertiesFormRefCallback}
-                                                dangerouslySetInnerHTML={{
-                                                    __html:
-                                                        editingNodeEntity.editorTemplate ??
-                                                        '',
-                                                }}
-                                            ></form>
-                                        </div>
+                            <div className="tray-content-wrapper">
+                                <div className="red-ui-tray-content">
+                                    <form
+                                        id="dialog-form"
+                                        className="dialog-form form-horizontal"
+                                        ref={propertiesFormRefCallback}
+                                        dangerouslySetInnerHTML={{
+                                            __html:
+                                                editingNodeEntity.editorTemplate ??
+                                                '',
+                                        }}
+                                    ></form>
+                                </div>
 
-                                        <div
-                                            className="red-ui-tray-content"
-                                            style={{
-                                                display: 'none',
-                                            }}
-                                        ></div>
-                                        <div
-                                            className="red-ui-tray-content"
-                                            style={{
-                                                display: 'none',
-                                            }}
-                                        ></div>
-                                    </div>
-                                </div>
+                                <div
+                                    className="red-ui-tray-content"
+                                    style={{
+                                        display: 'none',
+                                    }}
+                                ></div>
+                                <div
+                                    className="red-ui-tray-content"
+                                    style={{
+                                        display: 'none',
+                                    }}
+                                ></div>
                             </div>
-                            <div className="red-ui-tray-footer">
-                                <div className="red-ui-tray-footer-left">
-                                    <button
-                                        type="button"
-                                        className="red-ui-button"
-                                    >
-                                        <i className="fa fa-book"></i>
-                                    </button>
-                                    <button
-                                        type="button"
-                                        className="red-ui-toggleButton red-ui-button toggle single selected"
-                                    >
-                                        <i className="fa fa-circle-thin"></i>
-                                        <span
-                                            style={{
-                                                marginLeft: '5px',
-                                            }}
-                                        >
-                                            Enabled
-                                        </span>
-                                    </button>
-                                </div>
-                            </div>
-                            <div className="red-ui-tray-resize-handle ui-draggable-handle"></div>
                         </div>
-                    </StyledRedUi>
-                </root.div>
-                {/* Add more node details here */}
-            </div>
-        </StyledEditor>
+                    </div>
+                    <div className="red-ui-tray-footer">
+                        <div className="red-ui-tray-footer-left">
+                            <button type="button" className="red-ui-button">
+                                <i className="fa fa-book"></i>
+                            </button>
+                            <button
+                                type="button"
+                                className="red-ui-toggleButton red-ui-button toggle single selected"
+                            >
+                                <i className="fa fa-circle-thin"></i>
+                                <span
+                                    style={{
+                                        marginLeft: '5px',
+                                    }}
+                                >
+                                    Enabled
+                                </span>
+                            </button>
+                        </div>
+                    </div>
+                    <div className="red-ui-tray-resize-handle ui-draggable-handle"></div>
+                </div>
+            </StyledRedUi>
+        </root.div>
     );
 };
 
