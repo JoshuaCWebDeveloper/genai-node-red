@@ -24,6 +24,9 @@ import {
 import { CollapsibleIcon } from '../shared/collapsible-icon';
 import { Tooltip } from '../shared/tooltip';
 import { RenameForm } from './rename-form';
+import ConfirmableDeleteButton, {
+    useConfirmableDelete,
+} from '../shared/confirmable-delete-button';
 
 const StyledTreeItem = styled.div<{ level: number }>`
     padding: 0;
@@ -60,19 +63,10 @@ const StyledTreeItem = styled.div<{ level: number }>`
         }
 
         .delete {
-            background-color: transparent;
-            border: 0;
-            color: inherit;
-            cursor: pointer;
             visibility: hidden;
 
-            i {
-                transition: transform ease 500ms;
-            }
-
-            &.confirming i {
+            &.confirming {
                 visibility: visible;
-                transform: rotate(90deg);
             }
         }
 
@@ -135,8 +129,7 @@ export const TreeItem = ({
 
     const [isCollapsed, setIsCollapsed] = useState(true);
     const [isRenaming, setIsRenaming] = useState(false);
-    const [isDeleteConfirming, setIsDeleteConfirming] = useState(false);
-    const deleteConfirmTimeout = useRef<NodeJS.Timeout | null>(null);
+    const { deleteRef, triggerDelete } = useConfirmableDelete();
 
     const isSelected = selectedItem?.id === item.id;
     const canDelete =
@@ -262,32 +255,20 @@ export const TreeItem = ({
         [isRenaming, item.id, item.type, dispatch, stopRename]
     );
 
-    const handleDeleteClick = useCallback(
+    const handleDelete = useCallback(
         (e: React.MouseEvent | React.KeyboardEvent) => {
             e.stopPropagation();
             if (!canDelete) {
                 return;
             }
 
-            if (!isDeleteConfirming) {
-                setIsDeleteConfirming(true);
-                deleteConfirmTimeout.current = setTimeout(
-                    () => setIsDeleteConfirming(false),
-                    3000
-                );
-            } else {
-                if (deleteConfirmTimeout.current) {
-                    clearTimeout(deleteConfirmTimeout.current);
-                    deleteConfirmTimeout.current = null;
-                }
-                dispatch(
-                    item.type === 'directory'
-                        ? flowActions.removeDirectory(item.id)
-                        : flowActions.removeFlowEntity(item.id)
-                );
-            }
+            dispatch(
+                item.type === 'directory'
+                    ? flowActions.removeDirectory(item.id)
+                    : flowActions.removeFlowEntity(item.id)
+            );
         },
-        [canDelete, dispatch, isDeleteConfirming, item.id, item.type]
+        [canDelete, dispatch, item.id, item.type]
     );
 
     const handleNameKeydown = useCallback(
@@ -299,11 +280,11 @@ export const TreeItem = ({
 
             switch (e.key) {
                 case 'Delete':
-                    handleDeleteClick(e);
+                    triggerDelete(e);
                     break;
             }
         },
-        [handleDeleteClick, isRenaming]
+        [isRenaming, triggerDelete]
     );
 
     // open when descendent flow becomes selected
@@ -411,14 +392,10 @@ export const TreeItem = ({
                 )}
 
                 {canDelete ? (
-                    <button
-                        className={`delete ${
-                            isDeleteConfirming ? 'confirming' : ''
-                        }`}
-                        onClick={handleDeleteClick}
-                    >
-                        <i className="fas fa-trash-can"></i>
-                    </button>
+                    <ConfirmableDeleteButton
+                        ref={deleteRef}
+                        onDelete={handleDelete}
+                    />
                 ) : null}
             </div>
 

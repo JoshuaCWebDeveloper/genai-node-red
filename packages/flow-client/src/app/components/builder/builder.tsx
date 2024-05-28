@@ -5,10 +5,10 @@ import {
     useGetNodeScriptsQuery,
     useGetNodesQuery,
 } from '../../redux/modules/api/node.api';
+import Editor from '../editor/editor';
 import { ConsolePanel } from './console-panel';
 import { Error } from './error';
 import { Loading } from './loading';
-import { NodeEditor } from './node-editor';
 import { PrimarySidebar } from './primary-sidebar';
 import { SecondarySidebar } from './secondary-sidebar';
 import { TabManager } from './tab-manager';
@@ -71,7 +71,7 @@ export function Builder() {
                 <ConsolePanel />
             </div>
             <SecondarySidebar />
-            <NodeEditor />
+            <Editor />
         </StyledBuilder>
     );
 }

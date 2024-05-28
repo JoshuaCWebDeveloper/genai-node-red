@@ -6,11 +6,16 @@ import { PersistGate } from 'redux-persist/integration/react';
 import { FlowLogic } from './modules/flow/flow.logic';
 import { NodeLogic } from './modules/palette/node.logic';
 import { AppStore } from './store';
+import { BuilderLogic } from './modules/builder/builder.logic';
 
-export const createLogic = () => ({
-    node: new NodeLogic(),
-    flow: new FlowLogic(),
-});
+export const createLogic = () => {
+    const flow = new FlowLogic();
+    return {
+        builder: new BuilderLogic(flow),
+        node: new NodeLogic(),
+        flow,
+    };
+};
 
 export type AppLogic = ReturnType<typeof createLogic>;
 

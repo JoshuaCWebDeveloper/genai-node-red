@@ -19,6 +19,7 @@ import {
     selectFlowEntityById,
     selectFlowNodeById,
 } from './flow.slice';
+import { NodeEditorLogic } from './node-editor.logic';
 
 type DirtyNodeChanges = Partial<
     Omit<FlowNodeEntity, 'outputs'> & {
@@ -29,6 +30,11 @@ type DirtyNodeChanges = Partial<
 >;
 
 export class NodeLogic {
+    public readonly editor: NodeEditorLogic;
+
+    constructor() {
+        this.editor = new NodeEditorLogic(this);
+    }
     // Method to extract inputs and outputs from a NodeEntity, including deserializing inputLabels and outputLabels
     getNodeInputsOutputs(
         nodeInstance: FlowNodeEntity,
@@ -309,7 +315,7 @@ export class NodeLogic {
         return newChanges;
     }
 
-    updateFlowNode = (nodeId: string, changes: DirtyNodeChanges) => {
+    updateFlowNode(nodeId: string, changes: DirtyNodeChanges) {
         return async (dispatch: AppDispatch, getState: () => RootState) => {
             // update node inputs and outputs
             const nodeInstance = selectFlowNodeById(
@@ -334,7 +340,7 @@ export class NodeLogic {
                 flowActions.updateFlowNode({ id: nodeId, changes: newChanges })
             );
         };
-    };
+    }
 
     private convertSubflowToPaletteNode(
         subflow: SubflowEntity

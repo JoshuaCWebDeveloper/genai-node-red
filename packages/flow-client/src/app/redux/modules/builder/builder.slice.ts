@@ -1,9 +1,25 @@
 import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit';
+
 import { Theme } from '../../../themes';
-import { flowActions } from '../flow/flow.slice';
 import { RootState } from '../../store';
+import { flowActions } from '../flow/flow.slice';
 
 export const BUILDER_FEATURE_KEY = 'builder';
+
+export enum EDITING_TYPE {
+    FLOW = 'FLOW',
+    SUBFLOW = 'SUBFLOW',
+    NODE = 'NODE',
+}
+
+export type EditingState = {
+    type: EDITING_TYPE;
+    id: string;
+    data: {
+        propertiesFormHandle?: string;
+        nodeInstanceHandle?: string;
+    };
+} | null;
 
 // Define the state interface
 export interface BuilderState {
@@ -11,7 +27,7 @@ export interface BuilderState {
     showPrimarySidebar: boolean;
     showSecondarySidebar: boolean;
     showConsolePanel: boolean;
-    editing: string | null;
+    editing: EditingState;
     openFlows: string[]; // Array of flow IDs that are open
     activeFlow: string | null; // ID of the currently active flow
     newFlowCounter: number;
@@ -51,8 +67,19 @@ export const builderSlice = createSlice({
             state.showConsolePanel = !state.showConsolePanel;
         },
         // Action to set the editing node
-        setEditing: (state, action: PayloadAction<string | null>) => {
+        setEditing: (state, action: PayloadAction<EditingState>) => {
             state.editing = action.payload;
+        },
+        updateEditingData: (
+            state,
+            action: PayloadAction<Partial<NonNullable<EditingState>['data']>>
+        ) => {
+            if (state.editing) {
+                state.editing.data = {
+                    ...state.editing.data,
+                    ...action.payload,
+                };
+            }
         },
         // Action to clear the editing node
         clearEditing: state => {

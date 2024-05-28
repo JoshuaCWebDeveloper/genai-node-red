@@ -11,11 +11,14 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { useAppDispatch } from '../../redux/hooks';
-import { builderActions } from '../../redux/modules/builder/builder.slice';
-import NodeRedNode from '../node/node-red-node';
-import { CustomEngine } from './engine';
+import {
+    EDITING_TYPE,
+    builderActions,
+} from '../../redux/modules/builder/builder.slice';
 import { FlowNodeEntity } from '../../redux/modules/flow/flow.slice';
 import { PaletteNodeEntity } from '../../redux/modules/palette/node.slice';
+import NodeRedNode from '../node/node-red-node';
+import { CustomEngine } from './engine';
 
 // Styled components for the node and its elements
 const StyledNode = styled.div<{
@@ -195,7 +198,13 @@ export const Node: React.FC<NodeProps> = ({ node, engine }) => {
     );
 
     const handleDoubleClick = () => {
-        dispatch(builderActions.setEditing(node.getID()));
+        dispatch(
+            builderActions.setEditing({
+                id: node.getID(),
+                type: EDITING_TYPE.NODE,
+                data: {},
+            })
+        );
     };
 
     const entity = node.entity ?? ({} as PaletteNodeEntity);
