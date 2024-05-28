@@ -26,7 +26,7 @@ export const Tooltip = ({
         <StyledTooltip
             disableStyleInjection={true}
             place="bottom-start"
-            delayShow={1000}
+            delayShow={800}
             className={'tooltip ' + className}
             {...props}
         >
