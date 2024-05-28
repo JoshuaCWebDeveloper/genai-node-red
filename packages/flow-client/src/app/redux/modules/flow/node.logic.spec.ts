@@ -17,6 +17,7 @@ import {
     selectFlowNodeById,
 } from './flow.slice';
 import { NodeLogic } from './node.logic';
+import { NodeEditorLogic } from './node-editor.logic';
 
 vi.mock('../palette/node.slice', async importOriginal => {
     const originalModule = await importOriginal<
@@ -73,6 +74,11 @@ describe('node.logic', () => {
         // Reset mocks before each test
         vi.clearAllMocks();
         nodeLogic = new NodeLogic();
+    });
+
+    it('editor', () => {
+        const editor = nodeLogic.editor;
+        expect(editor).toBeInstanceOf(NodeEditorLogic);
     });
 
     describe('getNodeInputsOutputs', () => {
