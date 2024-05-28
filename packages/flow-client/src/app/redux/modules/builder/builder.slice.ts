@@ -18,6 +18,8 @@ export type EditingState = {
     data: {
         propertiesFormHandle?: string;
         nodeInstanceHandle?: string;
+        name?: string;
+        info?: string;
     };
 } | null;
 
