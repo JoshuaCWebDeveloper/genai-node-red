@@ -112,7 +112,6 @@ export const TabbedSidebar = ({
 }: TabbedSidebarProps) => {
     // get all children that are SidebarTabs
     const [sidebarTabs, sidebarIds] = useMemo(() => {
-        console.log('Received children', children);
         const tabs = React.Children.toArray(children)
             .filter(isSidebarTab)
             .map(child => {
