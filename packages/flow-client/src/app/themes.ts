@@ -9,6 +9,7 @@ const defaultTheme = css`
         --color-background-element-light: #e9e9e9;
         --color-background-element-medium: #ccc;
         --color-background-element-sharp: #aaa;
+        --color-background-element-focus: var(--color-background-plain);
 
         --color-border-light: #ccc;
         --color-border-medium: #999;
@@ -33,6 +34,9 @@ const themes = {
             --color-background-element-light: #2b2b2b;
             --color-background-element-medium: #555;
             --color-background-element-sharp: #999;
+            --color-background-element-focus: var(
+                --color-background-element-medium
+            );
 
             --color-border-light: #555;
             --color-border-medium: #999;

@@ -56,7 +56,7 @@ const StyledFlowEditor = styled.form`
 
     input:focus,
     .EasyMDEContainer .CodeMirror-focused {
-        background-color: var(--color-background-element-medium);
+        background-color: var(--color-background-element-focus);
         border-color: var(--color-border-medium);
         outline: none;
     }

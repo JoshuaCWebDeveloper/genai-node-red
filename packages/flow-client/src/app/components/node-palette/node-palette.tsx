@@ -14,7 +14,7 @@ const StyledNodePalette = styled.div`
     height: 100%;
 
     .search-bar {
-        background-color: var(--color-background-element-medium);
+        background-color: var(--color-background-element-light);
         color: var(--color-text-sharp);
         border: 0;
         margin: 10px 0;
@@ -26,6 +26,10 @@ const StyledNodePalette = styled.div`
 
         &::placeholder {
             color: var(--color-text-medium);
+        }
+
+        &:focus {
+            background-color: var(--color-background-element-focus);
         }
     }
 `;
