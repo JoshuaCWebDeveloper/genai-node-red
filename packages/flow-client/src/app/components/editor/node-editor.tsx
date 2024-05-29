@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import root from 'react-shadow/styled-components';
-import styled from 'styled-components';
+import styled, { createGlobalStyle } from 'styled-components';
 import faCssUrl from '@fortawesome/fontawesome-free/css/all.css?url';
 
 import environment from '../../../environment';
@@ -52,6 +52,8 @@ const StyledRedUi = styled.div`
     }
 
     .red-ui-tray {
+        background-color: transparent;
+        color: var(--color-text-sharp);
         right: 0px;
         transition: right 0.25s ease 0s;
         z-index: auto;
@@ -59,12 +61,107 @@ const StyledRedUi = styled.div`
         width: 100%;
     }
 
-    .red-ui-tabs ul {
-        min-width: initial !important;
+    .red-ui-tray-header {
+        background-color: transparent;
+        border: 0;
+        position: absolute;
+        top: -44px;
+        height: 44px;
+
+        &:after {
+            display: none;
+        }
+
+        .red-ui-tray-titlebar {
+            box-sizing: border-box;
+            border: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            height: 100%;
+
+            ul {
+                color: var(--color-text-sharp);
+            }
+        }
     }
 
-    .red-ui-tabs li {
-        width: 23.5%;
+    .red-ui-tabs {
+        background-color: transparent;
+
+        ul {
+            min-width: initial !important;
+
+            li {
+                background-color: transparent;
+                border-color: var(--color-border-light);
+                border-bottom-color: transparent;
+                width: 23.5%;
+
+                a.red-ui-tab-label {
+                    color: var(--color-text-sharp);
+                }
+
+                .red-ui-tabs-fade {
+                    background: none;
+                }
+
+                &.active {
+                    background-color: var(--color-background-main);
+                    border-color: var(--color-border-medium);
+                    border-bottom: none;
+
+                    a.red-ui-tab-label {
+                        color: var(--color-text-sharp);
+                    }
+
+                    .red-ui-tabs-fade {
+                        background: none;
+                    }
+                }
+
+                &:not(.active) {
+                    a.red-ui-tab-label:hover {
+                        background-color: var(
+                            --color-background-element-medium
+                        );
+                        color: var(--color-text-sharp);
+
+                        & + .red-ui-tabs-fade {
+                            background: none;
+                        }
+                    }
+                }
+            }
+        }
+
+        .red-ui-tab-link-buttons {
+            background-color: transparent;
+
+            & a {
+                background-color: transparent;
+                border-color: var(--color-border-medium);
+                color: var(--color-text-sharp) !important;
+
+                &:not(.disabled):not(:disabled) {
+                    &:hover {
+                        background-color: var(--color-background-element-light);
+                        color: var(--color-text-sharp) !important;
+                    }
+
+                    &:not(.single).selected {
+                        background-color: var(
+                            --color-background-element-medium
+                        );
+                        color: var(--color-text-sharp) !important;
+                    }
+
+                    &:focus {
+                        color: var(--color-text-sharp) !important;
+                    }
+                }
+            }
+        }
     }
 
     .red-ui-tray-body-wrapper {
@@ -102,10 +199,65 @@ const StyledRedUi = styled.div`
             display: block;
             height: 20px;
         }
+
+        input,
+        select,
+        textarea,
+        button,
+        .red-ui-button {
+            background-color: var(--color-background-element-light);
+            border-color: var(--color-border-light);
+            color: var(--color-text-sharp);
+
+            &:focus {
+                background-color: var(--color-background-element-focus);
+                border-color: var(--color-border-medium);
+            }
+        }
+
+        .red-ui-editableList-container li {
+            background-color: var(--color-background-element-light);
+            border-color: var(--color-border-light);
+            color: var(--color-text-sharp);
+        }
     }
 
     .red-ui-tray-footer {
+        background-color: transparent;
         position: static;
+
+        button {
+            background-color: var(--color-background-element-light) !important;
+            border-color: var(--color-border-light);
+            color: var(--color-text-sharp) !important;
+
+            &.red-ui-button.toggle.selected {
+                background-color: var(
+                    --color-background-element-medium
+                ) !important;
+
+                &:not(.disabled):not(:disabled) {
+                    color: var(--color-text-sharp) !important;
+                }
+            }
+        }
+    }
+`;
+
+const RedGlobal = createGlobalStyle`
+    .red-ui-typedInput-options.red-ui-editor-dialog {
+        background-color: var(--color-background-element-medium);
+        border-color: var(--color-border-medium);
+
+        a {
+            color: var(--color-text-sharp);
+
+            &:hover {
+                background-color: var(--color-background-element-sharp);
+                border-color: var(--color-border-sharp);
+                color: var(--color-text-sharp);
+            }
+        }
     }
 `;
 
@@ -194,6 +346,7 @@ export const NodeEditor = ({}: NodeEditorProps) => {
                 href={redTypedInputCssUrl}
                 onLoad={handleCssOnLoad}
             />
+            <RedGlobal />
 
             <StyledRedUi className="red-ui-editor">
                 <div className="red-ui-tray ui-draggable">
