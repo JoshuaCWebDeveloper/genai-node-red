@@ -2170,6 +2170,17 @@ export const createRedMonaco = function (RED, $) {
             ed.gotoLine(row, col);
         }
         ed.type = type;
+
+        // use app theme from bridge
+        if (window.REDAppBridge) {
+            ed.setTheme(
+                window.REDAppBridge.theme === 'dark' ? 'vs-dark' : 'vs'
+            );
+            window.REDAppBridge.on('theme', theme => {
+                ed.setTheme(theme === 'dark' ? 'vs-dark' : 'vs');
+            });
+        }
+
         return ed;
     }
 

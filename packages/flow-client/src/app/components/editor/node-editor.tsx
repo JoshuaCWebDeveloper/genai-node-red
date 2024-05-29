@@ -8,7 +8,10 @@ import jqueryUiCssUrl from '../../red/jquery-ui.css?url';
 import redCssUrl from '../../red/red-style.css?url';
 import redTypedInputCssUrl from '../../red/red-typed-input.css?url';
 import { useAppDispatch, useAppLogic, useAppSelector } from '../../redux/hooks';
-import { selectEditing } from '../../redux/modules/builder/builder.slice';
+import {
+    selectEditing,
+    selectTheme,
+} from '../../redux/modules/builder/builder.slice';
 import {
     FlowNodeEntity,
     selectFlowNodeById,
@@ -276,6 +279,7 @@ export const NodeEditor = ({}: NodeEditorProps) => {
     );
     const { propertiesForm } =
         useAppSelector(flowLogic.node.editor.selectEditorState) ?? {};
+    const theme = useAppSelector(selectTheme);
 
     const [loadedCss, setLoadedCss] = useState<{
         'jquery-ui.css': boolean;
@@ -329,6 +333,46 @@ export const NodeEditor = ({}: NodeEditorProps) => {
         // set loaded
         loaded.current = true;
     }, [dispatch, flowLogic.node.editor, loadedCss, propertiesForm]);
+
+    useEffect(() => {
+        const bridgedWindow = window as unknown as {
+            REDAppBridge: {
+                _trigger: (type: string, value: unknown) => void;
+                _listeners: Record<string, ((value: unknown) => void)[]>;
+                _theme: string;
+                get theme(): string;
+                set theme(value: string);
+            };
+        };
+        bridgedWindow.REDAppBridge = bridgedWindow.REDAppBridge || {
+            _listeners: {},
+            on<T>(type: string, listener: (value: T) => void) {
+                this._listeners[type] = this._listeners[type] || [];
+                this._listeners[type].push(
+                    listener as (value: unknown) => void
+                );
+            },
+            off<T>(type: string, listener: (value: T) => void) {
+                this._listeners[type] = this._listeners[type] || [];
+                this._listeners[type] = this._listeners[type].filter(
+                    l => l !== listener
+                );
+            },
+            _trigger(type: string, value: unknown) {
+                this._listeners[type] = this._listeners[type] || [];
+                this._listeners[type].forEach(l => l(value));
+            },
+            _theme: undefined,
+            get theme() {
+                return this._theme;
+            },
+            set theme(value: string) {
+                this._theme = value;
+                this._trigger('theme', value);
+            },
+        };
+        bridgedWindow.REDAppBridge.theme = theme;
+    }, [theme]);
 
     if (!editingNode) return null;
 
