@@ -2,7 +2,7 @@ import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 import { Theme } from '../../../themes';
 import { RootState } from '../../store';
-import { flowActions } from '../flow/flow.slice';
+import { EnvironmentVariable, flowActions } from '../flow/flow.slice';
 
 export const BUILDER_FEATURE_KEY = 'builder';
 
@@ -21,6 +21,7 @@ export type EditingState = {
         nodeInstanceHandle: string;
         name: string;
         info: string;
+        env: EnvironmentVariable[];
     }>;
 } | null;
 

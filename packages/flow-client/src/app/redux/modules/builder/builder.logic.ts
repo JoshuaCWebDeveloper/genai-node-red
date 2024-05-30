@@ -62,6 +62,7 @@ export class BuilderLogic {
                             changes: {
                                 name: editing.data.name,
                                 info: editing.data.info,
+                                env: editing.data.env,
                             },
                         })
                     );

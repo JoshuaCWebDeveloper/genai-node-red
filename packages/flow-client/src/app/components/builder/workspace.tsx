@@ -57,6 +57,7 @@ export const Workspace = () => {
                 data: {
                     info: activeFlow.info,
                     name: activeFlow.name,
+                    env: activeFlow.env,
                 },
             })
         );
