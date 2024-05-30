@@ -15,12 +15,13 @@ export enum EDITING_TYPE {
 export type EditingState = {
     type: EDITING_TYPE;
     id: string;
-    data: {
-        propertiesFormHandle?: string;
-        nodeInstanceHandle?: string;
-        name?: string;
-        info?: string;
-    };
+    data: Partial<{
+        entityType: string;
+        propertiesFormHandle: string;
+        nodeInstanceHandle: string;
+        name: string;
+        info: string;
+    }>;
 } | null;
 
 // Define the state interface

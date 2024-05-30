@@ -45,25 +45,37 @@ const StyledEditor = styled.div`
 
     .editor-header {
         display: flex;
-        flex-direction: row;
-        justify-content: end;
+        justify-content: space-between;
 
-        button {
-            background-color: var(--color-background-main);
-            border: none;
-            color: var(--color-text-sharp);
-            cursor: pointer;
-            font-size: 1.3em;
-            padding: 10px 20px;
+        p {
+            font-size: 1.4em;
+            font-weight: 500;
+            margin: 0.5rem 1rem;
+        }
 
-            &:hover {
-                background-color: var(--color-background-element-medium);
+        .actions {
+            display: flex;
+            flex-direction: row;
+            justify-content: end;
+
+            button {
+                background-color: var(--color-background-main);
+                border: none;
+                color: var(--color-text-sharp);
+                cursor: pointer;
+                font-size: 1.3em;
+                padding: 10px 20px;
+
+                &:hover {
+                    background-color: var(--color-background-element-medium);
+                }
             }
         }
     }
 
     .editor-content {
         flex: 1;
+        overflow: hidden;
         position: relative;
     }
 
@@ -129,23 +141,35 @@ export const Editor = () => {
             <div className="overlay" onClick={handleSave}></div>
             <div className="editor-pane">
                 <div className="editor-header">
-                    <button
-                        className="save"
-                        data-tooltip-id={tooltipId.current}
-                        data-tooltip-content="Save"
-                        onClick={handleSave}
-                    >
-                        <i className="fas fa-save"></i>
-                    </button>
+                    <p>
+                        {
+                            {
+                                FLOW: 'Edit flow',
+                                SUBFLOW: 'Edit subflow',
+                                NODE: `Edit ${editing.data.entityType} node`,
+                            }[editing.type]
+                        }
+                    </p>
 
-                    <button
-                        className="cancel"
-                        data-tooltip-id={tooltipId.current}
-                        data-tooltip-content="Cancel"
-                        onClick={handleCancel}
-                    >
-                        <i className="fas fa-times"></i>
-                    </button>
+                    <div className="actions">
+                        <button
+                            className="save"
+                            data-tooltip-id={tooltipId.current}
+                            data-tooltip-content="Save"
+                            onClick={handleSave}
+                        >
+                            <i className="fas fa-save"></i>
+                        </button>
+
+                        <button
+                            className="cancel"
+                            data-tooltip-id={tooltipId.current}
+                            data-tooltip-content="Cancel"
+                            onClick={handleCancel}
+                        >
+                            <i className="fas fa-times"></i>
+                        </button>
+                    </div>
                 </div>
 
                 <div className="editor-content">
