@@ -12,6 +12,10 @@ const StyledDescription = styled.div`
             button {
                 color: var(--color-text-sharp);
 
+                &:hover {
+                    background-color: var(--color-background-element-sharp);
+                }
+
                 &.active {
                     background-color: var(--color-background-element-medium);
                 }
