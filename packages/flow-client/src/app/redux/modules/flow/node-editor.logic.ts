@@ -63,6 +63,7 @@ export class NodeEditorLogic {
                 editingFlowNode.type
             );
             return {
+                editingData: editing.data,
                 editingFlowNode,
                 editingPaletteNode,
                 propertiesForm,
@@ -156,6 +157,7 @@ export class NodeEditorLogic {
     save() {
         return async (dispatch: AppDispatch, getState: () => RootState) => {
             const {
+                editingData,
                 nodeInstance,
                 editingFlowNode,
                 editingPaletteNode,
@@ -163,6 +165,7 @@ export class NodeEditorLogic {
             } = this.selectEditorState(getState()) ?? {};
 
             if (
+                !editingData ||
                 !nodeInstance ||
                 !editingFlowNode ||
                 !editingPaletteNode ||
@@ -236,7 +239,15 @@ export class NodeEditorLogic {
             }
 
             // update node
-            dispatch(this.node.updateFlowNode(editingFlowNode.id, nodeUpdates));
+            dispatch(
+                this.node.updateFlowNode(editingFlowNode.id, {
+                    ...nodeUpdates,
+                    info: editingData.info,
+                    icon: editingData.icon,
+                    inputLabels: editingData.inputLabels,
+                    outputLabels: editingData.outputLabels,
+                })
+            );
         };
     }
 

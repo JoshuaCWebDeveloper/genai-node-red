@@ -204,6 +204,11 @@ export const Node: React.FC<NodeProps> = ({ node, engine }) => {
                 type: EDITING_TYPE.NODE,
                 data: {
                     entityType: node.entity?.type,
+                    info: node.config?.info,
+                    name: node.config?.name,
+                    icon: node.config?.icon,
+                    inputLabels: node.config?.inputLabels,
+                    outputLabels: node.config?.outputLabels,
                 },
             })
         );
