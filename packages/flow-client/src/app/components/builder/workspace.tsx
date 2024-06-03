@@ -19,11 +19,20 @@ const StyledWorkspace = styled.div`
     font-size: 0.8em;
 
     p {
+        display: flex;
+        gap: 5px;
+
         margin: 0;
 
         .type {
             font-weight: bold;
             text-transform: capitalize;
+        }
+
+        .name {
+            text-overflow: ellipsis;
+            overflow: hidden;
+            white-space: nowrap;
         }
 
         i {
@@ -83,7 +92,7 @@ export const Workspace = () => {
             {activeFlow ? (
                 <p>
                     <span className="type">{activeFlow.type}:</span>{' '}
-                    {activeFlow.name}{' '}
+                    <span className="name">{activeFlow.name} </span>
                     <i
                         className="fa-solid fa-pencil"
                         onClick={handleEditClick}
