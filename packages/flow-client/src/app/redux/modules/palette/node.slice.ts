@@ -152,18 +152,12 @@ export const selectNodesByNodeRedId = createSelector(
     (nodes, nodeRedId) => nodes.filter(node => node.nodeRedId === nodeRedId)
 );
 
+const selectSubflowCategories = createSelector(selectAllSubflows, subflows => [
+    ...new Set(subflows.map(subflow => subflow.category)),
+]);
+
 export const selectCategories = createSelector(
-    [
-        selectAllPaletteNodes,
-        state =>
-            Array.from(
-                new Set([
-                    ...selectAllSubflows(state).map(
-                        subflow => subflow.category
-                    ),
-                ])
-            ),
-    ],
+    [selectAllPaletteNodes, selectSubflowCategories],
     (nodes, subflowCategories) =>
         Array.from(
             new Set([

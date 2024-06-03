@@ -1,4 +1,5 @@
 import { RootState } from '../../store';
+import { FlowState, SubflowEntity } from '../flow/flow.slice';
 import {
     PALETTE_NODE_FEATURE_KEY,
     PaletteNodeEntity,
@@ -6,6 +7,7 @@ import {
     paletteNodeActions,
     paletteNodeAdapter,
     paletteNodeReducer,
+    selectCategories,
     selectNodesByNodeRedId,
     selectPaletteNodeById,
 } from './node.slice';
@@ -286,6 +288,156 @@ describe('node reducer', () => {
 
             // Expected result
             expect(result).toEqual([]);
+        });
+    });
+
+    describe('selectCategories selector', () => {
+        it('should return unique categories from nodes and subflows', () => {
+            const nodes = [
+                {
+                    id: 'node1',
+                    nodeRedId: 'nodeRedId1',
+                    nodeRedName: 'Node 1',
+                    name: 'Node 1',
+                    type: 'exampleType',
+                    category: 'Category1',
+                    module: 'module1',
+                    version: '1.0.0',
+                },
+                {
+                    id: 'node2',
+                    nodeRedId: 'nodeRedId2',
+                    nodeRedName: 'Node 2',
+                    name: 'Node 2',
+                    type: 'exampleType2',
+                    category: 'Category2',
+                    module: 'module2',
+                    version: '2.0.0',
+                },
+            ];
+
+            const subflows = [
+                {
+                    id: 'subflow1',
+                    type: 'subflow' as const,
+                    name: 'Subflow 1',
+                    disabled: false,
+                    info: 'Subflow 1 info',
+                    env: [],
+                    color: '#000000',
+                    inputLabels: [],
+                    outputLabels: [],
+                    category: 'SubflowCategory1',
+                },
+                {
+                    id: 'subflow2',
+                    type: 'subflow' as const,
+                    name: 'Subflow 2',
+                    disabled: false,
+                    info: 'Subflow 2 info',
+                    env: [],
+                    color: '#000000',
+                    inputLabels: [],
+                    outputLabels: [],
+                    category: 'SubflowCategory2',
+                },
+            ];
+
+            const initialState: PaletteNodeState = {
+                ids: nodes.map(node => node.id),
+                entities: nodes.reduce((acc, node) => {
+                    acc[node.id] = node;
+                    return acc;
+                }, {} as Record<string, PaletteNodeEntity>),
+                loadingStatus: 'not loaded',
+                error: null,
+                searchQuery: '',
+            };
+
+            const state = {
+                [PALETTE_NODE_FEATURE_KEY]: initialState,
+                flow: {
+                    flowEntities: {
+                        ids: subflows.map(subflow => subflow.id),
+                        entities: subflows.reduce((acc, subflow) => {
+                            acc[subflow.id] = subflow;
+                            return acc;
+                        }, {} as Record<string, SubflowEntity>),
+                    },
+                    loadingStatus: 'loaded',
+                    flowNodes: {},
+                    directories: {},
+                } as FlowState,
+            } as RootState;
+
+            const categories = selectCategories(state);
+
+            expect(categories).toEqual([
+                'SubflowCategory1',
+                'SubflowCategory2',
+                'Category1',
+                'Category2',
+            ]);
+        });
+
+        it('should return "other" for nodes without a category', () => {
+            const nodes = [
+                {
+                    id: 'node1',
+                    nodeRedId: 'nodeRedId1',
+                    nodeRedName: 'Node 1',
+                    name: 'Node 1',
+                    type: 'exampleType',
+                    module: 'module1',
+                    version: '1.0.0',
+                },
+            ];
+
+            const subflows = [
+                {
+                    id: 'subflow1',
+                    type: 'subflow' as const,
+                    name: 'Subflow 1',
+                    disabled: false,
+                    info: 'Subflow 1 info',
+                    env: [],
+                    color: '#000000',
+                    inputLabels: [],
+                    outputLabels: [],
+                    category: 'SubflowCategory1',
+                },
+            ];
+
+            const initialState: PaletteNodeState = {
+                ids: nodes.map(node => node.id),
+                entities: nodes.reduce((acc, node) => {
+                    acc[node.id] = node;
+                    return acc;
+                }, {} as Record<string, PaletteNodeEntity>),
+                loadingStatus: 'not loaded',
+                error: null,
+                searchQuery: '',
+            };
+
+            const state = {
+                [PALETTE_NODE_FEATURE_KEY]: initialState,
+                flow: {
+                    flowEntities: {
+                        ids: subflows.map(subflow => subflow.id),
+                        entities: subflows.reduce((acc, subflow) => {
+                            acc[subflow.id] = subflow;
+                            return acc;
+                        }, {} as Record<string, SubflowEntity>),
+                    },
+                    loadingStatus: 'loaded',
+                    flowNodes: {},
+                    directories: {},
+                } as FlowState,
+            } as RootState;
+
+            const categories = selectCategories(state);
+
+            expect(categories).toEqual(['SubflowCategory1', 'other']);
         });
     });
 });
