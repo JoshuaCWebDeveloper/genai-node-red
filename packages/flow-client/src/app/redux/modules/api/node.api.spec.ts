@@ -1,6 +1,7 @@
 import * as apiModule from '@reduxjs/toolkit/query/react';
 import { MockedFunction } from 'vitest';
 import { paletteNodeActions } from '../palette/node.slice';
+import { extractEndpointQuery } from './test-util';
 
 // Mock the createApi and fetchBaseQuery functions from RTK Query
 vi.mock('@reduxjs/toolkit/query/react', () => {
@@ -24,28 +25,6 @@ const mockedBaseQuery = apiModule.fetchBaseQuery as unknown as MockedFunction<
 
 describe('nodeApi', () => {
     const BASE_URL = 'https://www.example.com/api';
-
-    const extractEndpointQuery = (endpoint: string) => {
-        const endpointFn = mockedCreateApi.mock.calls[0][0].endpoints;
-        const calls: number[] = [];
-        const mockQuery = vi.fn(_endpointDef => {
-            const call = Math.floor(Math.random() * 10000);
-            calls.push(call);
-            return call;
-        });
-
-        // Trigger the endpoint function with the mocked builder
-        const endpoints = endpointFn({
-            // @ts-expect-error: testing
-            query: mockQuery,
-            mutation: vi.fn(),
-        }) as unknown as Record<string, number>;
-
-        const callIndex = calls.findIndex(call => call === endpoints[endpoint]);
-
-        // Capture the query method passed to mockQuery
-        return mockQuery.mock.calls[callIndex][0];
-    };
 
     beforeEach(async () => {
         vi.stubEnv('VITE_NODE_RED_API_ROOT', BASE_URL);
