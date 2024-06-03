@@ -5,7 +5,7 @@ import { EditorForm } from './form/editor-form';
 import EnvironmentVariables from './form/environment-variables';
 import { Name } from './form/name';
 import { Tab, TabPresets, TabbedEditor } from './tabbed-editor';
-import { useFlowEntityEditor } from './use-flow-entity-editor';
+import { useEditorForm } from './form/use-editor-form';
 
 const StyledFlowEditor = styled(TabbedEditor)`
     .environment-variables {
@@ -25,7 +25,7 @@ export const FlowEditor = ({}: FlowEditorProps) => {
         handleEnvironmentVariablesChange,
         name,
         handleNameChange,
-    } = useFlowEntityEditor();
+    } = useEditorForm();
 
     if (!isEditing) {
         return null;

@@ -2,7 +2,12 @@ import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 import { Theme } from '../../../themes';
 import { RootState } from '../../store';
-import { EnvironmentVariable, flowActions } from '../flow/flow.slice';
+import {
+    flowActions,
+    FlowEntity,
+    FlowNodeEntity,
+    SubflowEntity,
+} from '../flow/flow.slice';
 
 export const BUILDER_FEATURE_KEY = 'builder';
 
@@ -16,12 +21,17 @@ export type EditingState = {
     type: EDITING_TYPE;
     id: string;
     data: Partial<{
-        entityType: string;
+        entityType: FlowNodeEntity['type'];
         propertiesFormHandle: string;
         nodeInstanceHandle: string;
-        name: string;
-        info: string;
-        env: EnvironmentVariable[];
+        name: FlowEntity['name'];
+        info: FlowEntity['info'];
+        env: FlowEntity['env'];
+        icon: SubflowEntity['icon'];
+        category: SubflowEntity['category'];
+        color: SubflowEntity['color'];
+        inputLabels: SubflowEntity['inputLabels'];
+        outputLabels: SubflowEntity['outputLabels'];
     }>;
 } | null;
 

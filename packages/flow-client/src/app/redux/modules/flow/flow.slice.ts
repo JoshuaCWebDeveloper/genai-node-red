@@ -90,6 +90,10 @@ export interface FlowNodeEntity {
     outputs: number;
     wires: string[][]; // For nodes, to represent connections
     credentials?: Record<string, unknown>;
+    icon?: string;
+    info?: string;
+    inputLabels: string[];
+    outputLabels: string[];
     [key: string]: unknown; // To allow for other properties dynamically
     // React Diagrams
     selected?: boolean;
@@ -118,8 +122,10 @@ export interface SubflowEntity {
     env: EnvironmentVariable[];
     color: string;
     icon?: string;
-    in?: unknown[];
-    out?: unknown[];
+    in?: FlowNodeEntity[];
+    out?: FlowNodeEntity[];
+    inputLabels: string[];
+    outputLabels: string[];
     directory?: string;
 }
 
