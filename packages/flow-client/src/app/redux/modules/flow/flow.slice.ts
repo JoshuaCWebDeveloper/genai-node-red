@@ -9,7 +9,7 @@ import { RootState } from '../../store';
 
 export const FLOW_FEATURE_KEY = 'flow';
 
-enum EnvVarType {
+export enum EnvVarType {
     MSG = 'msg',
     FLOW = 'flow',
     GLOBAL = 'global',
