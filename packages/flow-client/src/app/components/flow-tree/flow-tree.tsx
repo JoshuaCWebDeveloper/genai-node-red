@@ -6,7 +6,6 @@ import { useAppDispatch, useAppLogic, useAppSelector } from '../../redux/hooks';
 import {
     builderActions,
     selectActiveFlow,
-    selectNewFlowCounter,
     selectNewFolderCounter,
 } from '../../redux/modules/builder/builder.slice';
 import { flowActions } from '../../redux/modules/flow/flow.slice';
@@ -61,7 +60,6 @@ export const FlowTree = () => {
     const flowLogic = useAppLogic().flow;
     const { tree, items } = useAppSelector(flowLogic.tree.selectFlowTree);
     const activeFlow = useAppSelector(selectActiveFlow);
-    const flowCounter = useAppSelector(selectNewFlowCounter);
     const folderCounter = useAppSelector(selectNewFolderCounter);
 
     const [selectedItemId, setSelectedItemId] = useState<string | undefined>();
@@ -97,40 +95,25 @@ export const FlowTree = () => {
 
     const handleNewFlow = useCallback(() => {
         const flowId = uuidv4();
-
         dispatch(
-            flowActions.addFlowEntity({
+            flowLogic.createNewFlow({
                 id: flowId,
-                type: 'flow',
-                name: `New Flow${flowCounter ? ` ${flowCounter}` : ''}`,
-                disabled: false,
-                info: '',
-                env: [],
                 directory: getSelectedDirectory(),
             })
         );
-        dispatch(builderActions.addNewFlow(flowId));
-        dispatch(builderActions.setActiveFlow(flowId));
-    }, [dispatch, flowCounter, getSelectedDirectory]);
+        setSelectedItemId(flowId);
+    }, [dispatch, flowLogic, getSelectedDirectory]);
 
     const handleNewSubflow = useCallback(() => {
         const subflowId = uuidv4();
         dispatch(
-            flowActions.addFlowEntity({
+            flowLogic.createNewSubflow({
                 id: subflowId,
-                type: 'subflow',
-                name: `New Subflow${flowCounter ? ` ${flowCounter}` : ''}`,
-                category: 'subflows',
-                color: '#ddaa99',
-                info: '',
-                env: [],
                 directory: getSelectedDirectory(),
             })
         );
-        dispatch(builderActions.addNewFlow(subflowId));
-        dispatch(builderActions.setActiveFlow(subflowId));
         setSelectedItemId(subflowId);
-    }, [dispatch, flowCounter, getSelectedDirectory]);
+    }, [dispatch, flowLogic, getSelectedDirectory]);
 
     const handleItemSelect = useCallback((item: TreeItemData) => {
         setSelectedItemId(item.id);
