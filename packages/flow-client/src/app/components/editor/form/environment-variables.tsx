@@ -35,6 +35,21 @@ export const EnvironmentVariables = ({
     const storedEnvironmentVariables = useRef<EnvironmentVariable[]>(
         environmentVariables.map(it => ({ ...it }))
     );
+    const storedList = useRef<HTMLDivElement | null>(null);
+
+    const handleLabelClick = useCallback(() => {
+        // if there are no environment variables
+        if (storedList.current?.querySelectorAll(`input`).length === 0) {
+            // add one
+            (
+                storedList.current?.parentElement?.parentElement?.querySelector(
+                    `.red-ui-editableList-addButton`
+                ) as HTMLButtonElement
+            )?.click();
+        }
+        // focus on first input
+        storedList.current?.querySelector(`input`)?.focus();
+    }, []);
 
     const handleVariablesChange = useCallback(
         (variables: EnvironmentVariable[]) => {
@@ -46,6 +61,7 @@ export const EnvironmentVariables = ({
     const listRef = useCallback(
         (listElement: HTMLDivElement) => {
             // Initialize the editable list
+            storedList.current = listElement;
             const $list = RED.current.$(listElement);
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-expect-error
@@ -166,7 +182,9 @@ export const EnvironmentVariables = ({
         <RedUiContainer className={`environment-variables ${className}`}>
             <StyledEnvironmentVariables>
                 <EditorForm>
-                    <label>Environment Variables:</label>
+                    <label onClick={handleLabelClick}>
+                        Environment Variables:
+                    </label>
                     <div ref={listRef}></div>
                 </EditorForm>
             </StyledEnvironmentVariables>
