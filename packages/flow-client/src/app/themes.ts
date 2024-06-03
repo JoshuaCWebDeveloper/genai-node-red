@@ -5,8 +5,8 @@ export type Theme = keyof typeof themes;
 const defaultTheme = css`
     :root {
         --color-background-plain: #fff;
-        --color-background-main: #f1f1f1;
-        --color-background-element-light: #e9e9e9;
+        --color-background-main: #f8f8f8;
+        --color-background-element-light: #eeeeee;
         --color-background-element-medium: #ccc;
         --color-background-element-sharp: #aaa;
         --color-background-element-focus: var(--color-background-plain);
