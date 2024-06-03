@@ -106,6 +106,8 @@ describe('node-editor.logic', () => {
         name: 'test',
         inputs: 0,
         outputs: 0,
+        inputLabels: [],
+        outputLabels: [],
         wires: [],
         inPorts: [],
         outPorts: [],
@@ -126,6 +128,8 @@ describe('node-editor.logic', () => {
         name: 'test',
         inputs: 0,
         outputs: 0,
+        inputLabels: [],
+        outputLabels: [],
         wires: [],
         inPorts: [],
         outPorts: [],
@@ -251,6 +255,40 @@ describe('node-editor.logic', () => {
                 mockNodeLogic.updateFlowNode(
                     mockFlowNode.id,
                     expect.any(Object)
+                )
+            );
+        });
+
+        it('should dispatch updateFlowNode with data from editing state', async () => {
+            mockNodeLogic.updateFlowNode = vi.fn();
+
+            const mockEditingData = {
+                info: 'test info',
+                icon: 'test icon',
+                inputLabels: ['input1'],
+                outputLabels: ['output1'],
+            };
+
+            mockedSelectEditing.mockReturnValue({
+                ...mockEditingState,
+                data: {
+                    ...mockEditingState.data,
+                    ...mockEditingData,
+                },
+            });
+
+            const thunk = nodeEditorLogic.save();
+            await thunk(mockDispatch, mockGetState);
+
+            expect(mockDispatch).toHaveBeenCalledWith(
+                mockNodeLogic.updateFlowNode(
+                    mockFlowNode.id,
+                    expect.objectContaining({
+                        info: mockEditingData.info,
+                        icon: mockEditingData.icon,
+                        inputLabels: mockEditingData.inputLabels,
+                        outputLabels: mockEditingData.outputLabels,
+                    })
                 )
             );
         });
