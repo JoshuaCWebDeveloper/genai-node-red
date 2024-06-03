@@ -1,4 +1,4 @@
-import React, { useState, ReactNode } from 'react';
+import React, { ReactNode, useState } from 'react';
 import styled from 'styled-components';
 
 const StyledTabbedEditor = styled.div`
@@ -37,10 +37,27 @@ const StyledTabbedEditor = styled.div`
     }
 
     .tab-content {
+        --tab-padding: 1rem;
+
         flex: 1;
         color: var(--color-text-sharp);
         overflow: hidden;
-        padding: 1rem;
+        padding: var(--tab-padding);
+        position: relative;
+
+        & > .tab {
+            background: var(--color-background-main);
+            position: absolute;
+            top: var(--tab-padding);
+            left: var(--tab-padding);
+            width: calc(100% - var(--tab-padding) * 2);
+            height: calc(100% - var(--tab-padding) * 2);
+            z-index: 0;
+
+            &.active {
+                z-index: 1;
+            }
+        }
     }
 `;
 
@@ -69,14 +86,21 @@ export const TabPresets = {
     },
 };
 
+export enum STRATEGY {
+    RENDER = 'RENDER',
+    Z_INDEX = 'Z_INDEX',
+}
+
 export type TabbedEditorProps = {
     children: React.ReactElement<TabProps> | React.ReactElement<TabProps>[];
     className?: string;
+    strategy?: STRATEGY;
 };
 
 export const TabbedEditor: React.FC<TabbedEditorProps> = ({
     children,
     className = '',
+    strategy = STRATEGY.RENDER,
 }) => {
     const [activeTab, setActiveTab] = useState(0);
 
@@ -98,7 +122,26 @@ export const TabbedEditor: React.FC<TabbedEditorProps> = ({
             </div>
 
             <div className="tab-content">
-                {React.Children.toArray(children)[activeTab]}
+                {
+                    {
+                        RENDER: React.Children.toArray(children)[activeTab],
+                        Z_INDEX: React.Children.map(
+                            children,
+                            (child, index) => {
+                                return (
+                                    <div
+                                        key={index}
+                                        className={`tab ${
+                                            index === activeTab ? 'active' : ''
+                                        }`}
+                                    >
+                                        {child}
+                                    </div>
+                                );
+                            }
+                        ),
+                    }[strategy]
+                }
             </div>
         </StyledTabbedEditor>
     );
