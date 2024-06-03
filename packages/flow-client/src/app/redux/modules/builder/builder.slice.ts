@@ -2,7 +2,12 @@ import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 import { Theme } from '../../../themes';
 import { RootState } from '../../store';
-import { flowActions } from '../flow/flow.slice';
+import {
+    flowActions,
+    FlowEntity,
+    FlowNodeEntity,
+    SubflowEntity,
+} from '../flow/flow.slice';
 
 export const BUILDER_FEATURE_KEY = 'builder';
 
@@ -15,10 +20,19 @@ export enum EDITING_TYPE {
 export type EditingState = {
     type: EDITING_TYPE;
     id: string;
-    data: {
-        propertiesFormHandle?: string;
-        nodeInstanceHandle?: string;
-    };
+    data: Partial<{
+        entityType: FlowNodeEntity['type'];
+        propertiesFormHandle: string;
+        nodeInstanceHandle: string;
+        name: FlowEntity['name'];
+        info: FlowEntity['info'];
+        env: FlowEntity['env'];
+        icon: SubflowEntity['icon'];
+        category: SubflowEntity['category'];
+        color: SubflowEntity['color'];
+        inputLabels: SubflowEntity['inputLabels'];
+        outputLabels: SubflowEntity['outputLabels'];
+    }>;
 } | null;
 
 // Define the state interface

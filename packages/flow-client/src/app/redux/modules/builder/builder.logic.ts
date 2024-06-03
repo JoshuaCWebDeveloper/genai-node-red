@@ -1,5 +1,6 @@
 import { AppDispatch, RootState } from '../../store';
 import { FlowLogic } from '../flow/flow.logic';
+import { flowActions } from '../flow/flow.slice';
 import { selectEditing } from './builder.slice';
 
 export class BuilderLogic {
@@ -33,10 +34,10 @@ export class BuilderLogic {
 
             ({
                 SUBFLOW: () => {
-                    /* empty */
+                    dispatch(flowActions.removeFlowEntity(editing.id));
                 },
                 FLOW: () => {
-                    /* empty */
+                    dispatch(flowActions.removeFlowEntity(editing.id));
                 },
                 NODE: () => dispatch(this.flow.node.editor.delete()),
             })[editing.type]();
@@ -52,10 +53,33 @@ export class BuilderLogic {
 
             ({
                 SUBFLOW: () => {
-                    /* empty */
+                    dispatch(
+                        flowActions.updateFlowEntity({
+                            id: editing.id,
+                            changes: {
+                                name: editing.data.name,
+                                info: editing.data.info,
+                                env: editing.data.env,
+                                color: editing.data.color,
+                                icon: editing.data.icon,
+                                category: editing.data.category,
+                                inputLabels: editing.data.inputLabels,
+                                outputLabels: editing.data.outputLabels,
+                            },
+                        })
+                    );
                 },
                 FLOW: () => {
-                    /* empty */
+                    dispatch(
+                        flowActions.updateFlowEntity({
+                            id: editing.id,
+                            changes: {
+                                name: editing.data.name,
+                                info: editing.data.info,
+                                env: editing.data.env,
+                            },
+                        })
+                    );
                 },
                 NODE: () => dispatch(this.flow.node.editor.save()),
             })[editing.type]();

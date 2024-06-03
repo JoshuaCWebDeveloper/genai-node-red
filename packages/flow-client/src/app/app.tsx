@@ -5,6 +5,7 @@ import { Header } from './components/header/header'; // Import the new Header co
 import { useAppSelector } from './redux/hooks';
 import { selectTheme } from './redux/modules/builder/builder.slice';
 import themes from './themes';
+import { Logger } from './logger';
 
 // StyledApp defines the main application container styles.
 // It ensures the flow canvas takes up the full viewport height for better visibility.
@@ -32,6 +33,7 @@ export function App() {
     return (
         <StyledApp>
             <GlobalTheme />
+            <Logger />
 
             <Header />
 

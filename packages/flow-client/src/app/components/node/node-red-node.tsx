@@ -45,7 +45,9 @@ export const NodeRedNode = ({
             {entity.icon && (
                 <img
                     className="icon"
-                    src={`${environment.NODE_RED_API_ROOT}/icons/node-red/${entity.icon}`}
+                    src={`${environment.NODE_RED_API_ROOT}/icons/${
+                        instance?.icon || `node-red/${entity.icon}`
+                    }`}
                     alt="Node Icon"
                 />
             )}

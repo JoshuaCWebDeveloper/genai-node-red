@@ -16,11 +16,6 @@ import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
 
 import { useAppDispatch, useAppLogic, useAppSelector } from '../../redux/hooks';
-import {
-    selectAllDirectories,
-    selectAllFlowEntities,
-    selectAllFlowNodes,
-} from '../../redux/modules/flow/flow.slice';
 import { SerializedGraph } from '../../redux/modules/flow/graph.logic';
 import { PaletteNodeEntity } from '../../redux/modules/palette/node.slice';
 import { ItemTypes } from '../node/draggable-item-types'; // Assuming ItemTypes is defined elsewhere
@@ -100,18 +95,6 @@ const debounce = (func: (...args: unknown[]) => void, wait: number) => {
         clearTimeout(timeout);
         timeout = setTimeout(later, wait);
     };
-};
-
-const LogFlowSlice = () => {
-    const flowEntities = useAppSelector(selectAllFlowEntities);
-    const flowNodes = useAppSelector(selectAllFlowNodes);
-    const directories = useAppSelector(selectAllDirectories);
-
-    useEffect(() => {
-        console.log('Flow state: ', { flowEntities, flowNodes, directories });
-    }, [flowEntities, flowNodes, directories]);
-
-    return null; // This component does not render anything
 };
 
 // engine.registerListener({
@@ -295,6 +278,9 @@ export const FlowCanvas: React.FC<FlowCanvasProps> = ({ flowId }) => {
                     name: '',
                     inputs: 1,
                     outputs: 1,
+                    inputLabels: [],
+                    outputLabels: [],
+                    icon: `node-red/${entity.icon}`,
                     wires: [],
                     inPorts: [],
                     outPorts: [],
@@ -353,7 +339,6 @@ export const FlowCanvas: React.FC<FlowCanvasProps> = ({ flowId }) => {
             ref={drop}
             tabIndex={0}
         >
-            <LogFlowSlice />
             {model ? (
                 <StyledCanvasWidget engine={engine} className="flow-canvas" />
             ) : (

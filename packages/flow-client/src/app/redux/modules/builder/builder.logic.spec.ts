@@ -2,8 +2,9 @@ import { MockedFunction } from 'vitest';
 import '../../../../../vitest-esbuild-compat';
 
 import { RootState } from '../../store';
-import { BuilderLogic } from './builder.logic';
 import { FlowLogic } from '../flow/flow.logic';
+import { EnvVarType, flowActions } from '../flow/flow.slice';
+import { BuilderLogic } from './builder.logic';
 import { EDITING_TYPE, selectEditing } from './builder.slice';
 
 vi.mock('./builder.slice', async importOriginal => {
@@ -48,7 +49,7 @@ describe('BuilderLogic', () => {
             expect(mockDispatch).not.toHaveBeenCalled();
         });
 
-        it('calls the appropriate cancel method based on editing type', async () => {
+        it('handles NODE editing type correctly', async () => {
             mockedSelectEditing.mockReturnValueOnce({
                 type: EDITING_TYPE.NODE,
                 id: '123',
@@ -60,6 +61,32 @@ describe('BuilderLogic', () => {
             await action(mockDispatch, mockGetState);
 
             expect(mockFlowLogic.node.editor.cancel).toHaveBeenCalled();
+        });
+
+        it('handles FLOW editing type correctly', async () => {
+            mockedSelectEditing.mockReturnValueOnce({
+                type: EDITING_TYPE.FLOW,
+                id: '123',
+                data: {},
+            });
+
+            const action = builderLogic.editorCancel();
+            await action(mockDispatch, mockGetState);
+
+            expect(mockDispatch).not.toHaveBeenCalled();
+        });
+
+        it('handles SUBFLOW editing type correctly', async () => {
+            mockedSelectEditing.mockReturnValueOnce({
+                type: EDITING_TYPE.SUBFLOW,
+                id: '123',
+                data: {},
+            });
+
+            const action = builderLogic.editorCancel();
+            await action(mockDispatch, mockGetState);
+
+            expect(mockDispatch).not.toHaveBeenCalled();
         });
     });
 
@@ -73,7 +100,7 @@ describe('BuilderLogic', () => {
             expect(mockDispatch).not.toHaveBeenCalled();
         });
 
-        it('calls the appropriate delete method based on editing type', async () => {
+        it('handles NODE editing type correctly', async () => {
             mockedSelectEditing.mockReturnValueOnce({
                 type: EDITING_TYPE.NODE,
                 id: '123',
@@ -85,6 +112,36 @@ describe('BuilderLogic', () => {
             await action(mockDispatch, mockGetState);
 
             expect(mockFlowLogic.node.editor.delete).toHaveBeenCalled();
+        });
+
+        it('handles FLOW editing type correctly', async () => {
+            mockedSelectEditing.mockReturnValueOnce({
+                type: EDITING_TYPE.FLOW,
+                id: '123',
+                data: {},
+            });
+
+            const action = builderLogic.editorDelete();
+            await action(mockDispatch, mockGetState);
+
+            expect(mockDispatch).toHaveBeenCalledWith(
+                flowActions.removeFlowEntity('123')
+            );
+        });
+
+        it('handles SUBFLOW editing type correctly', async () => {
+            mockedSelectEditing.mockReturnValueOnce({
+                type: EDITING_TYPE.SUBFLOW,
+                id: '123',
+                data: {},
+            });
+
+            const action = builderLogic.editorDelete();
+            await action(mockDispatch, mockGetState);
+
+            expect(mockDispatch).toHaveBeenCalledWith(
+                flowActions.removeFlowEntity('123')
+            );
         });
     });
 
@@ -98,7 +155,7 @@ describe('BuilderLogic', () => {
             expect(mockDispatch).not.toHaveBeenCalled();
         });
 
-        it('calls the appropriate save method based on editing type', async () => {
+        it('handles NODE editing type correctly', async () => {
             mockedSelectEditing.mockReturnValueOnce({
                 type: EDITING_TYPE.NODE,
                 id: '123',
@@ -110,6 +167,92 @@ describe('BuilderLogic', () => {
             await action(mockDispatch, mockGetState);
 
             expect(mockFlowLogic.node.editor.save).toHaveBeenCalled();
+        });
+
+        it('handles FLOW editing type correctly', async () => {
+            mockedSelectEditing.mockReturnValueOnce({
+                type: EDITING_TYPE.FLOW,
+                id: '123',
+                data: {
+                    name: 'Flow Name',
+                    info: 'Flow Info',
+                    env: [
+                        {
+                            name: 'Flow Env',
+                            value: 'Flow Value',
+                            type: EnvVarType.STR,
+                        },
+                    ],
+                },
+            });
+
+            const action = builderLogic.editorSave();
+            await action(mockDispatch, mockGetState);
+
+            expect(mockDispatch).toHaveBeenCalledWith(
+                flowActions.updateFlowEntity({
+                    id: '123',
+                    changes: {
+                        name: 'Flow Name',
+                        info: 'Flow Info',
+                        env: [
+                            {
+                                name: 'Flow Env',
+                                value: 'Flow Value',
+                                type: EnvVarType.STR,
+                            },
+                        ],
+                    },
+                })
+            );
+        });
+
+        it('handles SUBFLOW editing type correctly', async () => {
+            mockedSelectEditing.mockReturnValueOnce({
+                type: EDITING_TYPE.SUBFLOW,
+                id: '123',
+                data: {
+                    name: 'Subflow Name',
+                    info: 'Subflow Info',
+                    env: [
+                        {
+                            name: 'Subflow Env',
+                            value: 'Subflow Value',
+                            type: EnvVarType.STR,
+                        },
+                    ],
+                    color: 'Subflow Color',
+                    icon: 'Subflow Icon',
+                    category: 'Subflow Category',
+                    inputLabels: ['Input 1'],
+                    outputLabels: ['Output 1'],
+                },
+            });
+
+            const action = builderLogic.editorSave();
+            await action(mockDispatch, mockGetState);
+
+            expect(mockDispatch).toHaveBeenCalledWith(
+                flowActions.updateFlowEntity({
+                    id: '123',
+                    changes: {
+                        name: 'Subflow Name',
+                        info: 'Subflow Info',
+                        env: [
+                            {
+                                name: 'Subflow Env',
+                                value: 'Subflow Value',
+                                type: EnvVarType.STR,
+                            },
+                        ],
+                        color: 'Subflow Color',
+                        icon: 'Subflow Icon',
+                        category: 'Subflow Category',
+                        inputLabels: ['Input 1'],
+                        outputLabels: ['Output 1'],
+                    },
+                })
+            );
         });
     });
 });

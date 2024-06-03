@@ -1,22 +1,16 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
-import { v4 as uuidv4 } from 'uuid';
 
-import { useAppSelector } from '../../redux/hooks';
+import { useAppDispatch, useAppLogic, useAppSelector } from '../../redux/hooks';
 import {
     builderActions,
     selectActiveFlow,
-    selectNewFlowCounter,
     selectOpenFlows,
     selectTheme,
 } from '../../redux/modules/builder/builder.slice';
-import {
-    flowActions,
-    selectFlowEntities,
-} from '../../redux/modules/flow/flow.slice';
-import { FlowCanvas } from '../flow-canvas/flow-canvas';
+import { selectFlowEntities } from '../../redux/modules/flow/flow.slice';
 import { Theme } from '../../themes';
+import { FlowCanvas } from '../flow-canvas/flow-canvas';
 
 const StyledTabManager = styled.div<{ dropdownX: number; customTheme: Theme }>`
     flex-grow: 1;
@@ -181,11 +175,11 @@ const StyledTabManager = styled.div<{ dropdownX: number; customTheme: Theme }>`
 `;
 
 export const TabManager = () => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
+    const flowLogic = useAppLogic().flow;
     const flowEntities = useAppSelector(selectFlowEntities);
     const openFlows = useAppSelector(selectOpenFlows);
     const activeFlow = useAppSelector(selectActiveFlow);
-    const flowCounter = useAppSelector(selectNewFlowCounter);
     const theme = useAppSelector(selectTheme);
 
     const tabContentRef = useRef<HTMLDivElement>(null);
@@ -222,39 +216,14 @@ export const TabManager = () => {
     );
 
     const createNewFlow = useCallback(() => {
-        const flowId = uuidv4();
-        dispatch(
-            flowActions.addFlowEntity({
-                id: flowId,
-                type: 'flow',
-                name: `New Flow${flowCounter ? ` ${flowCounter}` : ''}`,
-                disabled: false,
-                info: '',
-                env: [],
-            })
-        );
-        dispatch(builderActions.addNewFlow(flowId));
-        dispatch(builderActions.setActiveFlow(flowId));
+        dispatch(flowLogic.createNewFlow());
         setShowDropdown(false); // Hide dropdown after selection
-    }, [dispatch, flowCounter]);
+    }, [dispatch, flowLogic]);
 
     const createNewSubflow = useCallback(() => {
-        const subflowId = uuidv4();
-        dispatch(
-            flowActions.addFlowEntity({
-                id: subflowId,
-                type: 'subflow',
-                name: `New Subflow${flowCounter ? ` ${flowCounter}` : ''}`,
-                category: 'subflows',
-                color: '#ddaa99',
-                info: '',
-                env: [],
-            })
-        );
-        dispatch(builderActions.addNewFlow(subflowId));
-        dispatch(builderActions.setActiveFlow(subflowId));
+        dispatch(flowLogic.createNewSubflow());
         setShowDropdown(false); // Hide dropdown after selection
-    }, [dispatch, flowCounter]);
+    }, [dispatch, flowLogic]);
 
     useEffect(() => {
         if (activeFlow) {

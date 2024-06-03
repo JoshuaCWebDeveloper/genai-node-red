@@ -9,6 +9,29 @@ import { RootState } from '../../store';
 
 export const FLOW_FEATURE_KEY = 'flow';
 
+export enum EnvVarType {
+    MSG = 'msg',
+    FLOW = 'flow',
+    GLOBAL = 'global',
+    STR = 'str',
+    NUM = 'num',
+    BOOL = 'bool',
+    JSON = 'json',
+    RE = 're',
+    DATE = 'date',
+    JSONATA = 'jsonata',
+    BIN = 'bin',
+    ENV = 'env',
+    NODE = 'node',
+    CRED = 'cred',
+}
+
+export type EnvironmentVariable = {
+    name: string;
+    value: string;
+    type: EnvVarType;
+};
+
 export type PointModel = {
     id: string;
     type: string;
@@ -67,6 +90,10 @@ export interface FlowNodeEntity {
     outputs: number;
     wires: string[][]; // For nodes, to represent connections
     credentials?: Record<string, unknown>;
+    icon?: string;
+    info?: string;
+    inputLabels: string[];
+    outputLabels: string[];
     [key: string]: unknown; // To allow for other properties dynamically
     // React Diagrams
     selected?: boolean;
@@ -82,7 +109,7 @@ export interface FlowEntity {
     name: string;
     disabled: boolean;
     info: string;
-    env: unknown[];
+    env: EnvironmentVariable[];
     directory?: string;
 }
 
@@ -92,11 +119,13 @@ export interface SubflowEntity {
     name: string;
     info: string;
     category: string;
-    env: unknown[];
+    env: EnvironmentVariable[];
     color: string;
     icon?: string;
-    in?: unknown[];
-    out?: unknown[];
+    in?: FlowNodeEntity[];
+    out?: FlowNodeEntity[];
+    inputLabels: string[];
+    outputLabels: string[];
     directory?: string;
 }
 

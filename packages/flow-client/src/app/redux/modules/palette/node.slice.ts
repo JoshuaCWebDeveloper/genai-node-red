@@ -7,6 +7,7 @@ import {
 } from '@reduxjs/toolkit';
 
 import { RootState } from '../../store';
+import { selectAllSubflows } from '../flow/flow.slice';
 
 export const PALETTE_NODE_FEATURE_KEY = 'paletteNode';
 
@@ -149,6 +150,21 @@ export const {
 export const selectNodesByNodeRedId = createSelector(
     [selectAllPaletteNodes, (state, nodeRedId: string) => nodeRedId],
     (nodes, nodeRedId) => nodes.filter(node => node.nodeRedId === nodeRedId)
+);
+
+const selectSubflowCategories = createSelector(selectAllSubflows, subflows => [
+    ...new Set(subflows.map(subflow => subflow.category)),
+]);
+
+export const selectCategories = createSelector(
+    [selectAllPaletteNodes, selectSubflowCategories],
+    (nodes, subflowCategories) =>
+        Array.from(
+            new Set([
+                ...subflowCategories,
+                ...nodes.map(node => node.category || 'other'),
+            ])
+        )
 );
 
 // Selector for searchQuery

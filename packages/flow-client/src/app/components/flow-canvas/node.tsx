@@ -202,7 +202,14 @@ export const Node: React.FC<NodeProps> = ({ node, engine }) => {
             builderActions.setEditing({
                 id: node.getID(),
                 type: EDITING_TYPE.NODE,
-                data: {},
+                data: {
+                    entityType: node.entity?.type,
+                    info: node.config?.info,
+                    name: node.config?.name,
+                    icon: node.config?.icon,
+                    inputLabels: node.config?.inputLabels,
+                    outputLabels: node.config?.outputLabels,
+                },
             })
         );
     };
