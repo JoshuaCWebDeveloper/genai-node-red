@@ -1,24 +1,27 @@
 import { MockedFunction } from 'vitest';
 import '../../../../../vitest-esbuild-compat';
 
-import { RootState } from '../../store';
-import { NodeEditorLogic } from './node-editor.logic';
-import { NodeLogic } from './node.logic';
-import { FlowNodeEntity, flowActions, selectFlowNodeById } from './flow.slice';
 import {
-    PaletteNodeEntity,
-    selectPaletteNodeById,
-} from '../palette/node.slice';
+    createNodeInstance,
+    executeNodeFn,
+    finalizeNodeEditor,
+} from '../../../red/execute-script';
+import { RootState } from '../../store';
 import {
     EDITING_TYPE,
     builderActions,
     selectEditing,
 } from '../builder/builder.slice';
+import { PaletteNodeEntity } from '../palette/node.slice';
 import {
-    executeNodeFn,
-    createNodeInstance,
-    finalizeNodeEditor,
-} from '../../../red/execute-script';
+    FlowNodeEntity,
+    SubflowEntity,
+    flowActions,
+    selectFlowEntityById,
+    selectFlowNodeById,
+} from './flow.slice';
+import { NodeEditorLogic } from './node-editor.logic';
+import { NodeLogic } from './node.logic';
 
 vi.mock('../builder/builder.slice', async importOriginal => {
     const originalModule = await importOriginal<
@@ -30,16 +33,6 @@ vi.mock('../builder/builder.slice', async importOriginal => {
     };
 });
 
-vi.mock('../palette/node.slice', async importOriginal => {
-    const originalModule = await importOriginal<
-        typeof import('../palette/node.slice')
-    >();
-    return {
-        ...originalModule,
-        selectPaletteNodeById: vi.fn(() => null),
-    };
-});
-
 vi.mock('./flow.slice', async importOriginal => {
     const originalModule = await importOriginal<
         typeof import('./flow.slice')
@@ -47,6 +40,7 @@ vi.mock('./flow.slice', async importOriginal => {
     return {
         ...originalModule,
         selectFlowNodeById: vi.fn(() => null),
+        selectFlowEntityById: vi.fn(() => null),
     };
 });
 
@@ -71,8 +65,8 @@ const mockedSelectEditing = selectEditing as MockedFunction<
 const mockedSelectFlowNodeById = selectFlowNodeById as MockedFunction<
     typeof selectFlowNodeById
 >;
-const mockedSelectPaletteNodeById = selectPaletteNodeById as MockedFunction<
-    typeof selectPaletteNodeById
+const mockedSelectFlowEntityById = selectFlowEntityById as MockedFunction<
+    typeof selectFlowEntityById
 >;
 const mockedExecuteNodeFn = executeNodeFn as MockedFunction<
     typeof executeNodeFn
@@ -142,9 +136,16 @@ describe('node-editor.logic', () => {
         defaults: {},
     } as PaletteNodeEntity;
 
+    const mockSelectPaletteNodeByFlowNode =
+        vi.fn() as unknown as MockedFunction<
+            NodeLogic['selectPaletteNodeByFlowNode']
+        >;
+
     beforeEach(() => {
         vi.clearAllMocks();
-        mockNodeLogic = {} as NodeLogic;
+        mockNodeLogic = {
+            selectPaletteNodeByFlowNode: mockSelectPaletteNodeByFlowNode,
+        } as unknown as NodeLogic;
         nodeEditorLogic = new NodeEditorLogic(mockNodeLogic);
         Object.assign(nodeEditorLogic, {
             nodeInstances: {
@@ -157,7 +158,7 @@ describe('node-editor.logic', () => {
         });
         mockedSelectEditing.mockReturnValue(mockEditingState);
         mockedSelectFlowNodeById.mockReturnValue(mockFlowNode);
-        mockedSelectPaletteNodeById.mockReturnValue(mockPaletteNode);
+        mockSelectPaletteNodeByFlowNode.mockReturnValue(mockPaletteNode);
     });
 
     describe('setPropertiesForm', () => {
@@ -308,6 +309,42 @@ describe('node-editor.logic', () => {
                 )
             );
         });
+
+        it('should include env property in updates when editing a subflow', async () => {
+            const mockSubflowNode = {
+                ...mockFlowNode,
+                type: 'subflow:subflow1',
+                env: [{ name: 'ENV_VAR', value: 'value' }],
+            } as FlowNodeEntity;
+
+            const mockSubflow = {
+                id: 'subflow1',
+                type: 'subflow',
+                nodes: [],
+                links: [],
+                name: 'test',
+                info: 'test info',
+                category: 'test',
+                env: [{ name: 'ENV_VAR', value: 'value', type: 'str' }],
+                color: 'test',
+            } as SubflowEntity;
+
+            mockedSelectFlowNodeById.mockReturnValue(mockSubflowNode);
+            mockedSelectFlowEntityById.mockReturnValue(mockSubflow);
+            mockNodeLogic.updateFlowNode = vi.fn();
+
+            const thunk = nodeEditorLogic.save();
+            await thunk(mockDispatch, mockGetState);
+
+            expect(mockDispatch).toHaveBeenCalledWith(
+                mockNodeLogic.updateFlowNode(
+                    mockSubflowNode.id,
+                    expect.objectContaining({
+                        env: mockSubflowNode.env,
+                    })
+                )
+            );
+        });
     });
 
     describe('load', () => {
@@ -339,6 +376,42 @@ describe('node-editor.logic', () => {
 
             expect(mockedExecuteNodeFn).not.toHaveBeenCalled();
             expect(mockedFinalizeNodeEditor).not.toHaveBeenCalled();
+        });
+
+        it('should set nodeInstance.subflow when editing a subflow', async () => {
+            const mockSubflow = {
+                id: 'subflow1',
+                type: 'subflow',
+                nodes: [],
+                links: [],
+                name: 'test',
+                info: 'test info',
+                category: 'test',
+                env: [],
+                color: 'test',
+            } as SubflowEntity;
+
+            const mockSubflowNode = {
+                ...mockFlowNode,
+                type: 'subflow:subflow1',
+            } as FlowNodeEntity;
+
+            mockedCreateNodeInstance.mockReturnValue(
+                mockNodeInstance as ReturnType<typeof createNodeInstance>
+            );
+
+            mockedSelectFlowNodeById.mockReturnValue(mockSubflowNode);
+
+            mockedSelectFlowEntityById.mockReturnValue(mockSubflow);
+
+            const thunk = nodeEditorLogic.load();
+            await thunk(mockDispatch, mockGetState);
+
+            expect(mockedCreateNodeInstance).toHaveBeenCalledWith(
+                mockSubflowNode
+            );
+            const nodeInstance = mockedCreateNodeInstance.mock.results[0].value;
+            expect(nodeInstance.subflow).toEqual(mockSubflow);
         });
     });
 

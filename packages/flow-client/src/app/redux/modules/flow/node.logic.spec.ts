@@ -533,4 +533,128 @@ describe('node.logic', () => {
             expect(result).toMatchObject(expectedPaletteNodes);
         });
     });
+
+    describe('selectPaletteNodeByFlowNode', () => {
+        it('should return the correct palette node for a given flow node', () => {
+            const flowNode: FlowNodeEntity = {
+                id: 'node1',
+                type: 'custom-node',
+                x: 100,
+                y: 200,
+                z: 'flow1',
+                name: 'Test Node',
+                wires: [],
+                inPorts: [],
+                outPorts: [],
+                links: {},
+                inputs: 1,
+                outputs: 1,
+            };
+
+            const paletteNode: PaletteNodeEntity = {
+                id: 'custom-node',
+                type: 'custom-node',
+                nodeRedId: 'node1',
+                nodeRedName: 'Test Node',
+                name: 'Test Node',
+                module: 'test-module',
+                version: '1.0.0',
+            };
+
+            mockedSelectPaletteNodeById.mockImplementation((_state, id) => {
+                if (id === 'custom-node') {
+                    return paletteNode;
+                }
+                return undefined as unknown as PaletteNodeEntity;
+            });
+
+            const result = nodeLogic.selectPaletteNodeByFlowNode(
+                {} as RootState,
+                flowNode
+            );
+
+            expect(result).toEqual(paletteNode);
+        });
+
+        it('should return the correct subflow palette node for a given subflow node', () => {
+            const flowNode: FlowNodeEntity = {
+                id: 'node1',
+                type: 'subflow:subflow1',
+                x: 100,
+                y: 200,
+                z: 'flow1',
+                name: 'Test Subflow Node',
+                wires: [],
+                inPorts: [],
+                outPorts: [],
+                links: {},
+                inputs: 1,
+                outputs: 1,
+            };
+
+            const subflow: SubflowEntity = {
+                id: 'subflow1',
+                name: 'Subflow One',
+                type: 'subflow',
+                category: 'default',
+                color: '#FF0000',
+                info: '',
+                env: [],
+            };
+
+            const expectedPaletteNode: PaletteNodeEntity = {
+                id: 'subflow:subflow1',
+                nodeRedId: '',
+                nodeRedName: 'Subflow One',
+                name: 'Subflow One',
+                type: 'subflow:subflow1',
+                category: 'default',
+                color: '#FF0000',
+                module: 'subflows',
+                version: '1.0.0',
+            };
+
+            mockedSelectFlowEntityById.mockImplementation((state, id) => {
+                if (id === 'subflow1') {
+                    return subflow;
+                }
+                return undefined as unknown as SubflowEntity;
+            });
+
+            const result = nodeLogic.selectPaletteNodeByFlowNode(
+                {} as RootState,
+                flowNode
+            );
+
+            expect(result).toMatchObject(expectedPaletteNode);
+        });
+
+        it('should return undefined for a non-existent flow node type', () => {
+            const flowNode: FlowNodeEntity = {
+                id: 'node1',
+                type: 'non-existent-node',
+                x: 100,
+                y: 200,
+                z: 'flow1',
+                name: 'Non-existent Node',
+                wires: [],
+                inPorts: [],
+                outPorts: [],
+                links: {},
+                inputs: 1,
+                outputs: 1,
+            };
+
+            mockedSelectPaletteNodeById.mockImplementation(
+                () => undefined as unknown as PaletteNodeEntity
+            );
+
+            const result = nodeLogic.selectPaletteNodeByFlowNode(
+                {} as RootState,
+                flowNode
+            );
+
+            expect(result).toBeUndefined();
+        });
+    });
 });

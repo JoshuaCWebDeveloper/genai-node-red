@@ -1,5 +1,8 @@
 import environment from '../../environment';
-import { FlowNodeEntity } from '../redux/modules/flow/flow.slice';
+import {
+    FlowNodeEntity,
+    SubflowEntity,
+} from '../redux/modules/flow/flow.slice';
 import { PaletteNodeEntity } from '../redux/modules/palette/node.slice';
 import { JqueryContext } from './mock-jquery';
 import { createMockRed } from './mock-red';
@@ -50,7 +53,9 @@ export const createNodeInstance = (nodeConfig: FlowNodeEntity) => {
         }
     );
 
-    return nodeInstance;
+    return nodeInstance as typeof nodeInstance & {
+        subflow?: SubflowEntity;
+    };
 };
 
 // Utility function to deserialize a function from its serialized string representation

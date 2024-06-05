@@ -1,19 +1,24 @@
 import { createSelector } from '@reduxjs/toolkit';
 
+import {
+    createNodeInstance,
+    executeNodeFn,
+    finalizeNodeEditor,
+} from '../../../red/execute-script';
 import { AppDispatch, RootState } from '../../store';
 import {
     EditingState,
     builderActions,
     selectEditing,
 } from '../builder/builder.slice';
-import { NodeLogic } from './node.logic';
-import { FlowNodeEntity, flowActions, selectFlowNodeById } from './flow.slice';
-import { selectPaletteNodeById } from '../palette/node.slice';
 import {
-    createNodeInstance,
-    executeNodeFn,
-    finalizeNodeEditor,
-} from '../../../red/execute-script';
+    FlowNodeEntity,
+    SubflowEntity,
+    flowActions,
+    selectFlowEntityById,
+    selectFlowNodeById,
+} from './flow.slice';
+import { NodeLogic } from './node.logic';
 
 export class NodeEditorLogic {
     private propertiesForms: Record<string, HTMLFormElement> = {};
@@ -58,9 +63,9 @@ export class NodeEditorLogic {
                 ? this.nodeInstances[nodeInstanceHandle]
                 : undefined;
             const editingFlowNode = selectFlowNodeById(state, id);
-            const editingPaletteNode = selectPaletteNodeById(
+            const editingPaletteNode = this.node.selectPaletteNodeByFlowNode(
                 state,
-                editingFlowNode.type
+                editingFlowNode
             );
             return {
                 editingData: editing.data,
@@ -238,6 +243,14 @@ export class NodeEditorLogic {
                 });
             }
 
+            // if this is a subflow instance
+            if (editingFlowNode.type.startsWith('subflow:')) {
+                // set subflow env (special handling by Node RED)
+                if (Object.prototype.hasOwnProperty.call(nodeInstance, 'env')) {
+                    nodeUpdates.env = nodeInstance.env;
+                }
+            }
+
             // update node
             dispatch(
                 this.node.updateFlowNode(editingFlowNode.id, {
@@ -308,8 +321,16 @@ export class NodeEditorLogic {
                     formFields[key].value = '';
                 });
             }
-            // exec oneditprepare
+            // create node instance
             const nodeInstance = createNodeInstance(editingFlowNode);
+            // attach subflow template if applicable
+            if (editingFlowNode.type.startsWith('subflow:')) {
+                nodeInstance.subflow = selectFlowEntityById(
+                    getState(),
+                    editingFlowNode.type.split(':')[1]
+                ) as SubflowEntity;
+            }
+            // exec oneditprepare
             const context =
                 (propertiesForm.getRootNode() as ShadowRoot) ?? undefined;
             executeNodeFn(

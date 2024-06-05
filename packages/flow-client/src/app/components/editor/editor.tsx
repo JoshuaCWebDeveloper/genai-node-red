@@ -46,11 +46,15 @@ const StyledEditor = styled.div`
     .editor-header {
         display: flex;
         justify-content: space-between;
+        align-items: center;
 
         p {
-            font-size: 1.4em;
+            font-size: 1em;
             font-weight: 500;
             margin: 0.5rem 1rem;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            white-space: nowrap;
         }
 
         .actions {
@@ -146,7 +150,11 @@ export const Editor = () => {
                             {
                                 FLOW: 'Edit flow',
                                 SUBFLOW: 'Edit subflow',
-                                NODE: `Edit ${editing.data.entityType} node`,
+                                NODE: editing.data.entityType?.startsWith(
+                                    'subflow:'
+                                )
+                                    ? `Edit subflow instance: ${editing.data.name}`
+                                    : `Edit ${editing.data.entityType} node`,
                             }[editing.type]
                         }
                     </p>
