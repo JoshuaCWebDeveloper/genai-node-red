@@ -89,6 +89,13 @@ The backlog is organized by epic, with each task having a unique ID, description
 -   **SF-04**: Refactor Flow Slice to Manage Entity Collections
     -   **Objective**: Enhance data management by refactoring the flow slice to handle separate entity collections of flows/subflows, nodes, and directories.
     -   **Technical Requirements**: Redesign the state management to segregate and manage distinct collections for better modularity and maintainability.
+-   **SF-05**: Implement Input/Output Functionality for Subflows
+    -   **Objective**: Enable users to define and manage inputs and outputs for subflows.
+    -   **Technical Requirements**:
+        -   Set the number of inputs and outputs in the workspace editing interface.
+        -   Position and wire input/output nodes within the subflow.
+        -   Correctly render subflow instances with the appropriate number of inputs and outputs.
+        -   Correctly apply input and output labels to subflows and their instances.
 
 #### Epic: Backend Integration and Data Management
 
@@ -210,7 +217,7 @@ The backlog is organized by epic, with each task having a unique ID, description
 
 | To Do | In Progress | In Review | Done  |
 | ----- | ----------- | --------- | ----- |
-|       |             |           | SF-04 |
+| SF-05 |             |           | SF-04 |
 |       |             |           | SF-01 |
 |       |             |           | SF-02 |
 |       |             |           | SF-03 |
