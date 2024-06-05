@@ -360,7 +360,7 @@ export class NodeLogic {
             },
             type: id,
             category: subflow.category,
-            icon: 'subflow.svg',
+            icon: subflow.icon,
             color: subflow.color,
             inputs: subflow.in?.length ?? 0,
             outputs: subflow.out?.length ?? 0,
