@@ -190,7 +190,9 @@ export const NodeEditor = ({}: NodeEditorProps) => {
         selectFlowNodeById(state, editing?.id ?? '')
     ) as FlowNodeEntity;
     const editingNodeEntity = useAppSelector(state =>
-        flowLogic.node.selectPaletteNodeByFlowNode(state, editingNode)
+        editingNode
+            ? flowLogic.node.selectPaletteNodeByFlowNode(state, editingNode)
+            : null
     );
     const { propertiesForm } =
         useAppSelector(flowLogic.node.editor.selectEditorState) ?? {};
