@@ -6,7 +6,6 @@ import {
     FlowNodeEntity,
     selectFlowNodeById,
 } from '../../redux/modules/flow/flow.slice';
-import { selectPaletteNodeById } from '../../redux/modules/palette/node.slice';
 import { Description } from './form/description';
 import { EditorForm } from './form/editor-form';
 import { Icon } from './form/icon';
@@ -191,7 +190,7 @@ export const NodeEditor = ({}: NodeEditorProps) => {
         selectFlowNodeById(state, editing?.id ?? '')
     ) as FlowNodeEntity;
     const editingNodeEntity = useAppSelector(state =>
-        selectPaletteNodeById(state, editingNode?.type)
+        flowLogic.node.selectPaletteNodeByFlowNode(state, editingNode)
     );
     const { propertiesForm } =
         useAppSelector(flowLogic.node.editor.selectEditorState) ?? {};
@@ -228,7 +227,7 @@ export const NodeEditor = ({}: NodeEditorProps) => {
         loaded.current = true;
     }, [dispatch, flowLogic.node.editor, propertiesForm]);
 
-    if (!editingNode) return null;
+    if (!editingNode || !editingNodeEntity) return null;
 
     return (
         <StyledNodeEditor strategy={STRATEGY.Z_INDEX}>

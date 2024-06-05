@@ -322,9 +322,9 @@ export class NodeLogic {
                 getState(),
                 nodeId
             ) as FlowNodeEntity;
-            const nodeEntity = selectPaletteNodeById(
+            const nodeEntity = this.selectPaletteNodeByFlowNode(
                 getState(),
-                nodeInstance.type
+                nodeInstance
             ) as PaletteNodeEntity;
 
             const newChanges = {
@@ -392,6 +392,20 @@ export class NodeLogic {
                         return [paletteNode.id, paletteNode];
                     })
             );
+        }
+    );
+
+    selectPaletteNodeByFlowNode = createSelector(
+        [state => state, (_, flowNode: FlowNodeEntity) => flowNode],
+        (state, flowNode) => {
+            // either get the palette node or the subflow
+            if (flowNode.type.startsWith('subflow:')) {
+                return this.selectSubflowAsPaletteNodeById(
+                    state,
+                    flowNode.type.split(':')[1]
+                );
+            }
+            return selectPaletteNodeById(state, flowNode.type);
         }
     );
 }

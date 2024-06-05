@@ -6,14 +6,19 @@ import {
     builderActions,
     selectEditing,
 } from '../builder/builder.slice';
-import { NodeLogic } from './node.logic';
-import { FlowNodeEntity, flowActions, selectFlowNodeById } from './flow.slice';
-import { selectPaletteNodeById } from '../palette/node.slice';
 import {
     createNodeInstance,
     executeNodeFn,
     finalizeNodeEditor,
 } from '../../../red/execute-script';
+import {
+    FlowNodeEntity,
+    SubflowEntity,
+    flowActions,
+    selectFlowEntityById,
+    selectFlowNodeById,
+} from './flow.slice';
+import { NodeLogic } from './node.logic';
 
 export class NodeEditorLogic {
     private propertiesForms: Record<string, HTMLFormElement> = {};
@@ -58,9 +63,9 @@ export class NodeEditorLogic {
                 ? this.nodeInstances[nodeInstanceHandle]
                 : undefined;
             const editingFlowNode = selectFlowNodeById(state, id);
-            const editingPaletteNode = selectPaletteNodeById(
+            const editingPaletteNode = this.node.selectPaletteNodeByFlowNode(
                 state,
-                editingFlowNode.type
+                editingFlowNode
             );
             return {
                 editingData: editing.data,
