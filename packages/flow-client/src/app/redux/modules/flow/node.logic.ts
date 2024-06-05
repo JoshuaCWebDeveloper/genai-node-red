@@ -3,6 +3,10 @@ import { createSelector } from '@reduxjs/toolkit';
 import { v4 as uuidv4 } from 'uuid';
 
 import { executeNodeFn } from '../../../red/execute-script';
+import {
+    createSubflowDefinitionScript,
+    createSubflowEditorTemplate,
+} from '../../../red/subflow';
 import { AppDispatch, RootState } from '../../store';
 import {
     PaletteNodeEntity,
@@ -351,12 +355,19 @@ export class NodeLogic {
             nodeRedId: '',
             nodeRedName: subflow.name,
             name: subflow.name,
+            defaults: {
+                name: { value: subflow.name },
+            },
             type: id,
             category: subflow.category,
             icon: 'subflow.svg',
             color: subflow.color,
+            inputs: subflow.in?.length ?? 0,
+            outputs: subflow.out?.length ?? 0,
             module: 'subflows',
             version: '1.0.0',
+            editorTemplate: createSubflowEditorTemplate(subflow),
+            definitionScript: createSubflowDefinitionScript(subflow),
         } as PaletteNodeEntity;
     }
 
