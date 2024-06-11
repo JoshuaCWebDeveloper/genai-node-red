@@ -230,7 +230,7 @@ export const Node: React.FC<NodeProps> = ({ node, engine }) => {
     );
 
     const handleDoubleClick = useCallback(() => {
-        if (!node.entity) {
+        if (['in', 'out'].includes(node.config?.type ?? '')) {
             dispatch(builderLogic.editFlowEntityById(node.config?.z ?? ''));
         } else {
             dispatch(

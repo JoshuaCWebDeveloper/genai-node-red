@@ -208,7 +208,9 @@ export const Editor = () => {
                                         <span>{`Edit subflow instance: ${editing.data.name}`}</span>
                                     </>
                                 ) : (
-                                    `Edit ${editing.data.entityType} node`
+                                    `Edit ${
+                                        editing.data.entityType ?? 'unknown'
+                                    } node`
                                 ),
                             }[editing.type]
                         }

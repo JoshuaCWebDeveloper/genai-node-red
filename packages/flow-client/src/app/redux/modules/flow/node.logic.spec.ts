@@ -745,4 +745,40 @@ describe('node.logic', () => {
             expect(result).toBeUndefined();
         });
     });
+
+    describe('selectInOutPaletteNodeEntities()', () => {
+        let nodeLogic: NodeLogic;
+
+        beforeEach(() => {
+            nodeLogic = new NodeLogic();
+        });
+
+        it('should return in and out palette node entities', () => {
+            const result = nodeLogic.selectInOutPaletteNodeEntities();
+
+            expect(result).toMatchObject({
+                in: expect.objectContaining({
+                    id: 'in',
+                    type: 'in',
+                    name: 'In',
+                    module: 'subflows',
+                    version: '1.0.0',
+                }),
+                out: expect.objectContaining({
+                    id: 'out',
+                    type: 'out',
+                    name: 'Out',
+                    module: 'subflows',
+                    version: '1.0.0',
+                }),
+            });
+        });
+
+        it('should memoize the result', () => {
+            const firstResult = nodeLogic.selectInOutPaletteNodeEntities();
+            const secondResult = nodeLogic.selectInOutPaletteNodeEntities();
+
+            expect(firstResult).toBe(secondResult);
+        });
+    });
 });

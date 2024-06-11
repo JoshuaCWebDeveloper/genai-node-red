@@ -4,7 +4,6 @@ import { AppDispatch, RootState } from '../../store';
 import { builderActions, selectNewFlowCounter } from '../builder/builder.slice';
 import {
     FlowNodeEntity,
-    PortModel,
     SubflowEntity,
     flowActions,
     selectFlowEntityById,

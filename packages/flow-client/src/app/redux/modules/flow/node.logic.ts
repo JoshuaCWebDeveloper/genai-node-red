@@ -1,5 +1,5 @@
 import { PortModelAlignment } from '@projectstorm/react-diagrams';
-import { createSelector } from '@reduxjs/toolkit';
+import { createSelector, weakMapMemoize } from '@reduxjs/toolkit';
 import { v4 as uuidv4 } from 'uuid';
 
 import { executeNodeFn } from '../../../red/execute-script';
@@ -11,6 +11,7 @@ import { AppDispatch, RootState } from '../../store';
 import {
     PaletteNodeEntity,
     selectPaletteNodeById,
+    selectPaletteNodeEntities,
 } from '../palette/node.slice';
 import {
     FlowEntity,
@@ -425,7 +426,7 @@ export class NodeLogic {
     selectSubflowAsPaletteNodeById = createSelector(
         [selectFlowEntityById],
         (subflow: FlowEntity | SubflowEntity) => {
-            if (subflow.type === 'subflow') {
+            if (subflow?.type === 'subflow') {
                 return this.convertSubflowToPaletteNode(subflow);
             }
             return undefined;
@@ -467,6 +468,13 @@ export class NodeLogic {
         module: 'subflows',
         version: '1.0.0',
     };
+
+    selectInOutPaletteNodeEntities = weakMapMemoize(() => {
+        return {
+            in: this.inPaletteNode,
+            out: this.outPaletteNode,
+        } as ReturnType<typeof selectPaletteNodeEntities>;
+    });
 
     selectPaletteNodeByFlowNode = createSelector(
         [state => state, (_, flowNode: FlowNodeEntity) => flowNode],

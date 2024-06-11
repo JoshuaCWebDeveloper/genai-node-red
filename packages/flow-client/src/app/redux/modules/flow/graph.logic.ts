@@ -181,6 +181,7 @@ export class GraphLogic {
             const nodeEntities = {
                 ...selectPaletteNodeEntities(state),
                 ...this.nodeLogic.selectSubflowEntitiesAsPaletteNodes(state),
+                ...this.nodeLogic.selectInOutPaletteNodeEntities(),
             };
 
             // Construct NodeModels from flow nodes
