@@ -112,7 +112,7 @@ export const Icon: React.FC<IconProps> = ({
         >
             <label>Icon: </label>
 
-            <button className="select-icon">
+            <button type="button" className="select-icon">
                 <img
                     src={`${environment.NODE_RED_API_ROOT}/icons/${icon}`}
                     alt={icon}

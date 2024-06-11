@@ -122,8 +122,8 @@ export interface SubflowEntity {
     env: EnvironmentVariable[];
     color: string;
     icon?: string;
-    in?: FlowNodeEntity[];
-    out?: FlowNodeEntity[];
+    in?: string[];
+    out?: string[];
     inputLabels?: string[];
     outputLabels?: string[];
     directory?: string;
@@ -376,4 +376,15 @@ export const selectAllSubflows = createSelector(
 export const selectFlowNodesByFlowId = createSelector(
     [selectAllFlowNodes, (state: RootState, flowId: string) => flowId],
     (nodes, flowId) => nodes.filter(node => node.z === flowId)
+);
+
+export const selectSubflowInstancesByFlowId = createSelector(
+    [selectAllFlowNodes, (state: RootState, flowId: string) => flowId],
+    (entities, flowId) =>
+        entities.filter(entity => entity.type === `subflow:${flowId}`)
+);
+
+export const selectSubflowInOutByFlowId = createSelector(
+    [selectFlowNodesByFlowId],
+    nodes => nodes.filter(node => ['in', 'out'].includes(node.type))
 );

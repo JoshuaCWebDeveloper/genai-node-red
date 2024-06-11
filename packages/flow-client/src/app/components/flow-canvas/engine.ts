@@ -1,13 +1,16 @@
 import { Point } from '@projectstorm/geometry';
 import {
     AbstractReactFactory,
+    Action,
     BaseEvent,
     CanvasEngineOptions,
     DefaultDiagramState,
     DefaultLabelFactory,
     DefaultLinkFactory,
     DefaultPortFactory,
+    DeleteItemsActionOptions,
     DiagramEngine,
+    InputType,
     LayerModel,
     LayerModelGenerics,
     LinkLayerFactory,
@@ -16,10 +19,11 @@ import {
     SelectionBoxLayerFactory,
 } from '@projectstorm/react-diagrams';
 import { DropTargetMonitor } from 'react-dnd';
+import { KeyboardEvent } from 'react';
 
 import { SerializedGraph } from '../../redux/modules/flow/graph.logic';
 import { CustomDiagramModel } from './model';
-import { CustomNodeFactory } from './node';
+import { CustomNodeFactory, CustomNodeModel } from './node';
 
 export class CustomEngine extends DiagramEngine {
     constructor(options?: CanvasEngineOptions) {
@@ -176,8 +180,93 @@ export class CustomEngine extends DiagramEngine {
     }
 }
 
+const deepEqual = (a: unknown, b: unknown): boolean => {
+    if (a === b) return true;
+
+    if (
+        typeof a !== 'object' ||
+        typeof b !== 'object' ||
+        a === null ||
+        b === null
+    ) {
+        return false;
+    }
+
+    const keysA = Object.keys(a);
+    const keysB = Object.keys(b);
+
+    if (keysA.length !== keysB.length) return false;
+
+    for (const key of keysA) {
+        if (
+            !keysB.includes(key) ||
+            !deepEqual(
+                (a as Record<string, unknown>)[key],
+                (b as Record<string, unknown>)[key]
+            )
+        ) {
+            return false;
+        }
+    }
+
+    return true;
+};
+
+/**
+ * Deletes all selected items
+ */
+export class CustomDeleteItemsAction extends Action {
+    constructor(options: DeleteItemsActionOptions = {}) {
+        // convert keyCodes to new key values
+        const keyMap: Record<number, string> = { 46: 'Delete', 8: 'Backspace' };
+        const keys = options.keyCodes?.map(keyCode => keyMap[keyCode]) || [
+            'Delete',
+            'Backspace',
+        ];
+        const modifiers = Object.assign(
+            { ctrlKey: false, shiftKey: false, altKey: false, metaKey: false },
+            options.modifiers
+        );
+
+        super({
+            type: InputType.KEY_DOWN,
+            fire: event => {
+                const { key, ctrlKey, shiftKey, altKey, metaKey } =
+                    event.event as KeyboardEvent;
+                if (
+                    keys.indexOf(key) !== -1 &&
+                    deepEqual({ ctrlKey, shiftKey, altKey, metaKey }, modifiers)
+                ) {
+                    this.engine
+                        .getModel()
+                        .getSelectedEntities()
+                        .forEach(model => {
+                            // don't delete in/out nodes
+                            if (
+                                model instanceof CustomNodeModel &&
+                                ['in', 'out'].includes(model.config?.type ?? '')
+                            ) {
+                                return;
+                            }
+
+                            // only delete items which are not locked
+                            if (!model.isLocked()) {
+                                model.remove();
+                            }
+                        });
+                    this.engine.repaintCanvas();
+                }
+            },
+        });
+    }
+}
+
 export const createEngine = (options = {}) => {
-    const engine = new CustomEngine(options);
+    const engine = new CustomEngine({
+        ...options,
+        registerDefaultDeleteItemsAction: false,
+    });
+
     // register model factories
     engine
         .getLayerFactories()
@@ -201,7 +290,10 @@ export const createEngine = (options = {}) => {
     engine.getLinkFactories().registerFactory(new DefaultLinkFactory());
     engine.getLinkFactories().registerFactory(new PathFindingLinkFactory());
     engine.getPortFactories().registerFactory(new DefaultPortFactory());
+
     // register the default interaction behaviors
     engine.getStateMachine().pushState(new DefaultDiagramState());
+    engine.getActionEventBus().registerAction(new CustomDeleteItemsAction());
+
     return engine;
 };

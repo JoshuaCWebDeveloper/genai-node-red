@@ -8,10 +8,9 @@ import React, {
     useState,
 } from 'react';
 import { useDrag, useDrop } from 'react-dnd';
-import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
 
-import { useAppLogic, useAppSelector } from '../../redux/hooks';
+import { useAppDispatch, useAppLogic, useAppSelector } from '../../redux/hooks';
 import {
     builderActions,
     selectNewTreeItem,
@@ -22,11 +21,11 @@ import {
     TreeItemData,
 } from '../../redux/modules/flow/tree.logic';
 import { CollapsibleIcon } from '../shared/collapsible-icon';
-import { Tooltip } from '../shared/tooltip';
-import { RenameForm } from './rename-form';
 import ConfirmableDeleteButton, {
     useConfirmableDelete,
 } from '../shared/confirmable-delete-button';
+import { Tooltip } from '../shared/tooltip';
+import { RenameForm } from './rename-form';
 
 const StyledTreeItem = styled.div<{ level: number }>`
     padding: 0;
@@ -123,7 +122,7 @@ export const TreeItem = ({
     level = 0,
     onSelect,
 }: TreeItemProps) => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
     const flowLogic = useAppLogic().flow;
     const newTreeItem = useAppSelector(selectNewTreeItem);
 
@@ -247,12 +246,17 @@ export const TreeItem = ({
             dispatch(
                 item.type === 'directory'
                     ? flowActions.updateDirectory(actionPayload)
+                    : item.type === 'subflow'
+                    ? flowLogic.updateSubflow(
+                          actionPayload.id,
+                          actionPayload.changes
+                      )
                     : flowActions.updateFlowEntity(actionPayload)
             );
 
             stopRename();
         },
-        [isRenaming, item.id, item.type, dispatch, stopRename]
+        [isRenaming, item.id, item.type, dispatch, flowLogic, stopRename]
     );
 
     const handleDelete = useCallback(

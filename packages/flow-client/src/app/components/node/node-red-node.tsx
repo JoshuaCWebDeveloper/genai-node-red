@@ -40,18 +40,24 @@ export const NodeRedNode = ({
     instance,
     children,
 }: NodeRedNodeProps) => {
+    let name: React.ReactNode = instance?.name || entity.name;
+    if (['in', 'out'].includes(instance?.type ?? '')) {
+        name = (name as string)
+            .split(' ')
+            .map((it, index) => <span key={index}> {it}</span>);
+    }
+    const icon = instance?.icon || entity.icon;
+    const type = instance?.type || entity.type;
     return (
-        <StyledNode node={entity} className="node node-red">
-            {entity.icon && (
+        <StyledNode node={entity} className={`node node-red ${type ?? ''}`}>
+            {icon && (
                 <img
                     className="icon"
-                    src={`${environment.NODE_RED_API_ROOT}/icons/${
-                        instance?.icon || `node-red/${entity.icon}`
-                    }`}
+                    src={`${environment.NODE_RED_API_ROOT}/icons/${icon}`}
                     alt="Node Icon"
                 />
             )}
-            <span className="name">{instance?.name || entity.name}</span>
+            <span className="name">{name}</span>
             {children}
         </StyledNode>
     );
