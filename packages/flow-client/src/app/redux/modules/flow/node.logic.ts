@@ -294,6 +294,25 @@ export class NodeLogic {
         }
         // if we have new inputs
         if (inputs !== newChanges.inputs) {
+            // create new inPorts
+            if (inputs > newChanges.inputs) {
+                newChanges.inPorts = newChanges.inPorts.concat(
+                    Array.from({ length: inputs - newChanges.inputs }, () => ({
+                        id: uuidv4(),
+                        type: 'default',
+                        x: 0,
+                        y: 0,
+                        name: uuidv4(),
+                        alignment: PortModelAlignment.LEFT,
+                        parentNode: nodeInstance.id,
+                        links: [],
+                        in: true,
+                        extras: {
+                            label: `Input ${newChanges.inputs + 1}`,
+                        },
+                    }))
+                );
+            }
             // record them
             newChanges.inputs = inputs;
         }
