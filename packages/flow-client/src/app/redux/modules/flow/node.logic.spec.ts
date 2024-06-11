@@ -81,44 +81,122 @@ describe('node.logic', () => {
         expect(editor).toBeInstanceOf(NodeEditorLogic);
     });
 
-    describe('getNodeInputsOutputs', () => {
-        const baseNodeProps = {
-            id: 'test-node',
-            nodeRedId: 'test-node',
+    describe('createFlowNode', () => {
+        const testNodeEntity: PaletteNodeEntity = {
+            id: 'node1',
+            type: 'custom-node',
+            nodeRedId: 'node1',
             nodeRedName: 'Test Node',
-            module: 'module',
-            version: 'version',
-            name: 'name',
-            type: 'type',
+            name: 'Test Node',
+            module: 'test-module',
+            version: '1.0.0',
         };
 
-        it('should extract inputs and outputs with default labels when no custom labels are provided', () => {
-            const entity = {
-                ...baseNodeProps,
-                id: 'test-node',
-            };
+        const testFlowNodeEntity: FlowNodeEntity = {
+            id: 'node1',
+            type: 'custom-node',
+            x: 100,
+            y: 200,
+            z: 'flow1',
+            name: 'Test Node',
+            wires: [],
+            inPorts: [],
+            outPorts: [],
+            links: {},
+            inputs: 0,
+            outputs: 0,
+        };
 
-            const instance = {
-                inputs: 2,
-                outputs: 1,
-            } as FlowNodeEntity;
-
-            const { inputs, outputs } = nodeLogic.getNodeInputsOutputs(
-                instance,
-                entity
-            );
-
-            expect(inputs).toEqual(['Input 1', 'Input 2']);
-            expect(outputs).toEqual(['Output 1']);
+        beforeEach(() => {
+            mockedSelectPaletteNodeById.mockImplementation((state, id) => {
+                if (id === 'custom-node') {
+                    return testNodeEntity;
+                }
+                return null as unknown as PaletteNodeEntity;
+            });
         });
 
-        it('should correctly deserialize and use custom input and output label functions', () => {
-            const entity = {
-                ...baseNodeProps,
-                id: 'test-node',
-                type: 'test-node',
+        it('creates a node with the correct inputs and outputs', async () => {
+            const newNode: FlowNodeEntity = {
+                ...testFlowNodeEntity,
+                id: 'new-node',
+                inputs: 1,
+                outputs: 3,
+            };
+
+            await nodeLogic.createFlowNode(newNode)(mockDispatch, mockGetState);
+
+            expect(mockDispatch).toHaveBeenCalledWith(
+                flowActions.addFlowNode(
+                    expect.objectContaining({
+                        id: 'new-node',
+                        inputs: 1,
+                        outputs: 3,
+                        inPorts: expect.arrayContaining([
+                            expect.objectContaining({
+                                extras: expect.objectContaining({
+                                    label: 'Input 1',
+                                }),
+                            }),
+                        ]),
+                        outPorts: expect.arrayContaining([
+                            expect.objectContaining({
+                                extras: expect.objectContaining({
+                                    label: 'Output 1',
+                                }),
+                            }),
+                            expect.objectContaining({
+                                extras: expect.objectContaining({
+                                    label: 'Output 2',
+                                }),
+                            }),
+                            expect.objectContaining({
+                                extras: expect.objectContaining({
+                                    label: 'Output 3',
+                                }),
+                            }),
+                        ]),
+                    })
+                )
+            );
+        });
+
+        it('creates a node with no inputs or outputs', async () => {
+            const newNode: FlowNodeEntity = {
+                ...testFlowNodeEntity,
+                id: 'new-node',
+                inputs: 0,
+                outputs: 0,
+            };
+
+            await nodeLogic.createFlowNode(newNode)(mockDispatch, mockGetState);
+
+            expect(mockDispatch).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    type: flowActions.addFlowNode.type,
+                    payload: expect.objectContaining({
+                        id: 'new-node',
+                        inputs: 0,
+                        outputs: 0,
+                        inPorts: [],
+                        outPorts: [],
+                    }),
+                })
+            );
+        });
+
+        it('creates a node with custom input and output labels', async () => {
+            const newNode: FlowNodeEntity = {
+                ...testFlowNodeEntity,
+                id: 'new-node',
+                inputs: 1,
+                outputs: 2,
+            };
+
+            const customNodeEntity: PaletteNodeEntity = {
+                ...testNodeEntity,
                 definitionScript: `
-                    RED.nodes.registerType("test-node", {
+                    RED.nodes.registerType("custom-node", {
                         inputLabels: function(index) { 
                             return \`Custom Input \${index + 1}\`; 
                         }, 
@@ -129,33 +207,43 @@ describe('node.logic', () => {
                 `,
             };
 
-            const instance = {
-                inputs: 2,
-                outputs: 2,
-            } as FlowNodeEntity;
+            mockedSelectPaletteNodeById.mockImplementation((state, id) => {
+                if (id === 'custom-node') {
+                    return customNodeEntity;
+                }
+                return null as unknown as PaletteNodeEntity;
+            });
 
-            const { inputs, outputs } = nodeLogic.getNodeInputsOutputs(
-                instance,
-                entity
+            await nodeLogic.createFlowNode(newNode)(mockDispatch, mockGetState);
+
+            expect(mockDispatch).toHaveBeenCalledWith(
+                flowActions.addFlowNode(
+                    expect.objectContaining({
+                        id: 'new-node',
+                        inputs: 1,
+                        outputs: 2,
+                        inPorts: expect.arrayContaining([
+                            expect.objectContaining({
+                                extras: expect.objectContaining({
+                                    label: 'Custom Input 1',
+                                }),
+                            }),
+                        ]),
+                        outPorts: expect.arrayContaining([
+                            expect.objectContaining({
+                                extras: expect.objectContaining({
+                                    label: 'Custom Output 1',
+                                }),
+                            }),
+                            expect.objectContaining({
+                                extras: expect.objectContaining({
+                                    label: 'Custom Output 2',
+                                }),
+                            }),
+                        ]),
+                    })
+                )
             );
-
-            expect(inputs).toEqual(['Custom Input 1', 'Custom Input 2']);
-            expect(outputs).toEqual(['Custom Output 1', 'Custom Output 2']);
-        });
-
-        it('should handle nodes without inputs or outputs', () => {
-            const node = {
-                ...baseNodeProps,
-                id: 'test-node',
-            };
-
-            const { inputs, outputs } = nodeLogic.getNodeInputsOutputs(
-                {} as FlowNodeEntity,
-                node
-            );
-
-            expect(inputs).toEqual([]);
-            expect(outputs).toEqual([]);
         });
     });
 

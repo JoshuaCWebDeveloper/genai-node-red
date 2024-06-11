@@ -40,13 +40,10 @@ export class NodeLogic {
         this.editor = new NodeEditorLogic(this);
     }
     // Method to extract inputs and outputs from a NodeEntity, including deserializing inputLabels and outputLabels
-    getNodeInputsOutputs(
+    private getNodeInputOutputLabels(
         nodeInstance: FlowNodeEntity,
         nodeEntity: PaletteNodeEntity
-    ): {
-        inputs: string[];
-        outputs: string[];
-    } {
+    ) {
         const inputs: string[] = [];
         const outputs: string[] = [];
 
@@ -75,7 +72,7 @@ export class NodeLogic {
             );
         }
 
-        return { inputs, outputs };
+        return { inputLabels: inputs, outputLabels: outputs };
     }
 
     private parseNodeOutputs(
@@ -303,20 +300,42 @@ export class NodeLogic {
         }
 
         // update port labels
-        const portLabels = this.getNodeInputsOutputs(
+        const { inputLabels, outputLabels } = this.getNodeInputOutputLabels(
             { ...nodeInstance, ...changes, ...newChanges },
             nodeEntity
         );
         newChanges.inPorts.forEach((port, index) => {
-            const label = portLabels.inputs[index];
+            const label = inputLabels[index];
             port.extras.label = label;
         });
         newChanges.outPorts.forEach((port, index) => {
-            const label = portLabels.outputs[index];
+            const label = outputLabels[index];
             port.extras.label = label;
         });
 
         return newChanges;
+    }
+
+    createFlowNode(flowNode: FlowNodeEntity) {
+        return async (dispatch: AppDispatch, getState: () => RootState) => {
+            const nodeEntity = this.selectPaletteNodeByFlowNode(
+                getState(),
+                flowNode
+            ) as PaletteNodeEntity;
+
+            const newChanges = this.updateNodeInputsOutputs(
+                { ...flowNode, inputs: 0, outputs: 0 },
+                nodeEntity,
+                { inputs: flowNode.inputs, outputs: flowNode.outputs }
+            ) as Partial<FlowNodeEntity>;
+
+            const newNode = {
+                ...flowNode,
+                ...newChanges,
+            };
+
+            dispatch(flowActions.addFlowNode(newNode));
+        };
     }
 
     updateFlowNode(nodeId: string, changes: DirtyNodeChanges) {
