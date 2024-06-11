@@ -374,6 +374,45 @@ describe('node.logic', () => {
 
         it('updates node labels based on inputs and outputs', async () => {
             const changes = {
+                inputLabels: ['My Input'],
+                outputLabels: ['My Output'],
+            };
+
+            await nodeLogic.updateFlowNode('node1', changes)(
+                mockDispatch,
+                mockGetState
+            );
+
+            expect(mockDispatch).toHaveBeenCalledWith(
+                flowActions.updateFlowNode({
+                    id: 'node1',
+                    changes: expect.objectContaining({
+                        inPorts: expect.arrayContaining([
+                            expect.objectContaining({
+                                extras: expect.objectContaining({
+                                    label: changes.inputLabels[0],
+                                }),
+                            }),
+                        ]),
+                        outPorts: expect.arrayContaining([
+                            expect.objectContaining({
+                                extras: expect.objectContaining({
+                                    label: changes.outputLabels[0],
+                                }),
+                            }),
+                            expect.objectContaining({
+                                extras: expect.objectContaining({
+                                    label: 'Output 2',
+                                }),
+                            }),
+                        ]),
+                    }),
+                })
+            );
+        });
+
+        it('updates node labels based on inputLabels and outputLabels', async () => {
+            const changes = {
                 inputs: 1,
                 outputs: 1,
             };
@@ -715,6 +754,64 @@ describe('node.logic', () => {
             );
 
             expect(result).toMatchObject(expectedPaletteNode);
+        });
+
+        it('should return in and out palette nodes for a given flow node', () => {
+            const inNode: FlowNodeEntity = {
+                id: 'node1',
+                type: 'in',
+                x: 100,
+                y: 200,
+                z: 'flow1',
+                name: 'In Node',
+                wires: [],
+                inPorts: [],
+                outPorts: [],
+                links: {},
+                inputs: 1,
+                outputs: 1,
+            };
+
+            const outNode: FlowNodeEntity = {
+                id: 'node2',
+                type: 'out',
+                x: 100,
+                y: 200,
+                z: 'flow1',
+                name: 'Out Node',
+                wires: [],
+                inPorts: [],
+                outPorts: [],
+                links: {},
+                inputs: 1,
+                outputs: 1,
+            };
+
+            const inResult = nodeLogic.selectPaletteNodeByFlowNode(
+                {} as RootState,
+                inNode
+            );
+
+            const outResult = nodeLogic.selectPaletteNodeByFlowNode(
+                {} as RootState,
+                outNode
+            );
+
+            expect(inResult).toMatchObject({
+                id: 'in',
+                type: 'in',
+                name: 'In',
+                module: 'subflows',
+                version: '1.0.0',
+            });
+
+            expect(outResult).toMatchObject({
+                id: 'out',
+                type: 'out',
+                name: 'Out',
+                module: 'subflows',
+                version: '1.0.0',
+            });
         });
 
         it('should return undefined for a non-existent flow node type', () => {
