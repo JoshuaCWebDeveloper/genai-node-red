@@ -1,9 +1,5 @@
 import { Point } from '@projectstorm/geometry';
 import { CanvasWidget, ListenerHandle } from '@projectstorm/react-canvas-core';
-import {
-    DefaultPortModel,
-    PortModelAlignment,
-} from '@projectstorm/react-diagrams';
 import React, {
     useCallback,
     useEffect,
@@ -21,7 +17,6 @@ import { PaletteNodeEntity } from '../../redux/modules/palette/node.slice';
 import { ItemTypes } from '../node/draggable-item-types'; // Assuming ItemTypes is defined elsewhere
 import { createEngine } from './engine';
 import { CustomDiagramModel } from './model';
-import { CustomNodeModel } from './node';
 
 const StyledContainer = styled.div`
     height: 100%;
@@ -243,93 +238,69 @@ export const FlowCanvas: React.FC<FlowCanvasProps> = ({ flowId }) => {
         };
     }, [engine]);
 
-    const [, drop] = useDrop(() => ({
-        accept: ItemTypes.NODE,
-        drop: (entity: PaletteNodeEntity, monitor) => {
-            // Find the canvas widget element
-            const canvasElement = document.querySelector(
-                '.flow-canvas > svg'
-            ) as HTMLCanvasElement;
+    const [, drop] = useDrop(
+        () => ({
+            accept: ItemTypes.NODE,
+            drop: (entity: PaletteNodeEntity, monitor) => {
+                if (!flowId) {
+                    return;
+                }
 
-            if (!canvasElement) {
-                console.error('Error finding canvas element');
-                return;
-            }
+                // Find the canvas widget element
+                const canvasElement = document.querySelector(
+                    '.flow-canvas > svg'
+                ) as HTMLCanvasElement;
 
-            let nodePosition: Point;
+                if (!canvasElement) {
+                    console.error('Error finding canvas element');
+                    return;
+                }
 
-            try {
-                nodePosition = engine.calculateDropPosition(
-                    monitor,
-                    canvasElement
+                let nodePosition: Point;
+
+                try {
+                    nodePosition = engine.calculateDropPosition(
+                        monitor,
+                        canvasElement
+                    );
+                } catch (error) {
+                    console.error('Error calculating drop position:', error);
+                    return;
+                }
+
+                const flowNode = nodeLogic.applyConfigDefaults(
+                    {
+                        id: uuidv4(),
+                        type: entity.type,
+                        x: 0,
+                        y: 0,
+                        z: '',
+                        name: '',
+                        inputs: 1,
+                        outputs: 1,
+                        inputLabels: [],
+                        outputLabels: [],
+                        icon: '',
+                        wires: [],
+                        inPorts: [],
+                        outPorts: [],
+                        links: {},
+                    },
+                    entity
                 );
-            } catch (error) {
-                console.error('Error calculating drop position:', error);
-                return;
-            }
 
-            const config = nodeLogic.applyConfigDefaults(
-                {
-                    id: uuidv4(),
-                    type: entity.type,
-                    x: 0,
-                    y: 0,
-                    z: '',
-                    name: '',
-                    inputs: 1,
-                    outputs: 1,
-                    inputLabels: [],
-                    outputLabels: [],
-                    icon: `node-red/${entity.icon}`,
-                    wires: [],
-                    inPorts: [],
-                    outPorts: [],
-                    links: {},
-                },
-                entity
-            );
+                flowNode.x = nodePosition.x;
+                flowNode.y = nodePosition.y;
+                flowNode.z = flowId;
+                flowNode.name = entity.name;
+                flowNode.color = entity.color;
+                flowNode.icon = entity.icon;
 
-            const node = new CustomNodeModel({
-                name: entity.name,
-                color: entity.color,
-                extras: {
-                    entity,
-                    config,
-                },
-            });
-
-            node.setPosition(nodePosition);
-
-            const ports = flowLogic.node.getNodeInputsOutputs(config, entity);
-            ports.inputs.forEach(input => {
-                node.addPort(
-                    new DefaultPortModel({
-                        in: true,
-                        name: uuidv4(),
-                        alignment: PortModelAlignment.LEFT,
-                        extras: {
-                            label: input,
-                        },
-                    })
-                );
-            });
-            ports.outputs.forEach(output => {
-                node.addPort(
-                    new DefaultPortModel({
-                        in: false,
-                        name: uuidv4(),
-                        alignment: PortModelAlignment.RIGHT,
-                        extras: {
-                            label: output,
-                        },
-                    })
-                );
-            });
-
-            model?.addNode(node);
-            engine.repaintCanvas();
-        },
-    }));
+                dispatch(flowLogic.node.createFlowNode(flowNode));
+            },
+        }),
+        [flowId]
+    );
 
     // The CanvasWidget component is used to render the flow canvas within the UI.
     // The "canvas-widget" className can be targeted for custom styling.
