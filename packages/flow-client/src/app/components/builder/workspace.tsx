@@ -1,15 +1,12 @@
+import { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { useAppDispatch, useAppSelector } from '../../redux/hooks';
-import {
-    EDITING_TYPE,
-    builderActions,
-    selectActiveFlow,
-} from '../../redux/modules/builder/builder.slice';
+
+import { useAppDispatch, useAppLogic, useAppSelector } from '../../redux/hooks';
+import { selectActiveFlow } from '../../redux/modules/builder/builder.slice';
 import {
     SubflowEntity,
     selectFlowEntityById,
 } from '../../redux/modules/flow/flow.slice';
-import { useCallback } from 'react';
 
 const StyledWorkspace = styled.div`
     display: flex;
@@ -49,43 +46,19 @@ const StyledWorkspace = styled.div`
 
 export const Workspace = () => {
     const dispatch = useAppDispatch();
+    const builderLogic = useAppLogic().builder;
     const activeFlowId = useAppSelector(selectActiveFlow);
     const activeFlow = useAppSelector(state =>
         activeFlowId ? selectFlowEntityById(state, activeFlowId) : null
     );
 
     const handleEditClick = useCallback(() => {
-        if (!activeFlowId || !activeFlow) {
+        if (!activeFlowId) {
             return;
         }
 
-        dispatch(
-            builderActions.setEditing({
-                id: activeFlowId,
-                type: {
-                    flow: EDITING_TYPE.FLOW,
-                    subflow: EDITING_TYPE.SUBFLOW,
-                }[activeFlow.type],
-                data: {
-                    info: activeFlow.info,
-                    name: activeFlow.name,
-                    env: activeFlow.env,
-                    ...{
-                        flow: {},
-                        subflow: {
-                            color: (activeFlow as SubflowEntity).color,
-                            icon: (activeFlow as SubflowEntity).icon,
-                            category: (activeFlow as SubflowEntity).category,
-                            inputLabels: (activeFlow as SubflowEntity)
-                                .inputLabels,
-                            outputLabels: (activeFlow as SubflowEntity)
-                                .outputLabels,
-                        },
-                    }[activeFlow.type],
-                },
-            })
-        );
-    }, [dispatch, activeFlowId, activeFlow]);
+        dispatch(builderLogic.editFlowEntityById(activeFlowId));
+    }, [dispatch, activeFlowId, builderLogic]);
 
     return (
         <StyledWorkspace className="workspace">
