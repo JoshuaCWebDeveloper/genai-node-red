@@ -1,5 +1,5 @@
 import { PortModelAlignment } from '@projectstorm/react-diagrams';
-import { createSelector } from '@reduxjs/toolkit';
+import { createSelector, weakMapMemoize } from '@reduxjs/toolkit';
 import { v4 as uuidv4 } from 'uuid';
 
 import { executeNodeFn } from '../../../red/execute-script';
@@ -11,6 +11,7 @@ import { AppDispatch, RootState } from '../../store';
 import {
     PaletteNodeEntity,
     selectPaletteNodeById,
+    selectPaletteNodeEntities,
 } from '../palette/node.slice';
 import {
     FlowEntity,
@@ -40,13 +41,10 @@ export class NodeLogic {
         this.editor = new NodeEditorLogic(this);
     }
     // Method to extract inputs and outputs from a NodeEntity, including deserializing inputLabels and outputLabels
-    getNodeInputsOutputs(
+    private getNodeInputOutputLabels(
         nodeInstance: FlowNodeEntity,
         nodeEntity: PaletteNodeEntity
-    ): {
-        inputs: string[];
-        outputs: string[];
-    } {
+    ) {
         const inputs: string[] = [];
         const outputs: string[] = [];
 
@@ -57,25 +55,29 @@ export class NodeLogic {
         // Generate input and output labels using the deserialized functions
         for (let i = 0; i < inputsCount; i++) {
             inputs.push(
-                executeNodeFn<(index: number) => string>(
-                    ['inputLabels', i],
-                    nodeEntity,
-                    nodeInstance
-                ) ?? `Input ${i + 1}`
+                nodeInstance.inputLabels?.[i] ??
+                    executeNodeFn<(index: number) => string>(
+                        ['inputLabels', i],
+                        nodeEntity,
+                        nodeInstance
+                    ) ??
+                    `Input ${i + 1}`
             );
         }
 
         for (let i = 0; i < outputsCount; i++) {
             outputs.push(
-                executeNodeFn<(index: number) => string>(
-                    ['outputLabels', i],
-                    nodeEntity,
-                    nodeInstance
-                ) ?? `Output ${i + 1}`
+                nodeInstance.outputLabels?.[i] ??
+                    executeNodeFn<(index: number) => string>(
+                        ['outputLabels', i],
+                        nodeEntity,
+                        nodeInstance
+                    ) ??
+                    `Output ${i + 1}`
             );
         }
 
-        return { inputs, outputs };
+        return { inputLabels: inputs, outputLabels: outputs };
     }
 
     private parseNodeOutputs(
@@ -293,6 +295,25 @@ export class NodeLogic {
         }
         // if we have new inputs
         if (inputs !== newChanges.inputs) {
+            // create new inPorts
+            if (inputs > newChanges.inputs) {
+                newChanges.inPorts = newChanges.inPorts.concat(
+                    Array.from({ length: inputs - newChanges.inputs }, () => ({
+                        id: uuidv4(),
+                        type: 'default',
+                        x: 0,
+                        y: 0,
+                        name: uuidv4(),
+                        alignment: PortModelAlignment.LEFT,
+                        parentNode: nodeInstance.id,
+                        links: [],
+                        in: true,
+                        extras: {
+                            label: `Input ${newChanges.inputs + 1}`,
+                        },
+                    }))
+                );
+            }
             // record them
             newChanges.inputs = inputs;
         }
@@ -303,20 +324,42 @@ export class NodeLogic {
         }
 
         // update port labels
-        const portLabels = this.getNodeInputsOutputs(
+        const { inputLabels, outputLabels } = this.getNodeInputOutputLabels(
             { ...nodeInstance, ...changes, ...newChanges },
             nodeEntity
         );
         newChanges.inPorts.forEach((port, index) => {
-            const label = portLabels.inputs[index];
+            const label = inputLabels[index];
             port.extras.label = label;
         });
         newChanges.outPorts.forEach((port, index) => {
-            const label = portLabels.outputs[index];
+            const label = outputLabels[index];
             port.extras.label = label;
         });
 
         return newChanges;
+    }
+
+    createFlowNode(flowNode: FlowNodeEntity) {
+        return async (dispatch: AppDispatch, getState: () => RootState) => {
+            const nodeEntity = this.selectPaletteNodeByFlowNode(
+                getState(),
+                flowNode
+            ) as PaletteNodeEntity;
+
+            const newChanges = this.updateNodeInputsOutputs(
+                { ...flowNode, inputs: 0, outputs: 0 },
+                nodeEntity,
+                { inputs: flowNode.inputs, outputs: flowNode.outputs }
+            ) as Partial<FlowNodeEntity>;
+
+            const newNode = {
+                ...flowNode,
+                ...newChanges,
+            };
+
+            dispatch(flowActions.addFlowNode(newNode));
+        };
     }
 
     updateFlowNode(nodeId: string, changes: DirtyNodeChanges) {
@@ -383,7 +426,7 @@ export class NodeLogic {
     selectSubflowAsPaletteNodeById = createSelector(
         [selectFlowEntityById],
         (subflow: FlowEntity | SubflowEntity) => {
-            if (subflow.type === 'subflow') {
+            if (subflow?.type === 'subflow') {
                 return this.convertSubflowToPaletteNode(subflow);
             }
             return undefined;
@@ -406,10 +449,43 @@ export class NodeLogic {
         }
     );
 
+    private inPaletteNode = {
+        id: 'in',
+        nodeRedId: '',
+        nodeRedName: 'In',
+        name: 'In',
+        type: 'in',
+        module: 'subflows',
+        version: '1.0.0',
+    };
+
+    private outPaletteNode = {
+        id: 'out',
+        nodeRedId: '',
+        nodeRedName: 'Out',
+        name: 'Out',
+        type: 'out',
+        module: 'subflows',
+        version: '1.0.0',
+    };
+
+    selectInOutPaletteNodeEntities = weakMapMemoize(() => {
+        return {
+            in: this.inPaletteNode,
+            out: this.outPaletteNode,
+        } as ReturnType<typeof selectPaletteNodeEntities>;
+    });
+
     selectPaletteNodeByFlowNode = createSelector(
         [state => state, (_, flowNode: FlowNodeEntity) => flowNode],
-        (state, flowNode) => {
-            // either get the palette node or the subflow
+        (state, flowNode): PaletteNodeEntity | undefined => {
+            // either get a simulated or real palette node
+            if (flowNode.type === 'in') {
+                return this.inPaletteNode;
+            }
+            if (flowNode.type === 'out') {
+                return this.outPaletteNode;
+            }
             if (flowNode.type.startsWith('subflow:')) {
                 return this.selectSubflowAsPaletteNodeById(
                     state,

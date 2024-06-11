@@ -85,7 +85,14 @@ describe('graph.logic', () => {
     beforeEach(() => {
         // Reset mocks before each test
         vi.clearAllMocks();
-        mockNodeLogic = {} as NodeLogic;
+        mockNodeLogic = {
+            selectSubflowEntitiesAsPaletteNodes: vi.fn(
+                () => ({})
+            ) as unknown as NodeLogic['selectSubflowEntitiesAsPaletteNodes'],
+            selectInOutPaletteNodeEntities: vi.fn(
+                () => ({})
+            ) as unknown as NodeLogic['selectInOutPaletteNodeEntities'],
+        } as NodeLogic;
         graphLogic = new GraphLogic(mockNodeLogic);
     });
 
@@ -410,9 +417,6 @@ describe('graph.logic', () => {
             mockedSelectPaletteNodeEntities.mockImplementation(() => ({
                 node2: mockNodeEntity,
             }));
-            mockNodeLogic.selectSubflowEntitiesAsPaletteNodes = vi.fn(
-                () => ({})
-            ) as unknown as NodeLogic['selectSubflowEntitiesAsPaletteNodes'];
             mockedSelectFlowEntityById.mockImplementation(() => mockFlow);
             mockedSelectFlowNodesByFlowId.mockImplementation(() => mockNodes);
 

@@ -137,25 +137,20 @@ export class NodeEditorLogic {
                 propertiesForm,
             } = this.selectEditorState(getState()) ?? {};
 
-            if (
-                !nodeInstance ||
-                !editingFlowNode ||
-                !editingPaletteNode ||
-                !propertiesForm
-            ) {
-                return;
+            if (nodeInstance && editingPaletteNode && propertiesForm) {
+                // exec oneditsave
+                executeNodeFn(
+                    ['oneditdelete'],
+                    editingPaletteNode,
+                    nodeInstance,
+                    (propertiesForm?.getRootNode() as ShadowRoot) ?? undefined
+                );
             }
 
-            // exec oneditsave
-            executeNodeFn(
-                ['oneditdelete'],
-                editingPaletteNode,
-                nodeInstance,
-                (propertiesForm?.getRootNode() as ShadowRoot) ?? undefined
-            );
-
-            // TODO: Implement logic method for removing any old input links (if necessary)
-            dispatch(flowActions.removeFlowNode(editingFlowNode.id));
+            if (editingFlowNode) {
+                // TODO: Implement logic method for removing any old input links (if necessary)
+                dispatch(flowActions.removeFlowNode(editingFlowNode.id));
+            }
         };
     }
 

@@ -152,7 +152,6 @@ export class GraphLogic {
                     return {
                         ...(node.extras.config as FlowNodeEntity),
                         id: node.id,
-                        type: node.extras.entity.type,
                         x: node.x,
                         y: node.y,
                         z: graph.id, // Assuming all nodes belong to the same flow
@@ -182,6 +181,7 @@ export class GraphLogic {
             const nodeEntities = {
                 ...selectPaletteNodeEntities(state),
                 ...this.nodeLogic.selectSubflowEntitiesAsPaletteNodes(state),
+                ...this.nodeLogic.selectInOutPaletteNodeEntities(),
             };
 
             // Construct NodeModels from flow nodes

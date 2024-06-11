@@ -60,12 +60,19 @@ export class NodeLogic {
                     }
 
                     // Logic to handle the node registration
-                    registeredTypes.forEach(registeredType => {
+                    registeredTypes.forEach(({ type, definition }) => {
                         dispatch(
                             paletteNodeActions.updateOne({
-                                id: registeredType.type,
+                                id: type,
                                 changes: {
-                                    ...registeredType.definition,
+                                    ...definition,
+                                    icon:
+                                        definition.icon &&
+                                        typeof definition.icon === 'string'
+                                            ? definition.icon.includes('/')
+                                                ? definition.icon
+                                                : `node-red/${definition.icon}`
+                                            : '',
                                     definitionScript: scriptContent,
                                 },
                             })

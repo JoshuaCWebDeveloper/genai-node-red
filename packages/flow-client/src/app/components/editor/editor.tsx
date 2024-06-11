@@ -7,10 +7,10 @@ import {
     selectEditing,
 } from '../../redux/modules/builder/builder.slice';
 import { ConfirmableDeleteButton } from '../shared/confirmable-delete-button';
+import { Tooltip } from '../shared/tooltip';
 import { FlowEditor } from './flow-editor';
 import { NodeEditor } from './node-editor';
 import { SubflowEditor } from './subflow-editor';
-import { Tooltip } from '../shared/tooltip';
 
 const StyledEditor = styled.div`
     position: absolute;
@@ -47,14 +47,47 @@ const StyledEditor = styled.div`
         display: flex;
         justify-content: space-between;
         align-items: center;
+        gap: 10px;
 
         p {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: row;
+            gap: 10px;
+
             font-size: 1em;
             font-weight: 500;
-            margin: 0.5rem 1rem;
-            text-overflow: ellipsis;
-            overflow: hidden;
-            white-space: nowrap;
+            margin: 0.5rem 0 0.5rem 0.5rem;
+
+            &,
+            & > span {
+                text-overflow: ellipsis;
+                overflow: hidden;
+                white-space: nowrap;
+            }
+
+            .edit-template {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-direction: row;
+                gap: 10px;
+
+                background-color: var(--color-background-main);
+                border: 1px var(--color-border-sharp) solid;
+                border-radius: 3px;
+                color: var(--color-text-sharp);
+                cursor: pointer;
+                flex: 0 0 30px;
+                font-size: 1em;
+                padding: 5px;
+                white-space: normal;
+
+                &:hover {
+                    background-color: var(--color-background-element-medium);
+                }
+            }
         }
 
         .actions {
@@ -138,6 +171,15 @@ export const Editor = () => {
         closeEditor();
     }, [builderLogic, closeEditor, dispatch]);
 
+    const handleEditTemplate = useCallback(() => {
+        closeEditor();
+        dispatch(
+            builderActions.setActiveFlow(
+                editing?.data.entityType?.replace('subflow:', '') ?? ''
+            )
+        );
+    }, [closeEditor, dispatch, editing?.data.entityType]);
+
     if (!editing) return null;
 
     return (
@@ -152,9 +194,24 @@ export const Editor = () => {
                                 SUBFLOW: 'Edit subflow',
                                 NODE: editing.data.entityType?.startsWith(
                                     'subflow:'
-                                )
-                                    ? `Edit subflow instance: ${editing.data.name}`
-                                    : `Edit ${editing.data.entityType} node`,
+                                ) ? (
+                                    <>
+                                        <button
+                                            className="edit-template"
+                                            onClick={handleEditTemplate}
+                                            data-tooltip-id={tooltipId.current}
+                                            data-tooltip-content="Edit Subflow Template"
+                                        >
+                                            <i className="fas fa-sitemap"></i>
+                                            <i className="fas fa-edit"></i>
+                                        </button>
+                                        <span>{`Edit subflow instance: ${editing.data.name}`}</span>
+                                    </>
+                                ) : (
+                                    `Edit ${
+                                        editing.data.entityType ?? 'unknown'
+                                    } node`
+                                ),
                             }[editing.type]
                         }
                     </p>

@@ -26,6 +26,8 @@ import {
     selectFlowNodeIds,
     selectFlowNodesByFlowId,
     selectFlowState,
+    selectSubflowInOutByFlowId,
+    selectSubflowInstancesByFlowId,
 } from './flow.slice';
 
 describe('Flow Slice', () => {
@@ -1225,6 +1227,35 @@ describe('Flow Slice', () => {
             const nodes = selectFlowNodesByFlowId(state, 'flow1');
             expect(nodes.length).toEqual(1);
             expect(nodes[0]).toEqual(state.flow.flowNodes.entities['node1']);
+        });
+
+        it('selectSubflowInstancesByFlowId()', () => {
+            state.flow.flowNodes.entities['node1'].type = 'subflow:flow1';
+            state.flow.flowNodes.entities['node2'].type = 'subflow:flow2';
+
+            const subflowInstances = selectSubflowInstancesByFlowId(
+                state,
+                'flow1'
+            );
+
+            expect(subflowInstances.length).toEqual(1);
+            expect(subflowInstances[0]).toEqual(
+                state.flow.flowNodes.entities['node1']
+            );
+        });
+
+        it('selectSubflowInOutByFlowId()', () => {
+            state.flow.flowNodes.entities['node1'].type = 'in';
+            state.flow.flowNodes.entities['node1'].z = 'flow1';
+            state.flow.flowNodes.entities['node2'].type = 'out';
+            state.flow.flowNodes.entities['node2'].z = 'flow1';
+
+            const inOutNodes = selectSubflowInOutByFlowId(state, 'flow1');
+            expect(inOutNodes.length).toEqual(2);
+            expect(inOutNodes).toEqual([
+                state.flow.flowNodes.entities['node1'],
+                state.flow.flowNodes.entities['node2'],
+            ]);
         });
     });
 
