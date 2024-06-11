@@ -1,11 +1,21 @@
-import React, { createContext, ReactNode } from 'react';
+import { createContext, ReactNode } from 'react';
 import { Provider } from 'react-redux';
-import { AppStore } from './store';
-import { FeatureLogic } from './modules/feature/feature.logic';
+import { persistStore } from 'redux-persist';
+import { PersistGate } from 'redux-persist/integration/react';
 
-export const createLogic = () => ({
-    feature: new FeatureLogic(),
-});
+import { FlowLogic } from './modules/flow/flow.logic';
+import { NodeLogic } from './modules/palette/node.logic';
+import { AppStore } from './store';
+import { BuilderLogic } from './modules/builder/builder.logic';
+
+export const createLogic = () => {
+    const flow = new FlowLogic();
+    return {
+        builder: new BuilderLogic(flow),
+        node: new NodeLogic(),
+        flow,
+    };
+};
 
 export type AppLogic = ReturnType<typeof createLogic>;
 
@@ -23,6 +33,10 @@ type ProviderProps = {
 
 export const AppProvider = ({ store, logic, children }: ProviderProps) => (
     <AppContext.Provider value={{ logic }}>
-        <Provider store={store}>{children}</Provider>
+        <Provider store={store}>
+            <PersistGate persistor={persistStore(store)}>
+                {children}
+            </PersistGate>
+        </Provider>
     </AppContext.Provider>
 );

@@ -8,12 +8,12 @@ export default defineConfig({
     cacheDir: '../../node_modules/.vite/apps/flow-client',
 
     server: {
-        port: 4200,
+        port: 4201,
         host: 'localhost',
     },
 
     preview: {
-        port: 4300,
+        port: 4301,
         host: 'localhost',
     },
 
@@ -33,6 +33,12 @@ export default defineConfig({
     },
 
     test: {
+        alias: [
+            {
+                find: 'monaco-editor',
+                replacement: __dirname + '/vite.config.ts',
+            },
+        ],
         globals: true,
         cache: {
             dir: '../../node_modules/.vitest',

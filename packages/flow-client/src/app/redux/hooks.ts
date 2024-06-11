@@ -14,3 +14,8 @@ export const useAppContext = () => {
     }
     return context;
 };
+
+export const useAppLogic = () => {
+    const context = useAppContext();
+    return context.logic;
+};

@@ -1,24 +1,73 @@
 import { Action, configureStore, ThunkAction } from '@reduxjs/toolkit';
-import { setupListeners } from '@reduxjs/toolkit/dist/query';
-
-import { featureApi } from './modules/api/feature.api';
+import { setupListeners } from '@reduxjs/toolkit/query';
 import {
-    FEATURE_FEATURE_KEY,
-    featureReducer,
-} from './modules/feature/feature.slice';
+    FLUSH,
+    PAUSE,
+    PERSIST,
+    persistReducer,
+    PURGE,
+    REGISTER,
+    REHYDRATE,
+} from 'redux-persist';
+import storage from 'redux-persist/lib/storage';
 
-export const createStore = () => {
+import type { AppLogic } from './logic';
+import { iconApi } from './modules/api/icon.api';
+import { nodeApi } from './modules/api/node.api'; // Import the nodeApi
+import {
+    BUILDER_FEATURE_KEY,
+    builderReducer,
+    BuilderState,
+} from './modules/builder/builder.slice';
+import {
+    FLOW_FEATURE_KEY,
+    flowReducer,
+    FlowState,
+} from './modules/flow/flow.slice';
+import {
+    PALETTE_NODE_FEATURE_KEY,
+    paletteNodeReducer,
+} from './modules/palette/node.slice';
+
+export const createStore = (logic: AppLogic) => {
     const store = configureStore({
         reducer: {
-            [FEATURE_FEATURE_KEY]: featureReducer,
-            [featureApi.reducerPath]: featureApi.reducer,
+            [nodeApi.reducerPath]: nodeApi.reducer,
+            [iconApi.reducerPath]: iconApi.reducer,
+            [PALETTE_NODE_FEATURE_KEY]: paletteNodeReducer,
+            [FLOW_FEATURE_KEY]: persistReducer<FlowState>(
+                {
+                    key: FLOW_FEATURE_KEY,
+                    storage: storage,
+                },
+                flowReducer
+            ),
+            [BUILDER_FEATURE_KEY]: persistReducer<BuilderState>(
+                {
+                    key: BUILDER_FEATURE_KEY,
+                    storage: storage,
+                },
+                builderReducer
+            ),
         },
         // Additional middleware can be passed to this array
         middleware: getDefaultMiddleware =>
-            getDefaultMiddleware().concat(featureApi.middleware),
+            getDefaultMiddleware({
+                serializableCheck: {
+                    ignoredActions: [
+                        FLUSH,
+                        REHYDRATE,
+                        PAUSE,
+                        PERSIST,
+                        PURGE,
+                        REGISTER,
+                    ],
+                },
+                thunk: {
+                    extraArgument: logic,
+                },
+            }).concat(nodeApi.middleware, iconApi.middleware),
         devTools: process.env.NODE_ENV !== 'production',
-        // Optional Redux store enhancers
-        enhancers: [],
     });
 
     setupListeners(store.dispatch);
