@@ -7,10 +7,10 @@ import {
     PortModelAlignment,
     PortWidget,
 } from '@projectstorm/react-diagrams';
-import React from 'react';
+import React, { useCallback } from 'react';
 import styled from 'styled-components';
 
-import { useAppDispatch } from '../../redux/hooks';
+import { useAppDispatch, useAppLogic } from '../../redux/hooks';
 import {
     EDITING_TYPE,
     builderActions,
@@ -35,8 +35,39 @@ const StyledNode = styled.div<{
                 : 0)}px;
     }
 
+    &.in-out .node.node-red {
+        background-color: #ddd;
+        border-color: #666;
+        padding: 5px;
+        width: 50px;
+        height: 50px;
+
+        .name {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+
+            color: #666;
+
+            & > span:first-child {
+                font-size: 10px;
+            }
+
+            & > span:last-child {
+                font-size: 32px;
+                line-height: 26px;
+            }
+        }
+    }
+
     &.selected .node.node-red {
         border: 2px #007bff solid;
+        transform: translate(-1px, 0px);
+    }
+
+    &.in-out.selected .node.node-red {
+        transform: translate(0px, 0px);
     }
 
     .aligned-ports {
@@ -173,6 +204,7 @@ export type NodeProps = {
 
 export const Node: React.FC<NodeProps> = ({ node, engine }) => {
     const dispatch = useAppDispatch();
+    const builderLogic = useAppLogic().builder;
 
     // Convert the ports model to an array for rendering
     const alignmentOrder = [
@@ -197,28 +229,34 @@ export const Node: React.FC<NodeProps> = ({ node, engine }) => {
         ...groupedPorts.map(group => group.length)
     );
 
-    const handleDoubleClick = () => {
-        dispatch(
-            builderActions.setEditing({
-                id: node.getID(),
-                type: EDITING_TYPE.NODE,
-                data: {
-                    entityType: node.entity?.type,
-                    info: node.config?.info,
-                    name: node.config?.name,
-                    icon: node.config?.icon,
-                    inputLabels: node.config?.inputLabels,
-                    outputLabels: node.config?.outputLabels,
-                },
-            })
-        );
-    };
+    const handleDoubleClick = useCallback(() => {
+        if (!node.entity) {
+            dispatch(builderLogic.editFlowEntityById(node.config?.z ?? ''));
+        } else {
+            dispatch(
+                builderActions.setEditing({
+                    id: node.getID(),
+                    type: EDITING_TYPE.NODE,
+                    data: {
+                        entityType: node.entity?.type,
+                        info: node.config?.info,
+                        name: node.config?.name,
+                        icon: node.config?.icon,
+                        inputLabels: node.config?.inputLabels,
+                        outputLabels: node.config?.outputLabels,
+                    },
+                })
+            );
+        }
+    }, [builderLogic, dispatch, node]);
 
     const entity = node.entity ?? ({} as PaletteNodeEntity);
 
     return (
         <StyledNode
-            className={node.isSelected() ? 'selected' : ''}
+            className={`${node.isSelected() ? 'selected' : ''} ${
+                node.config?.type === 'in' ? 'in-out in' : ''
+            } ${node.config?.type === 'out' ? 'in-out out' : ''}`}
             largestGroupSize={largestGroupSize}
             onDoubleClick={handleDoubleClick}
         >

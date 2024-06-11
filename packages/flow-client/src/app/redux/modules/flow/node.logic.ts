@@ -448,10 +448,36 @@ export class NodeLogic {
         }
     );
 
+    private inPaletteNode = {
+        id: 'in',
+        nodeRedId: '',
+        nodeRedName: 'In',
+        name: 'In',
+        type: 'in',
+        module: 'subflows',
+        version: '1.0.0',
+    };
+
+    private outPaletteNode = {
+        id: 'out',
+        nodeRedId: '',
+        nodeRedName: 'Out',
+        name: 'Out',
+        type: 'out',
+        module: 'subflows',
+        version: '1.0.0',
+    };
+
     selectPaletteNodeByFlowNode = createSelector(
         [state => state, (_, flowNode: FlowNodeEntity) => flowNode],
-        (state, flowNode) => {
-            // either get the palette node or the subflow
+        (state, flowNode): PaletteNodeEntity | undefined => {
+            // either get a simulated or real palette node
+            if (flowNode.type === 'in') {
+                return this.inPaletteNode;
+            }
+            if (flowNode.type === 'out') {
+                return this.outPaletteNode;
+            }
             if (flowNode.type.startsWith('subflow:')) {
                 return this.selectSubflowAsPaletteNodeById(
                     state,

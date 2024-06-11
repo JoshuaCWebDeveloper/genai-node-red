@@ -17,7 +17,11 @@ const StyledSecondarySidebar = styled(TabbedSidebar)`
     overflow: hidden; // Prevents overflow of child components
 
     .workspace-section {
-        min-height: 50px;
+        min-height: 130px;
+
+        &:has(.flow) {
+            min-height: 50px;
+        }
 
         &.collapsed {
             min-height: 0;
