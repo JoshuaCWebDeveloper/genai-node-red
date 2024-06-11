@@ -208,6 +208,7 @@ describe('BuilderLogic', () => {
         });
 
         it('handles SUBFLOW editing type correctly', async () => {
+            mockFlowLogic.updateSubflow = vi.fn();
             mockedSelectEditing.mockReturnValueOnce({
                 type: EDITING_TYPE.SUBFLOW,
                 id: '123',
@@ -232,27 +233,22 @@ describe('BuilderLogic', () => {
             const action = builderLogic.editorSave();
             await action(mockDispatch, mockGetState);
 
-            expect(mockDispatch).toHaveBeenCalledWith(
-                flowActions.updateFlowEntity({
-                    id: '123',
-                    changes: {
-                        name: 'Subflow Name',
-                        info: 'Subflow Info',
-                        env: [
-                            {
-                                name: 'Subflow Env',
-                                value: 'Subflow Value',
-                                type: EnvVarType.STR,
-                            },
-                        ],
-                        color: 'Subflow Color',
-                        icon: 'Subflow Icon',
-                        category: 'Subflow Category',
-                        inputLabels: ['Input 1'],
-                        outputLabels: ['Output 1'],
+            expect(mockFlowLogic.updateSubflow).toHaveBeenCalledWith('123', {
+                name: 'Subflow Name',
+                info: 'Subflow Info',
+                env: [
+                    {
+                        name: 'Subflow Env',
+                        value: 'Subflow Value',
+                        type: EnvVarType.STR,
                     },
-                })
-            );
+                ],
+                color: 'Subflow Color',
+                icon: 'Subflow Icon',
+                category: 'Subflow Category',
+                inputLabels: ['Input 1'],
+                outputLabels: ['Output 1'],
+            });
         });
     });
 });

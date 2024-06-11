@@ -54,18 +54,15 @@ export class BuilderLogic {
             ({
                 SUBFLOW: () => {
                     dispatch(
-                        flowActions.updateFlowEntity({
-                            id: editing.id,
-                            changes: {
-                                name: editing.data.name,
-                                info: editing.data.info,
-                                env: editing.data.env,
-                                color: editing.data.color,
-                                icon: editing.data.icon,
-                                category: editing.data.category,
-                                inputLabels: editing.data.inputLabels,
-                                outputLabels: editing.data.outputLabels,
-                            },
+                        this.flow.updateSubflow(editing.id, {
+                            name: editing.data.name,
+                            info: editing.data.info,
+                            env: editing.data.env,
+                            color: editing.data.color,
+                            icon: editing.data.icon,
+                            category: editing.data.category,
+                            inputLabels: editing.data.inputLabels,
+                            outputLabels: editing.data.outputLabels,
                         })
                     );
                 },
