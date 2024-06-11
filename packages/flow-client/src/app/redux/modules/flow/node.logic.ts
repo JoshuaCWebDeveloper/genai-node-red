@@ -54,21 +54,25 @@ export class NodeLogic {
         // Generate input and output labels using the deserialized functions
         for (let i = 0; i < inputsCount; i++) {
             inputs.push(
-                executeNodeFn<(index: number) => string>(
-                    ['inputLabels', i],
-                    nodeEntity,
-                    nodeInstance
-                ) ?? `Input ${i + 1}`
+                nodeInstance.inputLabels?.[i] ??
+                    executeNodeFn<(index: number) => string>(
+                        ['inputLabels', i],
+                        nodeEntity,
+                        nodeInstance
+                    ) ??
+                    `Input ${i + 1}`
             );
         }
 
         for (let i = 0; i < outputsCount; i++) {
             outputs.push(
-                executeNodeFn<(index: number) => string>(
-                    ['outputLabels', i],
-                    nodeEntity,
-                    nodeInstance
-                ) ?? `Output ${i + 1}`
+                nodeInstance.outputLabels?.[i] ??
+                    executeNodeFn<(index: number) => string>(
+                        ['outputLabels', i],
+                        nodeEntity,
+                        nodeInstance
+                    ) ??
+                    `Output ${i + 1}`
             );
         }
 
