@@ -130,6 +130,10 @@ export class BuilderLogic {
         return async (dispatch: AppDispatch, getState: () => RootState) => {
             const flow = selectFlowEntityById(getState(), flowId);
 
+            if (!flow) {
+                return;
+            }
+
             dispatch(
                 {
                     flow: () => this.editFlow(flow as FlowEntity),
