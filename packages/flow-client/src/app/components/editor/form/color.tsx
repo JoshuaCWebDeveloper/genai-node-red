@@ -104,7 +104,7 @@ export const Color = ({ color, onChange, className = '' }: ColorProps) => {
             pickerActive={showColorPicker}
         >
             <label>Color: </label>
-            <button className="color-picker-button">
+            <button type="button" className="color-picker-button">
                 <i />
             </button>
 
