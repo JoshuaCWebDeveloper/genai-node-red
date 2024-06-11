@@ -13,13 +13,16 @@ export const DraggableNodeWrapper: React.FC<DraggableNodeWrapperProps> = ({
     node,
     children,
 }) => {
-    const [, drag] = useDrag(() => ({
-        type: ItemTypes.NODE,
-        item: node,
-        collect: monitor => ({
-            isDragging: !!monitor.isDragging(),
+    const [, drag] = useDrag(
+        () => ({
+            type: ItemTypes.NODE,
+            item: node,
+            collect: monitor => ({
+                isDragging: !!monitor.isDragging(),
+            }),
         }),
-    }));
+        [node]
+    );
 
     return (
         <div className="draggable-wrapper" ref={drag}>
