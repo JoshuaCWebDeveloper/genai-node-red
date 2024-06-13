@@ -1122,14 +1122,17 @@
                 "wires": [
                     {
                         "id": "249204d92550e10f"
+                    },
+                    {
+                        "id": "88303d90d7e5e417"
                     }
                 ]
             }
         ],
         "out": [
             {
-                "x": 1380,
-                "y": 320,
+                "x": 1540,
+                "y": 340,
                 "wires": [
                     {
                         "id": "56d72b63240b58d6",
@@ -1584,12 +1587,14 @@
             "3039cd8559535cc4",
             "37cf58b736452c29",
             "e34397c8aec9b431",
-            "3cd23f12c0321b72"
+            "3cd23f12c0321b72",
+            "cc0f068e3b8d9dd6",
+            "41f92e3d198f4694"
         ],
         "x": 734,
-        "y": 139,
+        "y": 79,
         "w": 472,
-        "h": 162
+        "h": 222
     },
     {
         "id": "a6665159eabf55ba",
@@ -1882,6 +1887,18 @@
         "y": 619,
         "w": 372,
         "h": 122
+    },
+    {
+        "id": "b6cc1b3167117b16",
+        "type": "junction",
+        "z": "ec55121054ad7072",
+        "x": 720,
+        "y": 100,
+        "wires": [
+            [
+                "4de07154c6644063"
+            ]
+        ]
     },
     {
         "id": "abd5674a230a71e1",
@@ -3642,7 +3659,7 @@
         "y": 480,
         "wires": [
             [
-                "f5e7eec49fcf570e"
+                "41f92e3d198f4694"
             ],
             [
                 "7249f13b4ba0284a"
@@ -3724,7 +3741,7 @@
         "z": "74bd10ee8e354d0a",
         "g": "1ae11ef02f19ba42",
         "name": "Init",
-        "func": "msg.id = env.get(\"Id\") || msg.historyId || `history-${Math.floor(Math.random() * 1000)}`;\nflow.set(\"Id\", msg.id);\n\nif (!msg.historyDbFilenames) {\n    msg.historyDbFilenames = {};\n}\n\nconst sourceFilename = env.get(\"SourceFilename\") || msg.historySourceFilename;\n\nif (env.get(\"New\") || msg.historyNew || !sourceFilename) {\n    msg.historyDbFilenames[msg.id] = `/data/db/history-${msg.timestamp}.json`;\n    msg.history = {\n        entries: [],\n        streaming: null\n    };\n    msg.initType = \"update\";\n}\nelse {\n    msg.historyDbFilenames[msg.id] = sourceFilename;\n    msg.initType = \"inject\";\n}\n\nglobal.set(\"historyDbFilenames\", msg.historyDbFilenames);\n\nreturn msg;\n",
+        "func": "if (!msg.historyDbFilenames) {\n    msg.historyDbFilenames = {};\n}\n\nconst sourceFilename = env.get(\"SourceFilename\") || msg.historySourceFilename;\n\nif (env.get(\"New\") || msg.historyNew || !sourceFilename) {\n    msg.historyDbFilenames[msg.id] = sourceFilename || `/data/db/history-${msg.timestamp}.json`;\n    msg.history = {\n        entries: [],\n        streaming: null\n    };\n    msg.initType = \"update\";\n}\nelse {\n    msg.historyDbFilenames[msg.id] = sourceFilename;\n    msg.initType = \"inject\";\n}\n\nglobal.set(\"historyDbFilenames\", msg.historyDbFilenames);\n\nreturn msg;\n",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -4033,7 +4050,7 @@
         "name": "Init",
         "info": "",
         "x": 810,
-        "y": 180,
+        "y": 120,
         "wires": []
     },
     {
@@ -4110,6 +4127,41 @@
         "wires": [
             [
                 "b4d35d18f82cbc61"
+            ]
+        ]
+    },
+    {
+        "id": "cc0f068e3b8d9dd6",
+        "type": "subflow:6efc1af5415157df",
+        "z": "74bd10ee8e354d0a",
+        "g": "1ae11ef02f19ba42",
+        "name": "",
+        "x": 1050,
+        "y": 180,
+        "wires": [
+            [
+                "f5e7eec49fcf570e"
+            ]
+        ]
+    },
+    {
+        "id": "41f92e3d198f4694",
+        "type": "function",
+        "z": "74bd10ee8e354d0a",
+        "g": "1ae11ef02f19ba42",
+        "name": "Set msg.id",
+        "func": "msg.id = env.get(\"Id\") || msg.historyId || `history-${Math.floor(Math.random() * 1000)}`;\nflow.set(\"Id\", msg.id);\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 830,
+        "y": 180,
+        "wires": [
+            [
+                "cc0f068e3b8d9dd6"
             ]
         ]
     },
@@ -5821,8 +5873,8 @@
         "type": "subflow:74bd10ee8e354d0a",
         "z": "f19bc65164444615",
         "name": "",
-        "x": 900,
-        "y": 440,
+        "x": 1060,
+        "y": 460,
         "wires": [
             [
                 "c9503f57f2cb91a0"
@@ -5834,15 +5886,15 @@
         "type": "function",
         "z": "f19bc65164444615",
         "name": "Init",
-        "func": "msg.id = env.get(\"Factory Id\") || msg.factoryId || `programatic-history-factory-${Math.floor(Math.random() * 1000)}`;\nflow.set(\"Id\", msg.id);\nflow.set(\"Histories\", {});\n\nreturn msg;\n",
+        "func": "msg.id = env.get(\"Factory Id\") || msg.factoryId || `programatic-history-factory-${Math.floor(Math.random() * 1000)}`;\nmsg.histories = {};\n\nflow.set(\"Id\", msg.id);\nflow.set(\"Histories\", msg.histories);\n\nreturn msg;\n",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 630,
-        "y": 240,
+        "x": 790,
+        "y": 260,
         "wires": [
             [
                 "56d72b63240b58d6"
@@ -5874,8 +5926,8 @@
         "checkall": "true",
         "repair": false,
         "outputs": 3,
-        "x": 410,
-        "y": 420,
+        "x": 570,
+        "y": 440,
         "wires": [
             [
                 "6ea2427c62da31ce"
@@ -5893,15 +5945,15 @@
         "type": "function",
         "z": "f19bc65164444615",
         "name": "Create History",
-        "func": "const defaultId = `programatic-history-${Math.floor(Math.random() * 1000)}`;\n\nmsg.action = \"history-init\";\n\nif (!msg.historyId) {\n    msg.historyId = defaultId;\n}\n\nif (!msg.historySourceFilename) {\n    msg.historySourceFilename = `/data/db/${defaultId}.json`;\n}\n\nmsg.histories[msg.historyId] = msg.historySourceFilename;\n\nreturn msg;\n",
+        "func": "const defaultId = `programatic-history-${Math.floor(Math.random() * 1000)}`;\n\nmsg.action = \"history-init\";\n\nif (!msg.historyId) {\n    msg.historyId = defaultId;\n}\n\n// if this history already exists\nif (msg.histories[msg.historyId]) {\n    node.warn(`Ignoring init action for existing programatic history: ${msg.historyId}`);\n    return;\n}\n\nif (!msg.historySourceFilename) {\n    msg.historySourceFilename = `/data/db/${defaultId}.json`;\n}\n\nmsg.histories[msg.historyId] = msg.historySourceFilename;\n\nreturn msg;\n",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 660,
-        "y": 360,
+        "x": 820,
+        "y": 380,
         "wires": [
             [
                 "1f9838526c71a615"
@@ -5928,8 +5980,8 @@
         "checkall": "true",
         "repair": false,
         "outputs": 2,
-        "x": 930,
-        "y": 480,
+        "x": 1090,
+        "y": 500,
         "wires": [
             [
                 "385f44c059a65470"
@@ -5944,15 +5996,15 @@
         "type": "function",
         "z": "f19bc65164444615",
         "name": "Send history action",
-        "func": "const histories = flow.get(\"Histories\");\nconst queue = context.get(\"Queue\") || {};\n\nif (msg.action == \"history-init\") {\n    // get our queue\n    const historyQueue = queue[msg.id];\n\n    // if we have no queue\n    if (!historyQueue) {\n        // then just send the init action along\n        return {\n            ...msg,\n            passThrough: true\n        };\n    }\n\n    // else, send our queued actions to our now initialized history\n    delete queue[msg.id];\n    context.set(\"Queue\", queue);\n    return [historyQueue];\n}\n\nlet historyId,\n    historyAction,\n    missingIdError = true;\n\nif (msg.action.startsWith(\"model-\")) {\n    historyId = msg.historyId;\n    historyAction = msg.action;\n    missingIdError = false;\n}\n\nif (msg.action.startsWith(\"prog-history-\")) {\n    historyId = msg.id;\n    historyAction = msg.action.replace(\"prog-history-\", \"history-\");\n}\n\n// if we don't have this history on record\nconst historyFilename = msg.histories[historyId];\nif (!historyFilename) {\n    if (missingIdError) {\n        node.error(`Skipping action: ${msg.action} for history id: ${historyId}`);\n    }\n    return;\n}\n\n// add to queue\nconst historyQueue = queue[historyId] || {};\nhistoryQueue.push({\n    ...msg,\n    action: historyAction\n});\ncontext.set(\"Queue\", queue);\n\n// init our history before sending our action\nreturn {\n    action: \"history-init\",\n    historySourceFilename: historyFilename\n};\n",
+        "func": "const histories = flow.get(\"Histories\");\nconst queue = context.get(\"Queue\") || {};\nconst initializedHistories = context.get(\"InitializedHistories\") || [];\nconst currentlyInitialized = context.get(\"CurrentlyInitialized\") || null;\n\nif (msg.action == \"history-init\") {\n    // build array of responses\n    const responses = [];\n\n    // mark history as intialized\n    context.set(\"CurrentlyInitialized\", msg.id);\n    // if our history was just initialized\n    if (!initializedHistories.includes(msg.id)) {\n        // mark it as initialized at least once\n        initializedHistories.push(msg.id);\n        context.set(\"InitializedHistories\", initializedHistories);\n        // pass this init action through\n        responses.push({\n            ...msg,\n            passThrough: true\n        });\n    }\n    // get our queue\n    const historyQueue = queue[msg.id];\n    // if we have a queue\n    if (historyQueue) {\n        // send our queued actions to our now initialized history\n        responses.push(...historyQueue);\n        delete queue[msg.id];\n        context.set(\"Queue\", queue);\n    }\n\n    // return our responses\n    return [responses];\n}\n\nlet historyId,\n    historyAction,\n    missingIdError = true;\n\nif (msg.action.startsWith(\"model-\")) {\n    historyId = msg.historyId;\n    historyAction = msg.action;\n    missingIdError = false;\n}\n\nif (msg.action.startsWith(\"prog-history-\")) {\n    historyId = msg.id;\n    historyAction = msg.action.replace(\"prog-history-\", \"history-\");\n}\n\nconst historyMessage = {\n    ...msg,\n    historyId,\n    action: historyAction\n};\n\n// if this is our currently initialized history\nif (currentlyInitialized === historyId) {\n    // then just pass the message through\n    return historyMessage;\n}\n\n// else, we'll need to queue this message until our history is initialized\nconst historyQueue = queue[historyId] || [];\nhistoryQueue.push(historyMessage);\nqueue[historyId] = historyQueue;\ncontext.set(\"Queue\", queue);\n\n// if we already have this history on record\nconst historyFilename = msg.histories[historyId];\nif (historyFilename) {\n    // all we need to do is re-init our history before sending our action\n    return {\n        action: \"history-init\",\n        historySourceFilename: historyFilename,\n        historyId,\n    };\n}\n\n// else, we need to wait for our history to be initialized a first time\nreturn;\n",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 670,
-        "y": 580,
+        "x": 830,
+        "y": 600,
         "wires": [
             [
                 "2f18c3b72b0c9ed4"
@@ -5977,8 +6029,8 @@
         "checkall": "true",
         "repair": false,
         "outputs": 2,
-        "x": 690,
-        "y": 620,
+        "x": 850,
+        "y": 640,
         "wires": [
             [
                 "56d72b63240b58d6"
@@ -6004,7 +6056,7 @@
         "y": 360,
         "wires": [
             [
-                "ac1128419ebdc901"
+                "19b459cfc255c9f2"
             ]
         ]
     },
@@ -6020,18 +6072,135 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 1220,
-        "y": 480,
+        "x": 1380,
+        "y": 500,
         "wires": [
-            []
+            [
+                "c53f1c064ea11050"
+            ]
         ]
+    },
+    {
+        "id": "88303d90d7e5e417",
+        "type": "debug",
+        "z": "f19bc65164444615",
+        "d": true,
+        "name": "Programmatic History In",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 270,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "c53f1c064ea11050",
+        "type": "debug",
+        "z": "f19bc65164444615",
+        "d": true,
+        "name": "Programmatic History Out",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1620,
+        "y": 520,
+        "wires": []
+    },
+    {
+        "id": "19b459cfc255c9f2",
+        "type": "switch",
+        "z": "f19bc65164444615",
+        "name": "If prog-factory-init, Else valid action",
+        "property": "action",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "prog-factory-init",
+                "vt": "str"
+            },
+            {
+                "t": "regex",
+                "v": "(prog-history-.*)|(history-.*)|(model-.*)",
+                "vt": "str",
+                "case": false
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 280,
+        "y": 400,
+        "wires": [
+            [
+                "ac1128419ebdc901"
+            ],
+            [
+                "452415ed7af8aa05"
+            ]
+        ]
+    },
+    {
+        "id": "452415ed7af8aa05",
+        "type": "switch",
+        "z": "f19bc65164444615",
+        "name": "If factory init, else",
+        "property": "histories",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "nnull"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 230,
+        "y": 460,
+        "wires": [
+            [
+                "ac1128419ebdc901"
+            ],
+            [
+                "fc2edb1a241a9468"
+            ]
+        ]
+    },
+    {
+        "id": "fc2edb1a241a9468",
+        "type": "function",
+        "z": "f19bc65164444615",
+        "name": "Error: not initialized",
+        "func": "node.error(`Skipping action: ${msg.action} for unitialized history factory. (msg: ${JSON.stringify(msg, undefined, 2)})`);\n",
+        "outputs": 0,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 230,
+        "y": 500,
+        "wires": []
     },
     {
         "id": "0a432a478665f6a9",
         "type": "function",
         "z": "21de8117bd1967f9",
         "name": "extractHtmlTags",
-        "func": "msg.extractHtmlTags = (text) => {\n    const tagRegex = /<([A-Za-z0-9-_:.]*)>([\\s\\S]*?)<\\/([A-Za-z0-9_:.-]*)>/g;\n    const tags = {};\n    let matches;\n    while (matches = tagRegex.exec(text)) {\n        // if tags don't match\n        if (matches[1] != matches[3]) {\n            //skip it\n            continue;\n        }\n        tags[matches[1]] = matches[2];\n    }\n    return tags;\n}\n\nreturn msg;\n",
+        "func": "msg.extractHtmlTags = (text) => {\n    const tagRegex = /<([A-Za-z0-9-_:.]*)>([\\s\\S]*?)<\\/([A-Za-z0-9_:.-]*)>/g;\n    const tags = [];\n    let matches;\n    while (matches = tagRegex.exec(text)) {\n        const [_, openingTag, tagContent, closingTag] = matches;\n\n        // if tags don't match\n        if (openingTag != closingTag) {\n            //skip it\n            continue;\n        }\n        tags.push({tag: openingTag, content: tagContent});\n    }\n    return tags;\n}\n\nreturn msg;\n",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -6049,7 +6218,7 @@
         "type": "function",
         "z": "240cc03734c17fa7",
         "name": "Parse Response",
-        "func": "// if this is not a stream ending\nif (msg.action != \"history-update-streaming\" || msg.history.streaming) {\n    return;\n}\n\nconst response = msg.history.entries.slice(-1)[0].content;\nconst responseTags = msg.extractHtmlTags(response);\n\n// send message for every tag\nreturn [\n    Object.entries(responseTags).map((tag, content) => ({\n        tag,\n        content,\n        agentId: msg.historyId\n    }))\n];\n",
+        "func": "// if this is not a stream ending\nif (msg.action != \"history-update-streaming\" || msg.history.streaming) {\n    return;\n}\n\nconst response = msg.history.entries.slice(-1)[0].content;\nconst responseTags = msg.extractHtmlTags(response);\n\n// send message for every tag\nreturn [\n    responseTags.map(({tag, content}) => ({\n        tag,\n        content,\n        agentId: msg.historyId\n    }))\n];\n",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -8352,6 +8521,94 @@
         ]
     },
     {
+        "id": "8bfdab680b95f8bb",
+        "type": "switch",
+        "z": "8518392b3e041cfe",
+        "name": "If not null, else",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "nnull"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 780,
+        "y": 200,
+        "wires": [
+            [
+                "df7672b738a32382"
+            ],
+            [
+                "aa9403ce7147f75f"
+            ]
+        ]
+    },
+    {
+        "id": "df7672b738a32382",
+        "type": "debug",
+        "z": "8518392b3e041cfe",
+        "name": "debug 28",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "\"Not empty\"",
+        "targetType": "jsonata",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 980,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "aa9403ce7147f75f",
+        "type": "debug",
+        "z": "8518392b3e041cfe",
+        "name": "debug 29",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "\"Empty\"",
+        "targetType": "jsonata",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 980,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "a949b1fe09dd6896",
+        "type": "inject",
+        "z": "8518392b3e041cfe",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "undefined",
+        "payloadType": "jsonata",
+        "x": 530,
+        "y": 200,
+        "wires": [
+            [
+                "8bfdab680b95f8bb"
+            ]
+        ]
+    },
+    {
         "id": "c595413a72a78b1b",
         "type": "subflow:2b3efcc977e88d91",
         "z": "4d258c7de41d3e07",
@@ -9129,7 +9386,8 @@
         "y": 80,
         "wires": [
             [
-                "e77e6ed92b6eba12"
+                "e77e6ed92b6eba12",
+                "d7625ef95dd891b8"
             ]
         ]
     },
@@ -9189,7 +9447,6 @@
         "id": "a61cd1dd9aeb1256",
         "type": "subflow:a59054999730c251",
         "z": "ec55121054ad7072",
-        "d": true,
         "g": "0bd29a38bd7fd7ee",
         "name": "Model - genai - llama-cpp-llava",
         "env": [
@@ -9298,6 +9555,7 @@
         "id": "21debbaed5b57fd5",
         "type": "subflow:a59054999730c251",
         "z": "ec55121054ad7072",
+        "d": true,
         "g": "0bd29a38bd7fd7ee",
         "name": "Model - dummy sse",
         "env": [
@@ -9308,7 +9566,7 @@
             },
             {
                 "name": "BaseUrl",
-                "value": "http://host.docker.internal:8091",
+                "value": "http://host.docker.internal.local:8091",
                 "type": "str"
             },
             {
@@ -9549,7 +9807,8 @@
         "y": 360,
         "wires": [
             [
-                "40557c67b6ce1c09"
+                "40557c67b6ce1c09",
+                "1554a43a221611d6"
             ]
         ]
     },
@@ -9583,7 +9842,7 @@
         "type": "function",
         "z": "ec55121054ad7072",
         "name": "Add Admin Message",
-        "func": "msg = {\n    action: \"prog-history-add-entry\",\n    entry: {\n        role: \"user\",\n        content: msg.createAdminMessagePrompt(msg.body?.content)\n    },\n    id: msg.path.split('/')[1]\n};\n\nreturn msg;\n",
+        "func": "msg = {\n    action: \"prog-history-add-entry\",\n    entry: {\n        role: \"user\",\n        content: msg.createAdminMessagePrompt(msg.body?.content)\n    },\n    id: msg.path.split('/')[2]\n};\n\nreturn msg;\n",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -9594,7 +9853,8 @@
         "y": 540,
         "wires": [
             [
-                "4de07154c6644063"
+                "4de07154c6644063",
+                "dd64967ec7cb7b3d"
             ]
         ]
     },
@@ -9791,7 +10051,8 @@
         "y": 740,
         "wires": [
             [
-                "13c990f21a453c5a"
+                "13c990f21a453c5a",
+                "e7f4585c8ca44732"
             ]
         ]
     },
@@ -9838,5 +10099,76 @@
         ],
         "icon": "font-awesome/fa-arrows",
         "l": false
+    },
+    {
+        "id": "d7625ef95dd891b8",
+        "type": "function",
+        "z": "ec55121054ad7072",
+        "name": "Init Operator Histories",
+        "func": "\nreturn {\n    action: \"prog-factory-init\"\n};\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 420,
+        "y": 100,
+        "wires": [
+            [
+                "b6cc1b3167117b16"
+            ]
+        ]
+    },
+    {
+        "id": "1554a43a221611d6",
+        "type": "debug",
+        "z": "ec55121054ad7072",
+        "name": "Creating Operator",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1650,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "dd64967ec7cb7b3d",
+        "type": "debug",
+        "z": "ec55121054ad7072",
+        "name": "Sending Admin Message",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1670,
+        "y": 600,
+        "wires": []
+    },
+    {
+        "id": "e7f4585c8ca44732",
+        "type": "debug",
+        "z": "ec55121054ad7072",
+        "name": "Sending Operator Message",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1680,
+        "y": 800,
+        "wires": []
     }
 ]
