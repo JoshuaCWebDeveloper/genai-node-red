@@ -40,6 +40,14 @@
         "env": []
     },
     {
+        "id": "ec55121054ad7072",
+        "type": "tab",
+        "label": "Admin-Operator",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
         "id": "9941dd1769d8bb1b",
         "type": "subflow",
         "name": "Inject context",
@@ -1114,14 +1122,17 @@
                 "wires": [
                     {
                         "id": "249204d92550e10f"
+                    },
+                    {
+                        "id": "88303d90d7e5e417"
                     }
                 ]
             }
         ],
         "out": [
             {
-                "x": 1380,
-                "y": 320,
+                "x": 1540,
+                "y": 340,
                 "wires": [
                     {
                         "id": "56d72b63240b58d6",
@@ -1139,6 +1150,72 @@
         ],
         "meta": {},
         "color": "#E2D96E"
+    },
+    {
+        "id": "21de8117bd1967f9",
+        "type": "subflow",
+        "name": "provide - exractHtmlTags",
+        "info": "",
+        "category": "llm:util",
+        "in": [
+            {
+                "x": 50,
+                "y": 30.90909093618393,
+                "wires": [
+                    {
+                        "id": "0a432a478665f6a9"
+                    }
+                ]
+            }
+        ],
+        "out": [
+            {
+                "x": 500,
+                "y": 160,
+                "wires": [
+                    {
+                        "id": "0a432a478665f6a9",
+                        "port": 0
+                    }
+                ]
+            }
+        ],
+        "env": [],
+        "meta": {},
+        "color": "#DEBD5C"
+    },
+    {
+        "id": "240cc03734c17fa7",
+        "type": "subflow",
+        "name": "Parse Agent Response",
+        "info": "",
+        "category": "",
+        "in": [
+            {
+                "x": 50,
+                "y": 30,
+                "wires": [
+                    {
+                        "id": "c75d4b3b73c4fe40"
+                    }
+                ]
+            }
+        ],
+        "out": [
+            {
+                "x": 740,
+                "y": 80,
+                "wires": [
+                    {
+                        "id": "af73ebafaf5dc5f2",
+                        "port": 0
+                    }
+                ]
+            }
+        ],
+        "env": [],
+        "meta": {},
+        "color": "#DDAA99"
     },
     {
         "id": "573a66c74ad47252",
@@ -1510,12 +1587,14 @@
             "3039cd8559535cc4",
             "37cf58b736452c29",
             "e34397c8aec9b431",
-            "3cd23f12c0321b72"
+            "3cd23f12c0321b72",
+            "cc0f068e3b8d9dd6",
+            "41f92e3d198f4694"
         ],
         "x": 734,
-        "y": 139,
+        "y": 79,
         "w": 472,
-        "h": 162
+        "h": 222
     },
     {
         "id": "a6665159eabf55ba",
@@ -1663,6 +1742,33 @@
         "h": 122
     },
     {
+        "id": "0bd29a38bd7fd7ee",
+        "type": "group",
+        "z": "ec55121054ad7072",
+        "style": {
+            "stroke": "#999999",
+            "stroke-opacity": "1",
+            "fill": "none",
+            "fill-opacity": "1",
+            "label": true,
+            "label-position": "nw",
+            "color": "#a4a4a4"
+        },
+        "nodes": [
+            "75d06bae12a047f9",
+            "a61cd1dd9aeb1256",
+            "12901237f1ea6884",
+            "7aad90c5be36eb0a",
+            "21debbaed5b57fd5",
+            "a98ec39f0f7f2c84",
+            "9d4dbbbd2defb7fb"
+        ],
+        "x": 248,
+        "y": 359,
+        "w": 438,
+        "h": 408
+    },
+    {
         "id": "aaf9af66d3e39da8",
         "type": "group",
         "z": "9e23ccbf2e0608ed",
@@ -1757,6 +1863,42 @@
         "y": 579,
         "w": 412,
         "h": 122
+    },
+    {
+        "id": "7aad90c5be36eb0a",
+        "type": "group",
+        "z": "ec55121054ad7072",
+        "g": "0bd29a38bd7fd7ee",
+        "style": {
+            "stroke": "#999999",
+            "stroke-opacity": "1",
+            "fill": "none",
+            "fill-opacity": "1",
+            "label": true,
+            "label-position": "nw",
+            "color": "#a4a4a4"
+        },
+        "nodes": [
+            "d9e0c9a3cf18f405",
+            "4b7f0d34fcfa313d",
+            "bbeaa9f159afdfaf"
+        ],
+        "x": 274,
+        "y": 619,
+        "w": 372,
+        "h": 122
+    },
+    {
+        "id": "b6cc1b3167117b16",
+        "type": "junction",
+        "z": "ec55121054ad7072",
+        "x": 720,
+        "y": 100,
+        "wires": [
+            [
+                "4de07154c6644063"
+            ]
+        ]
     },
     {
         "id": "abd5674a230a71e1",
@@ -3517,7 +3659,7 @@
         "y": 480,
         "wires": [
             [
-                "f5e7eec49fcf570e"
+                "41f92e3d198f4694"
             ],
             [
                 "7249f13b4ba0284a"
@@ -3599,7 +3741,7 @@
         "z": "74bd10ee8e354d0a",
         "g": "1ae11ef02f19ba42",
         "name": "Init",
-        "func": "msg.id = env.get(\"Id\") || msg.historyId || `history-${Math.floor(Math.random() * 1000)}`;\nflow.set(\"Id\", msg.id);\n\nif (!msg.historyDbFilenames) {\n    msg.historyDbFilenames = {};\n}\n\nconst sourceFilename = env.get(\"SourceFilename\") || msg.historySourceFilename;\n\nif (env.get(\"New\") || msg.historyNew || !sourceFilename) {\n    msg.historyDbFilenames[msg.id] = `/data/db/history-${msg.timestamp}.json`;\n    msg.history = {\n        entries: [],\n        streaming: null\n    };\n    msg.initType = \"update\";\n}\nelse {\n    msg.historyDbFilenames[msg.id] = sourceFilename;\n    msg.initType = \"inject\";\n}\n\nglobal.set(\"historyDbFilenames\", msg.historyDbFilenames);\n\nreturn msg;\n",
+        "func": "if (!msg.historyDbFilenames) {\n    msg.historyDbFilenames = {};\n}\n\nconst sourceFilename = env.get(\"SourceFilename\") || msg.historySourceFilename;\n\nif (env.get(\"New\") || msg.historyNew || !sourceFilename) {\n    msg.historyDbFilenames[msg.id] = sourceFilename || `/data/db/history-${msg.timestamp}.json`;\n    msg.history = {\n        entries: [],\n        streaming: null\n    };\n    msg.initType = \"update\";\n}\nelse {\n    msg.historyDbFilenames[msg.id] = sourceFilename;\n    msg.initType = \"inject\";\n}\n\nglobal.set(\"historyDbFilenames\", msg.historyDbFilenames);\n\nreturn msg;\n",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -3908,7 +4050,7 @@
         "name": "Init",
         "info": "",
         "x": 810,
-        "y": 180,
+        "y": 120,
         "wires": []
     },
     {
@@ -3985,6 +4127,41 @@
         "wires": [
             [
                 "b4d35d18f82cbc61"
+            ]
+        ]
+    },
+    {
+        "id": "cc0f068e3b8d9dd6",
+        "type": "subflow:6efc1af5415157df",
+        "z": "74bd10ee8e354d0a",
+        "g": "1ae11ef02f19ba42",
+        "name": "",
+        "x": 1050,
+        "y": 180,
+        "wires": [
+            [
+                "f5e7eec49fcf570e"
+            ]
+        ]
+    },
+    {
+        "id": "41f92e3d198f4694",
+        "type": "function",
+        "z": "74bd10ee8e354d0a",
+        "g": "1ae11ef02f19ba42",
+        "name": "Set msg.id",
+        "func": "msg.id = env.get(\"Id\") || msg.historyId || `history-${Math.floor(Math.random() * 1000)}`;\nflow.set(\"Id\", msg.id);\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 830,
+        "y": 180,
+        "wires": [
+            [
+                "cc0f068e3b8d9dd6"
             ]
         ]
     },
@@ -5631,7 +5808,7 @@
         "type": "function",
         "z": "9d188e904c4abf9e",
         "name": "Render App",
-        "func": "const parent = msg.parent;\n\n// Add the form tag\nparent.components.push({\n    'type': 'form',\n    'parent': msg.parentElement,\n    'id': msg.elementId,\n    'components': [],\n    'attributes': {\n        'class': 'prompt-ui'\n    },\n})\n\n// Convenient references\nconst frmBody = parent.components[parent.components.length - 1]\n\n// Add the header\nfrmBody.components.push({\n    'type': 'h1',\n    'slot': msg.heading,\n})\n\n// Add a div to wrap the textarea and send button\nconst formDiv = {\n    'type': 'div',\n    'attributes': {\n        'class': 'prompt-form'\n    },\n    'components': [\n        {\n            'type': 'textarea',\n            'id': `${msg.elementId}-prompt`,\n            'properties': {\n                'value': msg.systemPrompt\n            },\n            'events': {\n                \"change\": \"uibuilder.eventSend\"\n            }\n        },\n    ],\n}\n\n// Add the message div to the form body components\nfrmBody.components.push(formDiv)\n\nreturn msg;\n",
+        "func": "// if we weren't given a system prompt, \n// then render nothing\nif (!msg.systemPrompt) {\n    return msg;\n}\n\nconst parent = msg.parent;\n\n// Add the form tag\nparent.components.push({\n    'type': 'form',\n    'parent': msg.parentElement,\n    'id': msg.elementId,\n    'components': [],\n    'attributes': {\n        'class': 'prompt-ui'\n    },\n})\n\n// Convenient references\nconst frmBody = parent.components[parent.components.length - 1]\n\n// Add the header\nfrmBody.components.push({\n    'type': 'h1',\n    'slot': msg.heading,\n})\n\n// Add a div to wrap the textarea and send button\nconst formDiv = {\n    'type': 'div',\n    'attributes': {\n        'class': 'prompt-form'\n    },\n    'components': [\n        {\n            'type': 'textarea',\n            'id': `${msg.elementId}-prompt`,\n            'properties': {\n                'value': msg.systemPrompt\n            },\n            'events': {\n                \"change\": \"uibuilder.eventSend\"\n            }\n        },\n    ],\n}\n\n// Add the message div to the form body components\nfrmBody.components.push(formDiv)\n\nreturn msg;\n",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -5696,8 +5873,8 @@
         "type": "subflow:74bd10ee8e354d0a",
         "z": "f19bc65164444615",
         "name": "",
-        "x": 900,
-        "y": 440,
+        "x": 1060,
+        "y": 460,
         "wires": [
             [
                 "c9503f57f2cb91a0"
@@ -5709,15 +5886,15 @@
         "type": "function",
         "z": "f19bc65164444615",
         "name": "Init",
-        "func": "msg.id = env.get(\"Factory Id\") || msg.factoryId || `programatic-history-factory-${Math.floor(Math.random() * 1000)}`;\nflow.set(\"Id\", msg.id);\nflow.set(\"Histories\", {});\n\nreturn msg;\n",
+        "func": "msg.id = env.get(\"Factory Id\") || msg.factoryId || `programatic-history-factory-${Math.floor(Math.random() * 1000)}`;\nmsg.histories = {};\n\nflow.set(\"Id\", msg.id);\nflow.set(\"Histories\", msg.histories);\n\nreturn msg;\n",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 630,
-        "y": 240,
+        "x": 790,
+        "y": 260,
         "wires": [
             [
                 "56d72b63240b58d6"
@@ -5749,8 +5926,8 @@
         "checkall": "true",
         "repair": false,
         "outputs": 3,
-        "x": 410,
-        "y": 420,
+        "x": 570,
+        "y": 440,
         "wires": [
             [
                 "6ea2427c62da31ce"
@@ -5768,15 +5945,15 @@
         "type": "function",
         "z": "f19bc65164444615",
         "name": "Create History",
-        "func": "const defaultId = `programatic-history-${Math.floor(Math.random() * 1000)}`;\n\nmsg.action = \"history-init\";\n\nif (!msg.historyId) {\n    msg.historyId = defaultId;\n}\n\nif (!msg.historySourceFilename) {\n    msg.historySourceFilename = `/data/db/${defaultId}.json`;\n}\n\nmsg.histories[msg.historyId] = msg.historySourceFilename;\n\nreturn msg;\n",
+        "func": "const defaultId = `programatic-history-${Math.floor(Math.random() * 1000)}`;\n\nmsg.action = \"history-init\";\n\nif (!msg.historyId) {\n    msg.historyId = defaultId;\n}\n\n// if this history already exists\nif (msg.histories[msg.historyId]) {\n    node.warn(`Ignoring init action for existing programatic history: ${msg.historyId}`);\n    return;\n}\n\nif (!msg.historySourceFilename) {\n    msg.historySourceFilename = `/data/db/${defaultId}.json`;\n}\n\nmsg.histories[msg.historyId] = msg.historySourceFilename;\n\nreturn msg;\n",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 660,
-        "y": 360,
+        "x": 820,
+        "y": 380,
         "wires": [
             [
                 "1f9838526c71a615"
@@ -5803,8 +5980,8 @@
         "checkall": "true",
         "repair": false,
         "outputs": 2,
-        "x": 930,
-        "y": 480,
+        "x": 1090,
+        "y": 500,
         "wires": [
             [
                 "385f44c059a65470"
@@ -5819,15 +5996,15 @@
         "type": "function",
         "z": "f19bc65164444615",
         "name": "Send history action",
-        "func": "const histories = flow.get(\"Histories\");\nconst queue = context.get(\"Queue\") || {};\n\nif (msg.action == \"history-init\") {\n    // get our queue\n    const historyQueue = queue[msg.id];\n\n    // if we have no queue\n    if (!historyQueue) {\n        // then just send the init action along\n        return {\n            ...msg,\n            passThrough: true\n        };\n    }\n\n    // else, send our queued actions to our now initialized history\n    delete queue[msg.id];\n    context.set(\"Queue\", queue);\n    return [historyQueue];\n}\n\nlet historyId,\n    historyAction,\n    missingIdError = true;\n\nif (msg.action.startsWith(\"model-\")) {\n    historyId = msg.historyId;\n    historyAction = msg.action;\n    missingIdError = false;\n}\n\nif (msg.action.startsWith(\"prog-history-\")) {\n    historyId = msg.id;\n    historyAction = msg.action.replace(\"prog-history-\", \"history-\");\n}\n\n// if we don't have this history on record\nconst historyFilename = msg.histories[historyId];\nif (!historyFilename) {\n    if (missingIdError) {\n        node.error(`Skipping action: ${msg.action} for history id: ${historyId}`);\n    }\n    return;\n}\n\n// add to queue\nconst historyQueue = queue[historyId] || {};\nhistoryQueue.push({\n    ...msg,\n    action: historyAction\n});\ncontext.set(\"Queue\", queue);\n\n// init our history before sending our action\nreturn {\n    action: \"history-init\",\n    historySourceFilename: historyFilename\n};\n",
+        "func": "const histories = flow.get(\"Histories\");\nconst queue = context.get(\"Queue\") || {};\nconst initializedHistories = context.get(\"InitializedHistories\") || [];\nconst currentlyInitialized = context.get(\"CurrentlyInitialized\") || null;\n\nif (msg.action == \"history-init\") {\n    // build array of responses\n    const responses = [];\n\n    // mark history as intialized\n    context.set(\"CurrentlyInitialized\", msg.id);\n    // if our history was just initialized\n    if (!initializedHistories.includes(msg.id)) {\n        // mark it as initialized at least once\n        initializedHistories.push(msg.id);\n        context.set(\"InitializedHistories\", initializedHistories);\n        // pass this init action through\n        responses.push({\n            ...msg,\n            passThrough: true\n        });\n    }\n    // get our queue\n    const historyQueue = queue[msg.id];\n    // if we have a queue\n    if (historyQueue) {\n        // send our queued actions to our now initialized history\n        responses.push(...historyQueue);\n        delete queue[msg.id];\n        context.set(\"Queue\", queue);\n    }\n\n    // return our responses\n    return [responses];\n}\n\nlet historyId,\n    historyAction,\n    missingIdError = true;\n\nif (msg.action.startsWith(\"model-\")) {\n    historyId = msg.historyId;\n    historyAction = msg.action;\n    missingIdError = false;\n}\n\nif (msg.action.startsWith(\"prog-history-\")) {\n    historyId = msg.id;\n    historyAction = msg.action.replace(\"prog-history-\", \"history-\");\n}\n\nconst historyMessage = {\n    ...msg,\n    historyId,\n    action: historyAction\n};\n\n// if this is our currently initialized history\nif (currentlyInitialized === historyId) {\n    // then just pass the message through\n    return historyMessage;\n}\n\n// else, we'll need to queue this message until our history is initialized\nconst historyQueue = queue[historyId] || [];\nhistoryQueue.push(historyMessage);\nqueue[historyId] = historyQueue;\ncontext.set(\"Queue\", queue);\n\n// if we already have this history on record\nconst historyFilename = msg.histories[historyId];\nif (historyFilename) {\n    // all we need to do is re-init our history before sending our action\n    return {\n        action: \"history-init\",\n        historySourceFilename: historyFilename,\n        historyId,\n    };\n}\n\n// else, we need to wait for our history to be initialized a first time\nreturn;\n",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 670,
-        "y": 580,
+        "x": 830,
+        "y": 600,
         "wires": [
             [
                 "2f18c3b72b0c9ed4"
@@ -5852,8 +6029,8 @@
         "checkall": "true",
         "repair": false,
         "outputs": 2,
-        "x": 690,
-        "y": 620,
+        "x": 850,
+        "y": 640,
         "wires": [
             [
                 "56d72b63240b58d6"
@@ -5879,7 +6056,7 @@
         "y": 360,
         "wires": [
             [
-                "ac1128419ebdc901"
+                "19b459cfc255c9f2"
             ]
         ]
     },
@@ -5895,10 +6072,176 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 1220,
-        "y": 480,
+        "x": 1380,
+        "y": 500,
+        "wires": [
+            [
+                "c53f1c064ea11050"
+            ]
+        ]
+    },
+    {
+        "id": "88303d90d7e5e417",
+        "type": "debug",
+        "z": "f19bc65164444615",
+        "d": true,
+        "name": "Programmatic History In",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 270,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "c53f1c064ea11050",
+        "type": "debug",
+        "z": "f19bc65164444615",
+        "d": true,
+        "name": "Programmatic History Out",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1620,
+        "y": 520,
+        "wires": []
+    },
+    {
+        "id": "19b459cfc255c9f2",
+        "type": "switch",
+        "z": "f19bc65164444615",
+        "name": "If prog-factory-init, Else valid action",
+        "property": "action",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "prog-factory-init",
+                "vt": "str"
+            },
+            {
+                "t": "regex",
+                "v": "(prog-history-.*)|(history-.*)|(model-.*)",
+                "vt": "str",
+                "case": false
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 280,
+        "y": 400,
+        "wires": [
+            [
+                "ac1128419ebdc901"
+            ],
+            [
+                "452415ed7af8aa05"
+            ]
+        ]
+    },
+    {
+        "id": "452415ed7af8aa05",
+        "type": "switch",
+        "z": "f19bc65164444615",
+        "name": "If factory init, else",
+        "property": "histories",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "nnull"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 230,
+        "y": 460,
+        "wires": [
+            [
+                "ac1128419ebdc901"
+            ],
+            [
+                "fc2edb1a241a9468"
+            ]
+        ]
+    },
+    {
+        "id": "fc2edb1a241a9468",
+        "type": "function",
+        "z": "f19bc65164444615",
+        "name": "Error: not initialized",
+        "func": "node.error(`Skipping action: ${msg.action} for unitialized history factory. (msg: ${JSON.stringify(msg, undefined, 2)})`);\n",
+        "outputs": 0,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 230,
+        "y": 500,
+        "wires": []
+    },
+    {
+        "id": "0a432a478665f6a9",
+        "type": "function",
+        "z": "21de8117bd1967f9",
+        "name": "extractHtmlTags",
+        "func": "msg.extractHtmlTags = (text) => {\n    const tagRegex = /<([A-Za-z0-9-_:.]*)>([\\s\\S]*?)<\\/([A-Za-z0-9_:.-]*)>/g;\n    const tags = [];\n    let matches;\n    while (matches = tagRegex.exec(text)) {\n        const [_, openingTag, tagContent, closingTag] = matches;\n\n        // if tags don't match\n        if (openingTag != closingTag) {\n            //skip it\n            continue;\n        }\n        tags.push({tag: openingTag, content: tagContent});\n    }\n    return tags;\n}\n\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 260,
+        "y": 120,
         "wires": [
             []
+        ]
+    },
+    {
+        "id": "af73ebafaf5dc5f2",
+        "type": "function",
+        "z": "240cc03734c17fa7",
+        "name": "Parse Response",
+        "func": "// if this is not a stream ending\nif (msg.action != \"history-update-streaming\" || msg.history.streaming) {\n    return;\n}\n\nconst response = msg.history.entries.slice(-1)[0].content;\nconst responseTags = msg.extractHtmlTags(response);\n\n// send message for every tag\nreturn [\n    responseTags.map(({tag, content}) => ({\n        tag,\n        content,\n        agentId: msg.historyId\n    }))\n];\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 410,
+        "y": 260,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "c75d4b3b73c4fe40",
+        "type": "subflow:21de8117bd1967f9",
+        "z": "240cc03734c17fa7",
+        "name": "",
+        "x": 430,
+        "y": 220,
+        "wires": [
+            [
+                "af73ebafaf5dc5f2"
+            ]
         ]
     },
     {
@@ -8178,6 +8521,94 @@
         ]
     },
     {
+        "id": "8bfdab680b95f8bb",
+        "type": "switch",
+        "z": "8518392b3e041cfe",
+        "name": "If not null, else",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "nnull"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 780,
+        "y": 200,
+        "wires": [
+            [
+                "df7672b738a32382"
+            ],
+            [
+                "aa9403ce7147f75f"
+            ]
+        ]
+    },
+    {
+        "id": "df7672b738a32382",
+        "type": "debug",
+        "z": "8518392b3e041cfe",
+        "name": "debug 28",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "\"Not empty\"",
+        "targetType": "jsonata",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 980,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "aa9403ce7147f75f",
+        "type": "debug",
+        "z": "8518392b3e041cfe",
+        "name": "debug 29",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "\"Empty\"",
+        "targetType": "jsonata",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 980,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "a949b1fe09dd6896",
+        "type": "inject",
+        "z": "8518392b3e041cfe",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "undefined",
+        "payloadType": "jsonata",
+        "x": 530,
+        "y": 200,
+        "wires": [
+            [
+                "8bfdab680b95f8bb"
+            ]
+        ]
+    },
+    {
         "id": "c595413a72a78b1b",
         "type": "subflow:2b3efcc977e88d91",
         "z": "4d258c7de41d3e07",
@@ -8886,5 +9317,858 @@
                 "4d5a8d1e8ff6d660"
             ]
         ]
+    },
+    {
+        "id": "6b73ef72bb7e4b87",
+        "type": "subflow:2b3efcc977e88d91",
+        "z": "ec55121054ad7072",
+        "name": "",
+        "env": [
+            {
+                "name": "Url",
+                "value": "admin-operator",
+                "type": "str"
+            }
+        ],
+        "x": 310,
+        "y": 280,
+        "wires": [
+            [
+                "e77e6ed92b6eba12"
+            ]
+        ]
+    },
+    {
+        "id": "e77e6ed92b6eba12",
+        "type": "subflow:74bd10ee8e354d0a",
+        "z": "ec55121054ad7072",
+        "name": "Admin History",
+        "env": [
+            {
+                "name": "SourceFilename",
+                "value": "/data/db/history-1711926907124.json",
+                "type": "str"
+            }
+        ],
+        "x": 600,
+        "y": 280,
+        "wires": [
+            [
+                "6b73ef72bb7e4b87",
+                "0a39bb73f010efd7",
+                "8ad28cb311d8a5c0"
+            ]
+        ]
+    },
+    {
+        "id": "cd5e2c4e51717c0f",
+        "type": "inject",
+        "z": "ec55121054ad7072",
+        "name": "Start App",
+        "props": [
+            {
+                "p": "timestamp",
+                "v": "",
+                "vt": "date"
+            },
+            {
+                "p": "action",
+                "v": "history-init",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 140,
+        "y": 80,
+        "wires": [
+            [
+                "e77e6ed92b6eba12",
+                "d7625ef95dd891b8"
+            ]
+        ]
+    },
+    {
+        "id": "0a34e1dce381f16b",
+        "type": "function",
+        "z": "ec55121054ad7072",
+        "name": " ",
+        "func": "\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 205,
+        "y": 440,
+        "wires": [
+            [
+                "21debbaed5b57fd5",
+                "75d06bae12a047f9",
+                "a61cd1dd9aeb1256",
+                "9d4dbbbd2defb7fb"
+            ]
+        ],
+        "icon": "font-awesome/fa-arrows",
+        "l": false
+    },
+    {
+        "id": "75d06bae12a047f9",
+        "type": "subflow:a59054999730c251",
+        "z": "ec55121054ad7072",
+        "d": true,
+        "g": "0bd29a38bd7fd7ee",
+        "name": "Model - openai - localhost",
+        "env": [
+            {
+                "name": "Id",
+                "value": "openai-localhost",
+                "type": "str"
+            },
+            {
+                "name": "BaseUrl",
+                "value": "http://host.docker.internal:8080",
+                "type": "str"
+            }
+        ],
+        "x": 410,
+        "y": 500,
+        "wires": [
+            [
+                "a98ec39f0f7f2c84"
+            ]
+        ]
+    },
+    {
+        "id": "a61cd1dd9aeb1256",
+        "type": "subflow:a59054999730c251",
+        "z": "ec55121054ad7072",
+        "g": "0bd29a38bd7fd7ee",
+        "name": "Model - genai - llama-cpp-llava",
+        "env": [
+            {
+                "name": "Id",
+                "value": "genai-llama-cpp-llava",
+                "type": "str"
+            },
+            {
+                "name": "BaseUrl",
+                "value": "http://d2u7t6ixyjqeq5.cloudfront.net/genai-llama-cpp-llava",
+                "type": "str"
+            }
+        ],
+        "x": 430,
+        "y": 540,
+        "wires": [
+            [
+                "a98ec39f0f7f2c84"
+            ]
+        ]
+    },
+    {
+        "id": "12901237f1ea6884",
+        "type": "comment",
+        "z": "ec55121054ad7072",
+        "g": "0bd29a38bd7fd7ee",
+        "name": "Models",
+        "info": "",
+        "x": 350,
+        "y": 400,
+        "wires": []
+    },
+    {
+        "id": "d9e0c9a3cf18f405",
+        "type": "debug",
+        "z": "ec55121054ad7072",
+        "g": "7aad90c5be36eb0a",
+        "name": "Model Errors",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 510,
+        "y": 700,
+        "wires": []
+    },
+    {
+        "id": "4b7f0d34fcfa313d",
+        "type": "debug",
+        "z": "ec55121054ad7072",
+        "d": true,
+        "g": "7aad90c5be36eb0a",
+        "name": "Model Output",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 520,
+        "y": 660,
+        "wires": []
+    },
+    {
+        "id": "bbeaa9f159afdfaf",
+        "type": "switch",
+        "z": "ec55121054ad7072",
+        "g": "7aad90c5be36eb0a",
+        "name": "Action",
+        "property": "action",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "model-content",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "model-error",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 350,
+        "y": 680,
+        "wires": [
+            [
+                "4b7f0d34fcfa313d"
+            ],
+            [
+                "d9e0c9a3cf18f405"
+            ]
+        ]
+    },
+    {
+        "id": "21debbaed5b57fd5",
+        "type": "subflow:a59054999730c251",
+        "z": "ec55121054ad7072",
+        "d": true,
+        "g": "0bd29a38bd7fd7ee",
+        "name": "Model - dummy sse",
+        "env": [
+            {
+                "name": "Id",
+                "value": "dummy-sse",
+                "type": "str"
+            },
+            {
+                "name": "BaseUrl",
+                "value": "http://host.docker.internal.local:8091",
+                "type": "str"
+            },
+            {
+                "name": "Batch",
+                "value": "10",
+                "type": "num"
+            }
+        ],
+        "x": 390,
+        "y": 460,
+        "wires": [
+            [
+                "a98ec39f0f7f2c84"
+            ]
+        ]
+    },
+    {
+        "id": "a98ec39f0f7f2c84",
+        "type": "function",
+        "z": "ec55121054ad7072",
+        "g": "0bd29a38bd7fd7ee",
+        "name": " ",
+        "func": "\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 645,
+        "y": 560,
+        "wires": [
+            [
+                "e77e6ed92b6eba12",
+                "bbeaa9f159afdfaf",
+                "4de07154c6644063"
+            ]
+        ],
+        "icon": "font-awesome/fa-arrows",
+        "l": false
+    },
+    {
+        "id": "9d4dbbbd2defb7fb",
+        "type": "subflow:a59054999730c251",
+        "z": "ec55121054ad7072",
+        "d": true,
+        "g": "0bd29a38bd7fd7ee",
+        "name": "Model - genai - llama-cpp-mistral-8x",
+        "env": [
+            {
+                "name": "Id",
+                "value": "genai-llama-cpp-mistral-8x",
+                "type": "str"
+            },
+            {
+                "name": "BaseUrl",
+                "value": "http://d2u7t6ixyjqeq5.cloudfront.net/genai-llama-cpp-mistral-8x",
+                "type": "str"
+            }
+        ],
+        "x": 440,
+        "y": 580,
+        "wires": [
+            [
+                "a98ec39f0f7f2c84"
+            ]
+        ]
+    },
+    {
+        "id": "0a39bb73f010efd7",
+        "type": "function",
+        "z": "ec55121054ad7072",
+        "name": "Admin Prompt",
+        "func": "msg.systemPrompt = `## Mandate\n\nYou are an AI Administrator.\n\nYour mandate is to manage a collective of AI Operators in order to accomplish the goal of any requests from the User.\n\nWhen a goal is too complex or you lack the requisite abilities for you to accomplish it on your own, break the goal down into one or more smaller tasks and assign each task to an Operator.\n\nIn addition to requests from the User, Operators may also send you messages or requests. Unlike requests from the User, you may choose whether and how to respond to messages and requests from Operators.\n\nEvery response must conclude with an <end /> tag.\n\n## Commands\n\nManage the collective of Operators using the Operator API. Send commands to the API as a JSON object wrapped in <operator-api></operator-api> tags. Messages from operators will be given to you wrapped in <operator-message></operator-message> tags.\n\n## Operator API Docs\n\n### Create an Operator\n\n\\`\\`\\`\n<operator-api>\n{\n  \"method\": \"POST\",\n  \"path\": \"/operators\",\n  \"body\": {\n    \"id\": \"06f86c9a-1fe6-4c74-8939-30e64cb1edbb\",\n    \"name\": \"My First Operator\"\n  }\n}\n</operator-api>\n\\`\\`\\`\n\n### Message an Operator\n\n\\`\\`\\`\n<operator-api>\n{\n  \"method\": \"POST\",\n  \"path\": \"/operators/06f86c9a-1fe6-4c74-8939-30e64cb1edbb/messages\",\n  \"body\": {\n    \"content\": \"Sign up for an account at the following website: https://www.example.com\"\n  }\n}\n</operator-api>\n\\`\\`\\`\n\n### Delete an Operator\n\n\\`\\`\\`\n<operator-api>\n{\n  \"method\": \"DELETE\",\n  \"path\": \"/operators/06f86c9a-1fe6-4c74-8939-30e64cb1edbb\",\n  \"body\": {}\n}\n</operator-api>\n\\`\\`\\`\n\n<end />\n`;\n\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 140,
+        "y": 400,
+        "wires": [
+            [
+                "0a34e1dce381f16b"
+            ]
+        ]
+    },
+    {
+        "id": "4de07154c6644063",
+        "type": "subflow:f19bc65164444615",
+        "z": "ec55121054ad7072",
+        "name": "Operator Histories",
+        "env": [
+            {
+                "name": "Factory Id",
+                "value": "operators",
+                "type": "str"
+            }
+        ],
+        "x": 890,
+        "y": 600,
+        "wires": [
+            [
+                "94206e52b6f654bd",
+                "941ab8d26359e8b3"
+            ]
+        ]
+    },
+    {
+        "id": "3f33490320859b09",
+        "type": "switch",
+        "z": "ec55121054ad7072",
+        "name": "Response tag",
+        "property": "tag",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "operator-api",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 880,
+        "y": 240,
+        "wires": [
+            [
+                "1ec42373eea9f5ff"
+            ]
+        ]
+    },
+    {
+        "id": "1ec42373eea9f5ff",
+        "type": "function",
+        "z": "ec55121054ad7072",
+        "name": "Parse operator API",
+        "func": "let apiMsg;\ntry {\n    apiMsg = JSON.parse(msg.content);\n}\ncatch (e) {\n    throw new Error(`Error parsing operator AI call: ${msg.content} - ${e}`);\n}\n\nreturn {\n    ...msg,\n    ...apiMsg\n};\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 890,
+        "y": 340,
+        "wires": [
+            [
+                "17e432a11037e949"
+            ]
+        ]
+    },
+    {
+        "id": "17e432a11037e949",
+        "type": "switch",
+        "z": "ec55121054ad7072",
+        "name": "Operator API - Path",
+        "property": "path",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "regex",
+                "v": "^/operators(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})?$",
+                "vt": "str",
+                "case": true
+            },
+            {
+                "t": "regex",
+                "v": "^/operators/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/messages$",
+                "vt": "str",
+                "case": true
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 890,
+        "y": 440,
+        "wires": [
+            [
+                "1e437fb36b5c0ea1"
+            ],
+            [
+                "da042c7a27dcbd9f"
+            ]
+        ],
+        "outputLabels": [
+            "Operators",
+            "Operators/Messages"
+        ]
+    },
+    {
+        "id": "1e437fb36b5c0ea1",
+        "type": "switch",
+        "z": "ec55121054ad7072",
+        "name": "Operators Method",
+        "property": "method",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "POST",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "DELETE",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 1110,
+        "y": 420,
+        "wires": [
+            [
+                "2c04b0bb076a5230"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "2c04b0bb076a5230",
+        "type": "function",
+        "z": "ec55121054ad7072",
+        "name": "Create operator",
+        "func": "msg = {\n    action: \"prog-history-init\",\n    historyId: msg.body?.id\n};\n\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1380,
+        "y": 360,
+        "wires": [
+            [
+                "40557c67b6ce1c09",
+                "1554a43a221611d6"
+            ]
+        ]
+    },
+    {
+        "id": "da042c7a27dcbd9f",
+        "type": "switch",
+        "z": "ec55121054ad7072",
+        "name": "Operators/Messages Method",
+        "property": "method",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "POST",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 1140,
+        "y": 460,
+        "wires": [
+            [
+                "2d1212f366ac2dec"
+            ]
+        ]
+    },
+    {
+        "id": "a2eae6bb6671163b",
+        "type": "function",
+        "z": "ec55121054ad7072",
+        "name": "Add Admin Message",
+        "func": "msg = {\n    action: \"prog-history-add-entry\",\n    entry: {\n        role: \"user\",\n        content: msg.createAdminMessagePrompt(msg.body?.content)\n    },\n    id: msg.path.split('/')[2]\n};\n\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1400,
+        "y": 540,
+        "wires": [
+            [
+                "4de07154c6644063",
+                "dd64967ec7cb7b3d"
+            ]
+        ]
+    },
+    {
+        "id": "2d1212f366ac2dec",
+        "type": "function",
+        "z": "ec55121054ad7072",
+        "name": "Admin message prompt template",
+        "func": "msg.createAdminMessagePrompt = message => {\n    return `<admin-message>${message}</admin-message><end />`;\n};\n\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1440,
+        "y": 500,
+        "wires": [
+            [
+                "a2eae6bb6671163b"
+            ]
+        ]
+    },
+    {
+        "id": "ef526c2a80f31eb3",
+        "type": "function",
+        "z": "ec55121054ad7072",
+        "name": "Operator Prompt",
+        "func": "msg.systemPrompt = `## Mandate\n\nYou are an AI Operator.\n\nYour mandate is to perform any tasks requested of you by your AI Administrator to the best of your ability in order to accomplish the overarching goal of the User.\n\nWhen a task is too complex or you lack the requisite abilities for you to accomplish it on your own, you may ask the Administrator to break the task down into one or more smaller tasks and assign them to Operators.\n\nThis conversation is a complete record of every action you took in performing the task.\n\nEnd all responses with an <end /> tag.\n\n## Commands\n\nYou may message the Administrator by wrapping your message in <operator-message></operator-message> tags. Messages from the Administrator will be given to you wrapped in <admin-message></admin-message> tags.\n`;\n\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 130,
+        "y": 480,
+        "wires": [
+            [
+                "0a34e1dce381f16b"
+            ]
+        ]
+    },
+    {
+        "id": "87b70bd29575e8b4",
+        "type": "function",
+        "z": "ec55121054ad7072",
+        "name": " ",
+        "func": "\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 265,
+        "y": 920,
+        "wires": [
+            [
+                "ef526c2a80f31eb3"
+            ]
+        ],
+        "icon": "font-awesome/fa-arrows",
+        "l": false
+    },
+    {
+        "id": "40557c67b6ce1c09",
+        "type": "function",
+        "z": "ec55121054ad7072",
+        "name": " ",
+        "func": "\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1695,
+        "y": 540,
+        "wires": [
+            [
+                "4de07154c6644063"
+            ]
+        ],
+        "icon": "font-awesome/fa-arrows",
+        "l": false
+    },
+    {
+        "id": "a073258f226718b6",
+        "type": "switch",
+        "z": "ec55121054ad7072",
+        "name": "Response tag",
+        "property": "tag",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "operator-message",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 880,
+        "y": 760,
+        "wires": [
+            [
+                "2d730859f47f1ceb"
+            ]
+        ]
+    },
+    {
+        "id": "94206e52b6f654bd",
+        "type": "function",
+        "z": "ec55121054ad7072",
+        "name": " ",
+        "func": "\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 715,
+        "y": 680,
+        "wires": [
+            [
+                "87b70bd29575e8b4"
+            ]
+        ],
+        "icon": "font-awesome/fa-arrows",
+        "l": false
+    },
+    {
+        "id": "8ad28cb311d8a5c0",
+        "type": "subflow:240cc03734c17fa7",
+        "z": "ec55121054ad7072",
+        "name": "Parse Admin Response",
+        "x": 900,
+        "y": 160,
+        "wires": [
+            [
+                "3f33490320859b09"
+            ]
+        ]
+    },
+    {
+        "id": "941ab8d26359e8b3",
+        "type": "subflow:240cc03734c17fa7",
+        "z": "ec55121054ad7072",
+        "name": "Parse Operator Response",
+        "x": 910,
+        "y": 680,
+        "wires": [
+            [
+                "a073258f226718b6"
+            ]
+        ]
+    },
+    {
+        "id": "2d730859f47f1ceb",
+        "type": "function",
+        "z": "ec55121054ad7072",
+        "name": "Operator message prompt template",
+        "func": "msg.createOperatorMessagePrompt = (id, message) => {\n    return `<operator-message operatorId=\"${id}\">${message}</operator-message><end />`;\n};\n\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1420,
+        "y": 700,
+        "wires": [
+            [
+                "134cfbd5d2b56837"
+            ]
+        ]
+    },
+    {
+        "id": "134cfbd5d2b56837",
+        "type": "function",
+        "z": "ec55121054ad7072",
+        "name": "Add Operator Message",
+        "func": "msg = {\n    action: \"history-add-entry\",\n    entry: {\n        role: \"user\",\n        content: msg.createOperatorMessagePrompt(msg.agentId, msg.content)\n    }\n};\n\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1390,
+        "y": 740,
+        "wires": [
+            [
+                "13c990f21a453c5a",
+                "e7f4585c8ca44732"
+            ]
+        ]
+    },
+    {
+        "id": "d2c9ca4a42af3ba9",
+        "type": "function",
+        "z": "ec55121054ad7072",
+        "name": " ",
+        "func": "\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 725,
+        "y": 400,
+        "wires": [
+            [
+                "e77e6ed92b6eba12"
+            ]
+        ],
+        "icon": "font-awesome/fa-arrows",
+        "l": false
+    },
+    {
+        "id": "13c990f21a453c5a",
+        "type": "function",
+        "z": "ec55121054ad7072",
+        "name": " ",
+        "func": "\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1615,
+        "y": 740,
+        "wires": [
+            [
+                "d2c9ca4a42af3ba9"
+            ]
+        ],
+        "icon": "font-awesome/fa-arrows",
+        "l": false
+    },
+    {
+        "id": "d7625ef95dd891b8",
+        "type": "function",
+        "z": "ec55121054ad7072",
+        "name": "Init Operator Histories",
+        "func": "\nreturn {\n    action: \"prog-factory-init\"\n};\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 420,
+        "y": 100,
+        "wires": [
+            [
+                "b6cc1b3167117b16"
+            ]
+        ]
+    },
+    {
+        "id": "1554a43a221611d6",
+        "type": "debug",
+        "z": "ec55121054ad7072",
+        "name": "Creating Operator",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1650,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "dd64967ec7cb7b3d",
+        "type": "debug",
+        "z": "ec55121054ad7072",
+        "name": "Sending Admin Message",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1670,
+        "y": 600,
+        "wires": []
+    },
+    {
+        "id": "e7f4585c8ca44732",
+        "type": "debug",
+        "z": "ec55121054ad7072",
+        "name": "Sending Operator Message",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1680,
+        "y": 800,
+        "wires": []
     }
 ]
