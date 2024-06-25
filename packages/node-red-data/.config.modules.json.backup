@@ -112,5 +112,12 @@
         "subpath": "/document_loaders",
         "builtin": false,
         "known": false
+    },
+    "mammoth": {
+        "spec": "mammoth",
+        "module": "mammoth",
+        "subpath": "",
+        "builtin": false,
+        "known": false
     }
 }

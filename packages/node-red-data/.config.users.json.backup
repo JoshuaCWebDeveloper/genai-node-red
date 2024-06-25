@@ -9,7 +9,7 @@
                 "view-grid-size": "20",
                 "view-node-status": true,
                 "view-node-show-label": true,
-                "view-show-tips": true,
+                "view-show-tips": false,
                 "view-show-welcome-tours": true
             },
             "tours": {
@@ -26,7 +26,7 @@
         },
         "menu-menu-item-palette": true,
         "debug": {
-            "filter": "filterSelected",
+            "filter": "filterAll",
             "filteredNodes": [
                 "15aec0fd7f870fd5",
                 "4dbabd6e04735026",
@@ -92,6 +92,7 @@
         },
         "menu-deploymenu-item-node": true,
         "menu-deploymenu-item-full": false,
-        "menu-deploymenu-item-flow": false
+        "menu-deploymenu-item-flow": false,
+        "menu-menu-item-sidebar": false
     }
 }

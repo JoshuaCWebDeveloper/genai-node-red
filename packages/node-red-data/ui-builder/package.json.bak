@@ -1,6 +1,6 @@
 {
   "name": "uib_root",
-  "version": "0.2.11",
+  "version": "0.2.12",
   "description": "Root configuration and data folder for uibuilder",
   "scripts": {},
   "dependencies": {},
