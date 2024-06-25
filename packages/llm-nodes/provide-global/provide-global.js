@@ -4,8 +4,15 @@ module.exports = (RED) => {
             RED.nodes.createNode(this, config);
             this.on('input', (msg) => {
                 try {
-                    // Attach global the message object
+                    // Attach global to the message object
                     msg.global = global;
+                    // attach keywords
+                    msg.global.require = require;
+                    msg.global.module = module;
+                    msg.global.exports = exports;
+                    msg.global.__dirname = __dirname;
+                    msg.global.__filename = __filename;
+
                     // Send the updated message object
                     this.send(msg);
                 } catch (err) {

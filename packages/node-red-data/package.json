@@ -18,8 +18,7 @@
         "mammoth": "^1.6.0",
         "marked": "^9.1.6",
         "node-fetch": "^3.3.2",
-        "node-red-contrib-jsonpath": "~0.1.1",
-        "node-red-contrib-llm-nodes": "file:nodes/node-red-contrib-llm-nodes-0.2.11.tgz",
+        "node-red-contrib-llm-nodes": "file:nodes/node-red-contrib-llm-nodes-0.2.12.tgz",
         "pkginfo": "^0.3.1",
         "sse.js": "^2.2.0",
         "timestore": "^1.2.0"
