@@ -28,6 +28,19 @@ const responseText = `${responseTextBase}
 }
 </operator-api>
 <operator-message>When I tried to access the website, I got a 404 Not Found error.</operator-message>
+
+\`sudo apt-get update && sudo apt-get install -y net-tools\`
+
+\`\`\`bash
+#!/bin/bash
+
+echo "Script start."
+echo "Stderr start" >&2
+
+sudo apt update && sudo apt install -y curl
+
+curl -X GET https://www.google.com/?s=puppies
+\`\`\`
 `;
 
 app.use(bodyParser.json());

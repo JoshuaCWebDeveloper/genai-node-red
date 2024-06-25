@@ -9,19 +9,24 @@
         "@langchain/openai": "^0.0.13",
         "acorn": "^8.11.3",
         "async": "^3.2.5",
+        "change-case": "^5.4.4",
         "classnames": "^2.5.1",
         "color-name": "^2.0.0",
+        "colors": "^1.4.0",
         "date-fns": "^3.3.0",
         "dompurify": "^3.0.8",
+        "html-entities": "^2.5.2",
+        "is-sorted": "^1.0.5",
         "jsdom": "^24.0.0",
+        "jssoup": "^0.0.15",
         "langchain": "^0.1.12",
         "mammoth": "^1.6.0",
         "marked": "^9.1.6",
         "node-fetch": "^3.3.2",
-        "node-red-contrib-jsonpath": "~0.1.1",
-        "node-red-contrib-llm-nodes": "file:nodes/node-red-contrib-llm-nodes-0.2.11.tgz",
+        "node-red-contrib-llm-nodes": "file:nodes/node-red-contrib-llm-nodes-0.2.12.tgz",
         "pkginfo": "^0.3.1",
         "sse.js": "^2.2.0",
-        "timestore": "^1.2.0"
+        "timestore": "^1.2.0",
+        "yargs": "^17.7.2"
     }
 }

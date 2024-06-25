@@ -119,5 +119,12 @@
         "subpath": "",
         "builtin": false,
         "known": false
+    },
+    "yargs": {
+        "spec": "yargs",
+        "module": "yargs",
+        "subpath": "",
+        "builtin": false,
+        "known": false
     }
 }

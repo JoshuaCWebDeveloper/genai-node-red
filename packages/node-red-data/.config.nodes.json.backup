@@ -427,28 +427,9 @@
             }
         }
     },
-    "node-red-contrib-jsonpath": {
-        "name": "node-red-contrib-jsonpath",
-        "version": "0.1.1",
-        "local": true,
-        "user": true,
-        "nodes": {
-            "jsonpath": {
-                "name": "jsonpath",
-                "types": [
-                    "jsonpath"
-                ],
-                "enabled": true,
-                "local": true,
-                "user": false,
-                "module": "node-red-contrib-jsonpath",
-                "file": "/data/node_modules/node-red-contrib-jsonpath/jsonpath/node-red-contrib-jsonpath.js"
-            }
-        }
-    },
     "node-red-contrib-llm-nodes": {
         "name": "node-red-contrib-llm-nodes",
-        "version": "0.2.9",
+        "version": "0.2.11",
         "local": true,
         "user": true,
         "nodes": {
@@ -507,6 +488,7 @@
                 "module": "node-red-contrib-llm-nodes",
                 "file": "/data/node_modules/node-red-contrib-llm-nodes/ui-builder/ui-builder.js"
             }
-        }
+        },
+        "pending_version": "0.2.12"
     }
 }
