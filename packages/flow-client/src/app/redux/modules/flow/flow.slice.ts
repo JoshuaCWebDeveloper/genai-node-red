@@ -136,9 +136,27 @@ export interface DirectoryEntity {
     directory: string;
 }
 
+export type ApiOperationStatus = {
+    getFlows: 'idle' | 'pending' | 'fulfilled' | 'rejected';
+    getFlow: Record<string, 'idle' | 'pending' | 'fulfilled' | 'rejected'>;
+    createFlow: 'idle' | 'pending' | 'fulfilled' | 'rejected';
+    updateFlow: Record<string, 'idle' | 'pending' | 'fulfilled' | 'rejected'>;
+    deleteFlow: Record<string, 'idle' | 'pending' | 'fulfilled' | 'rejected'>;
+};
+
+export type ApiError = { message: string; code?: string; details?: unknown };
+
 export interface FlowState {
     loadingStatus: 'not loaded' | 'loading' | 'loaded' | 'error';
     error?: string | null;
+    apiStatus: ApiOperationStatus;
+    apiErrors: {
+        getFlows?: ApiError;
+        getFlow?: Record<string, ApiError>;
+        createFlow?: ApiError;
+        updateFlow?: Record<string, ApiError>;
+        deleteFlow?: Record<string, ApiError>;
+    };
     flowEntities: EntityState<FlowEntity | SubflowEntity, string>;
     flowNodes: EntityState<FlowNodeEntity, string>;
     directories: EntityState<DirectoryEntity, string>;
@@ -151,6 +169,18 @@ export const directoryAdapter = createEntityAdapter<DirectoryEntity>();
 export const initialFlowState: FlowState = {
     loadingStatus: 'not loaded',
     error: null,
+    apiStatus: {
+        getFlows: 'idle',
+        getFlow: {},
+        createFlow: 'idle',
+        updateFlow: {},
+        deleteFlow: {},
+    },
+    apiErrors: {
+        getFlow: {},
+        updateFlow: {},
+        deleteFlow: {},
+    },
     flowEntities: flowAdapter.getInitialState(),
     flowNodes: nodeAdapter.getInitialState(),
     directories: directoryAdapter.getInitialState(),
@@ -313,6 +343,36 @@ export const flowSlice = createSlice({
         setError: (state, action: PayloadAction<string | null>) => {
             state.error = action.payload;
         },
+        setApiStatus: (
+            state,
+            action: PayloadAction<{
+                operation: keyof ApiOperationStatus;
+                id?: string;
+                status: 'idle' | 'pending' | 'fulfilled' | 'rejected';
+            }>
+        ) => {
+            const { operation, id, status } = action.payload;
+            if (id && operation !== 'createFlow') {
+                (state.apiStatus[operation] as Record<string, string>)[id] = status;
+            } else {
+                (state.apiStatus[operation] as string) = status;
+            }
+        },
+        setApiError: (
+            state,
+            action: PayloadAction<{
+                operation: keyof ApiOperationStatus;
+                id?: string;
+                error: ApiError | undefined;
+            }>
+        ) => {
+            const { operation, id, error } = action.payload;
+            if (id && operation !== 'createFlow') {
+                (state.apiErrors[operation] as Record<string, ApiError>)[id] = error;
+            } else {
+                state.apiErrors[operation] = error;
+            }
+        },
     },
 });
 
@@ -388,3 +448,14 @@ export const selectSubflowInOutByFlowId = createSelector(
     [selectFlowNodesByFlowId],
     nodes => nodes.filter(node => ['in', 'out'].includes(node.type))
 );
+
+// API status selectors
+export const selectApiStatus = (state: RootState) => state[FLOW_FEATURE_KEY].apiStatus;
+export const selectApiErrors = (state: RootState) => state[FLOW_FEATURE_KEY].apiErrors;
+
+export const selectOperationStatus = (operation: keyof ApiOperationStatus, id?: string) =>
+    createSelector(selectApiStatus, status =>
+        id && operation !== 'createFlow'
+            ? (status[operation] as Record<string, string>)[id] || 'idle'
+            : (status[operation] as string)
+    );

@@ -6,6 +6,7 @@ import {
     PERSIST,
     persistReducer,
     PURGE,
+import { flowApi } from './modules/api/flow.api';
     REGISTER,
     REHYDRATE,
 } from 'redux-persist';
@@ -33,6 +34,7 @@ export const createStore = (logic: AppLogic) => {
     const store = configureStore({
         reducer: {
             [nodeApi.reducerPath]: nodeApi.reducer,
+            [flowApi.reducerPath]: flowApi.reducer,
             [iconApi.reducerPath]: iconApi.reducer,
             [PALETTE_NODE_FEATURE_KEY]: paletteNodeReducer,
             [FLOW_FEATURE_KEY]: persistReducer<FlowState>(
@@ -66,7 +68,7 @@ export const createStore = (logic: AppLogic) => {
                 thunk: {
                     extraArgument: logic,
                 },
-            }).concat(nodeApi.middleware, iconApi.middleware),
+            }).concat(nodeApi.middleware, iconApi.middleware, flowApi.middleware),
         devTools: process.env.NODE_ENV !== 'production',
     });
 

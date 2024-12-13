@@ -1,5 +1,11 @@
 import { v4 as uuidv4 } from 'uuid';
 
+import {
+    useCreateFlowMutation,
+    useUpdateFlowMutation,
+    useDeleteFlowMutation,
+} from '../api/flow.api';
+
 import { AppDispatch, RootState } from '../../store';
 import { builderActions, selectNewFlowCounter } from '../builder/builder.slice';
 import {
@@ -49,10 +55,10 @@ export class FlowLogic {
         open = true
     ) {
         return (dispatch: AppDispatch, getState: () => RootState) => {
-            const flowCounter = selectNewFlowCounter(getState());
-            const flowId = id ?? uuidv4();
-            dispatch(
-                flowActions.addFlowEntity({
+            try {
+                const flowCounter = selectNewFlowCounter(getState());
+                const flowId = id ?? uuidv4();
+                const newFlow = {
                     id: flowId,
                     type: 'flow',
                     name: `New Flow${flowCounter ? ` ${flowCounter}` : ''}`,
@@ -60,11 +66,25 @@ export class FlowLogic {
                     info: '',
                     env: [],
                     directory,
-                })
-            );
-            dispatch(builderActions.addNewFlow(flowId));
-            if (open) {
-                dispatch(builderActions.setActiveFlow(flowId));
+                };
+
+                // Create flow via API
+                const [createFlow] = useCreateFlowMutation();
+                const result = await createFlow(newFlow).unwrap();
+
+                // Update local state
+                dispatch(flowActions.addFlowEntity(result));
+                dispatch(builderActions.addNewFlow(flowId));
+
+                if (open) {
+                    dispatch(builderActions.setActiveFlow(flowId));
+                }
+            } catch (error) {
+                dispatch(
+                    flowActions.setError(
+                        error?.toString() || 'Failed to create new flow'
+                    )
+                );
             }
         };
     }
@@ -247,39 +267,52 @@ export class FlowLogic {
     }
 
     public updateSubflow(subflowId: string, changes: Partial<SubflowEntity>) {
-        return (dispatch: AppDispatch, getState: () => RootState) => {
-            const subflow = selectFlowEntityById(
-                getState(),
-                subflowId
-            ) as SubflowEntity;
-            const subflowInstances = selectSubflowInstancesByFlowId(
-                getState(),
-                subflow.id
-            );
-            const subflowInOut = selectSubflowInOutByFlowId(
-                getState(),
-                subflow.id
-            );
-
-            [
-                ...this.updateSubflowInstances(
-                    subflowInstances,
-                    subflow,
-                    changes
-                ),
-                ...this.updateSubflowInOutNodes(subflowInOut, subflow, changes),
-            ].forEach(nodeChange => {
-                dispatch(
-                    this.node.updateFlowNode(nodeChange.id, nodeChange.changes)
+        return async (dispatch: AppDispatch, getState: () => RootState) => {
+            try {
+                const subflow = selectFlowEntityById(
+                    getState(),
+                    subflowId
+                ) as SubflowEntity;
+                const subflowInstances = selectSubflowInstancesByFlowId(
+                    getState(),
+                    subflow.id
                 );
-            });
+                const subflowInOut = selectSubflowInOutByFlowId(
+                    getState(),
+                    subflow.id
+                );
 
-            dispatch(
-                flowActions.updateFlowEntity({
-                    id: subflow.id,
-                    changes,
-                })
-            );
+                // Update flow via API
+                const [updateFlow] = useUpdateFlowMutation();
+                await updateFlow({ id: subflowId, changes }).unwrap();
+
+                // Update local state for subflow instances and in/out nodes
+                [
+                    ...this.updateSubflowInstances(
+                        subflowInstances,
+                        subflow,
+                        changes
+                    ),
+                    ...this.updateSubflowInOutNodes(subflowInOut, subflow, changes),
+                ].forEach(nodeChange => {
+                    dispatch(
+                        this.node.updateFlowNode(nodeChange.id, nodeChange.changes)
+                    );
+                });
+
+                dispatch(
+                    flowActions.updateFlowEntity({
+                        id: subflow.id,
+                        changes,
+                    })
+                );
+            } catch (error) {
+                dispatch(
+                    flowActions.setError(
+                        error?.toString() || 'Failed to update subflow'
+                    )
+                );
+            }
         };
     }
 
