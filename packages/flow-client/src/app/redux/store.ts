@@ -1,6 +1,7 @@
 import { Action, configureStore, ThunkAction } from '@reduxjs/toolkit';
 import { setupListeners } from '@reduxjs/toolkit/query';
 import {
+    flowApi } from './modules/api/flow.api';
     FLUSH,
     PAUSE,
     PERSIST,
@@ -12,6 +13,7 @@ import {
 import storage from 'redux-persist/lib/storage';
 
 import type { AppLogic } from './logic';
+import { flowMiddleware } from './middleware/flow.middleware';
 import { iconApi } from './modules/api/icon.api';
 import { nodeApi } from './modules/api/node.api'; // Import the nodeApi
 import {
@@ -32,6 +34,7 @@ import {
 export const createStore = (logic: AppLogic) => {
     const store = configureStore({
         reducer: {
+            [flowApi.reducerPath]: flowApi.reducer,
             [nodeApi.reducerPath]: nodeApi.reducer,
             [iconApi.reducerPath]: iconApi.reducer,
             [PALETTE_NODE_FEATURE_KEY]: paletteNodeReducer,
@@ -66,7 +69,11 @@ export const createStore = (logic: AppLogic) => {
                 thunk: {
                     extraArgument: logic,
                 },
-            }).concat(nodeApi.middleware, iconApi.middleware),
+            }).concat(
+                nodeApi.middleware,
+                iconApi.middleware,
+                flowApi.middleware,
+                flowMiddleware),
         devTools: process.env.NODE_ENV !== 'production',
     });
 

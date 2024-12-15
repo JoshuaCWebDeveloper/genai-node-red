@@ -9,10 +9,12 @@ import {
     selectFlowEntityById,
     selectSubflowInOutByFlowId,
     selectSubflowInstancesByFlowId,
+    FlowEntity,
 } from './flow.slice';
 import { GraphLogic } from './graph.logic';
 import { NodeLogic } from './node.logic';
 import { TreeLogic } from './tree.logic';
+import { RedLogic } from './red.logic';
 
 // checks if a given property has changed
 const objectHasChange = <T>(
@@ -37,11 +39,13 @@ export class FlowLogic {
     public readonly graph: GraphLogic;
     public readonly node: NodeLogic;
     public readonly tree: TreeLogic;
+    public readonly red: RedLogic;
 
     constructor() {
         this.node = new NodeLogic();
         this.graph = new GraphLogic(this.node);
         this.tree = new TreeLogic();
+        this.red = new RedLogic();
     }
 
     public createNewFlow(
