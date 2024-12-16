@@ -9,12 +9,11 @@ import {
     selectFlowEntityById,
     selectSubflowInOutByFlowId,
     selectSubflowInstancesByFlowId,
-    FlowEntity,
 } from './flow.slice';
 import { GraphLogic } from './graph.logic';
 import { NodeLogic } from './node.logic';
-import { TreeLogic } from './tree.logic';
 import { RedLogic } from './red.logic';
+import { TreeLogic } from './tree.logic';
 
 // checks if a given property has changed
 const objectHasChange = <T>(

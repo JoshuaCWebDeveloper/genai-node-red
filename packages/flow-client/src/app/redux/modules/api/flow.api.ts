@@ -1,9 +1,57 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import environment from '../../../../environment';
 
-// Type for Node-RED flows response/request
+// Base type for common properties
+export interface NodeRedBase {
+    id: string;
+    type: string;
+    info: string;
+    env: { name: string; type: string; value: string }[];
+}
+
+// Type for regular Node-RED flows
+export interface NodeRedFlow extends NodeRedBase {
+    type: 'tab';
+    label: string;
+    disabled: boolean;
+}
+
+// Type for Node-RED subflows
+export interface NodeRedSubflow extends NodeRedBase {
+    type: 'subflow';
+    name: string;
+    category: string;
+    color: string;
+    icon: string;
+    in: NodeRedEndpoint[];
+    out: NodeRedEndpoint[];
+}
+
+// Type for nodes within flows or subflows
+export interface NodeRedNode extends NodeRedBase {
+    name: string;
+    x: number;
+    y: number;
+    z: string;
+    wires: string[][];
+    inputs?: number;
+    outputs?: number;
+    inputLabels?: string[];
+    outputLabels?: string[];
+    icon?: string;
+}
+
+// Type for endpoints used in subflows (inputs and outputs)
+export interface NodeRedEndpoint {
+    x: number;
+    y: number;
+    wires: { id: string; port?: number }[];
+}
+
+// Composite type for all Node-RED objects
 export interface NodeRedFlows {
-    flows: unknown[];
+    rev?: string;
+    flows: NodeRedBase[];
 }
 
 // Define a service using a base URL and expected endpoints for flows
@@ -12,6 +60,11 @@ export const flowApi = createApi({
     baseQuery: fetchBaseQuery({
         baseUrl: environment.NODE_RED_API_ROOT,
         responseHandler: 'content-type',
+        prepareHeaders: headers => {
+            headers.set('Node-RED-API-Version', 'v2');
+            headers.set('Node-RED-Deployment-Type', 'nodes');
+            return headers;
+        },
     }),
     tagTypes: ['Flow'], // For automatic cache invalidation and refetching
     endpoints: builder => ({
@@ -27,7 +80,7 @@ export const flowApi = createApi({
         }),
         // Endpoint to update all flows
         updateFlows: builder.mutation<NodeRedFlows, NodeRedFlows>({
-            query: (flows) => ({
+            query: flows => ({
                 url: 'flows',
                 method: 'POST',
                 headers: {
