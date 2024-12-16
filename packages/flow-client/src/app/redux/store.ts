@@ -10,8 +10,8 @@ import {
     REHYDRATE,
 } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
-
 import type { AppLogic } from './logic';
+import { flowApi } from './modules/api/flow.api';
 import { iconApi } from './modules/api/icon.api';
 import { nodeApi } from './modules/api/node.api'; // Import the nodeApi
 import {
@@ -25,13 +25,20 @@ import {
     FlowState,
 } from './modules/flow/flow.slice';
 import {
+    createRedListener,
+    startRedListener,
+} from './modules/flow/red.listener';
+import {
     PALETTE_NODE_FEATURE_KEY,
     paletteNodeReducer,
 } from './modules/palette/node.slice';
 
 export const createStore = (logic: AppLogic) => {
+    const redListener = createRedListener(logic);
+
     const store = configureStore({
         reducer: {
+            [flowApi.reducerPath]: flowApi.reducer,
             [nodeApi.reducerPath]: nodeApi.reducer,
             [iconApi.reducerPath]: iconApi.reducer,
             [PALETTE_NODE_FEATURE_KEY]: paletteNodeReducer,
@@ -66,11 +73,17 @@ export const createStore = (logic: AppLogic) => {
                 thunk: {
                     extraArgument: logic,
                 },
-            }).concat(nodeApi.middleware, iconApi.middleware),
+            }).concat(
+                nodeApi.middleware,
+                iconApi.middleware,
+                flowApi.middleware,
+                redListener.middleware
+            ),
         devTools: process.env.NODE_ENV !== 'production',
     });
 
     setupListeners(store.dispatch);
+    startRedListener(redListener);
 
     return store;
 };
